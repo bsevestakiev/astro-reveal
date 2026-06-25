@@ -15,7 +15,6 @@ import { readFileSync, writeFileSync, watch, existsSync } from 'node:fs'
 import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
-import { parse as parseYaml } from 'yaml'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(here, '..')
@@ -56,11 +55,14 @@ function processFile(file) {
   const fmText = readFrontmatter(text)
   if (!fmText) return
 
-  let fm
-  try { fm = parseYaml(fmText) || {} } catch { return }
-  if (fm.publishNow !== true) return // normal save → leave it local
+  // Only two simple top-level scalars are needed, so read them with regex —
+  // keeps the watcher dependency-free (no node_modules on the host).
+  const publishNow = /^[ \t]*publishNow:[ \t]*true[ \t]*$/m.test(fmText)
+  if (!publishNow) return // normal save → leave it local
+  const byMatch = fmText.match(/^[ \t]*publishedBy:[ \t]*["']?(.*?)["']?[ \t]*$/m)
+  const publishedBy = byMatch ? byMatch[1] : ''
 
-  const who = EDITORS[fm.publishedBy] || FALLBACK_AUTHOR
+  const who = EDITORS[publishedBy] || FALLBACK_AUTHOR
   const slug = file.split('/').pop().replace(/\.md$/, '')
   console.log(`▶ publishing "${slug}" as ${who.name} <${who.email}>`)
 
