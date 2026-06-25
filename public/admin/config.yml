@@ -615,6 +615,27 @@ collections:
           - Martin Atanasov
           - Zdravko Kolev
           - Jason Beres
+      # ── Publish-on-Save controls (transient; the host watcher strips them
+      #    before committing, so they never persist in the repo). ──────────
+      - name: publishedBy
+        label: Published by
+        widget: select
+        required: false
+        i18n: duplicate
+        hint: 'Who is publishing. Becomes the commit author / audit trail.'
+        options:
+          - Casey Ciniello
+          - Bilyana Petrova
+          - Martin Atanasov
+          - Zdravko Kolev
+          - Jason Beres
+      - name: publishNow
+        label: 'Publish to production now'
+        widget: boolean
+        required: false
+        default: false
+        i18n: duplicate
+        hint: 'Tick + Save to push this post straight to production.'
       - { name: cover, label: Cover image URL, widget: string, required: false, hint: 'Used for social cards and blog index thumbnails.', i18n: duplicate }
       - { name: heroImage, label: Hero image URL, widget: string, required: false, hint: 'Top-of-post header image. Full URL or /-prefixed CDN path.', i18n: duplicate }
       # Categories dropdown. Renamed from the unused singular `category` field to
