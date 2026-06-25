@@ -1,0 +1,55 @@
+---
+// 6-card icon-benefit grid with bordered rounded cards.
+// Mirrors WP's KEY BENEFITS section (#key-benefits) from white-label-analytics.
+
+interface Card {
+  icon: string
+  iconAlt: string
+  title: string
+  body: string
+}
+
+interface Props {
+  eyebrow?: string
+  headline: string
+  subhead?: string
+  cards: Card[]
+}
+
+const { eyebrow, headline, subhead, cards } = Astro.props
+---
+
+<section class="container my-5" id="key-benefits">
+  <header class="row">
+    <div class="col text-center">
+      {eyebrow && (
+        <p class="h5 text-uppercase text-french-rose font-weight-bold">{eyebrow}</p>
+      )}
+      <h2 class="pb-3" set:html={headline} />
+      {subhead && <p class="pb-md-5" set:html={subhead} />}
+    </div>
+  </header>
+
+  <div class="row mx-auto pb-3">
+    {cards.map((card) => (
+      <div class="col-sm-12 col-md-4 mb-4">
+        <div class="p-4-5 h-100 border rounded-lg h4">
+          <div class="d-flex justify-content-start align-items-center mb-3">
+            <img
+              decoding="async"
+              class="d-inline-block pt-1 mr-3 rounded-xl"
+              src={card.icon}
+              alt={card.iconAlt}
+              width="35"
+              title={card.iconAlt}
+            />
+            <div class="d-inline-block mb-0">
+              <strong class="align-middle">{card.title}</strong>
+            </div>
+          </div>
+          <p class="h5 small" style="line-height: 1.5;" set:html={card.body} />
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

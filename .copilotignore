@@ -1,0 +1,11 @@
+# Binary assets — too large to index
+parity/
+public/
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Docs/history dumps
+docs/history/

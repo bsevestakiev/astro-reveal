@@ -1,0 +1,97 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import DarkHero from '../../../components/sections/DarkHero.astro'
+import CTABlock from '../../../components/sections/CTABlock.astro'
+
+export async function getStaticPaths() {
+  const PER_PAGE = 9
+  const allWebinars = await getCollection('webinars')
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const past = allWebinars
+    .filter(w => w.id.startsWith('en/') && (w.data.youtube_id || (w.data.date && new Date(w.data.date) < today)))
+    .sort((a, b) => (b.data.date ?? '').localeCompare(a.data.date ?? ''))
+
+  const totalPages = Math.ceil(past.length / PER_PAGE)
+
+  return Array.from({ length: totalPages - 1 }, (_, i) => {
+    const page = i + 2
+    return {
+      params: { page: String(page) },
+      props: {
+        page,
+        totalPages,
+        webinars: past.slice((page - 1) * PER_PAGE, page * PER_PAGE),
+      },
+    }
+  })
+}
+
+const { page, totalPages, webinars } = Astro.props
+---
+
+<BaseLayout
+  title={`Webinars – Page ${page} | Reveal`}
+  description="Live and on-demand webinars on embedded analytics, BI, and software development."
+>
+  <DarkHero
+    title="Webinars"
+    breadcrumbs={[{ label: 'Home', url: '/' }, { label: 'Webinars', url: '/webinars/' }, { label: `Page ${page}` }]}
+  />
+
+  <div class="container py-5">
+    <h2 class="mb-4">On-Demand Webinars</h2>
+    <div class="row mb-4">
+      {webinars.map((webinar: any) => {
+        const slug = webinar.id.replace(/^en\//, '')
+        return (
+          <div class="col-12 col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+              {webinar.data.cover && (
+                <img
+                  src={webinar.data.cover}
+                  alt={webinar.data.title}
+                  class="card-img-top"
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{webinar.data.title}</h5>
+                {webinar.data.description && (
+                  <p class="card-text text-muted flex-grow-1">{webinar.data.description}</p>
+                )}
+                <a href={`/webinars/${slug}`} class="btn btn-outline-primary btn-sm mt-3">Watch Now</a>
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+
+    <nav aria-label="Webinar pages" class="d-flex justify-content-center mt-2 mb-5">
+      <ul class="pagination">
+        <li class={`page-item ${page === 1 ? 'disabled' : ''}`}>
+          <a class="page-link" href={page === 2 ? '/webinars/' : `/webinars/page/${page - 1}/`}>«</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="/webinars/">1</a>
+        </li>
+        {Array.from({ length: totalPages - 1 }, (_, i) => i + 2).map((p: number) => (
+          <li class={`page-item ${p === page ? 'active' : ''}`}>
+            {p === page
+              ? <span class="page-link">{p}</span>
+              : <a class="page-link" href={`/webinars/page/${p}/`}>{p}</a>
+            }
+          </li>
+        ))}
+        <li class={`page-item ${page === totalPages ? 'disabled' : ''}`}>
+          <a class="page-link" href={page === totalPages ? '#' : `/webinars/page/${page + 1}/`}>»</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <CTABlock variant="dark" />
+</BaseLayout>

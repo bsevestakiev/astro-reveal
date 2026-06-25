@@ -1,0 +1,99 @@
+---
+import JsonLd from '../seo/JsonLd.astro'
+import { stripHtml } from '../../lib/seo'
+
+interface Item { question: string; answer: string; open?: boolean }
+interface Props { headline?: string; eyebrow?: string; items: Item[]; variant?: 'accordion' | 'flat'; multiopen?: boolean; headlineSize?: string }
+
+const { headline = 'Frequently Asked Questions', eyebrow, items, variant = 'accordion', multiopen = false, headlineSize } = Astro.props
+
+const ordinals = ['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty']
+
+// Google's FAQPage validator rejects HTML in acceptedAnswer.text — strip tags.
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((item, i) => ({
+    '@type': 'Question',
+    position: i + 1,
+    name: stripHtml(item.question),
+    acceptedAnswer: { '@type': 'Answer', text: stripHtml(item.answer) },
+  })),
+}
+---
+
+{variant === 'flat' ? (
+  <section data-wpr-lazyrender="1" id="reviews" class="bg-light">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 5 1920 184" preserveAspectRatio="none" class="ie-hide" style="width:100%;height:auto;display:block;">
+      <path style="fill:#FFFFFF;stroke:#FFFFFF;stroke-width:2px;" d="M1920,17.9c-213.4,67.7-435.3,108-659.4,110.8c-163.5,2-326.4-22-488.2-43.1c-46.7-6.1-93.3-12.4-139.9-18.9 C529,52.2,424.8,37.8,320.1,39.3c-50.8,0.7-101.4,6.3-151.2,16.2C121.2,65,0,106.5,0,116.5C0,116.5,0,0,0,0h1920V17.9z" />
+    </svg>
+    <div class="ie-visible pt-0 pt-lg-5 mt-0 mt-lg-5"></div>
+    <div class="container animate-me" data-animation="fadeInRight">
+      <header class="row">
+        <div class="col-md-12 text-center mb-0">
+          <h2 id="frequently-asked-questions">{headline}</h2>
+        </div>
+      </header>
+      <div class="row my-3">
+        <div class="col">
+          {items.map((item) => (
+            <>
+              <h3 class="text-primary pt-4">{item.question}</h3>
+              <p set:html={item.answer} />
+            </>
+          ))}
+        </div>
+      </div>
+    </div>
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 1920 135.3" preserveAspectRatio="none" class="ie-hide" style="width:100%;height:auto;display:block;">
+      <path style="fill:#fff;stroke:#fff;" d="M0,119.2C213.4,51.5,435.3,11.2,659.4,8.4c163.5-2,326.4,22,488.2,43.1c46.7,6.1,93.3,12.4,139.9,18.9 c103.5,14.6,207.6,28.9,312.4,27.4c50.8-0.7,101.4-6.3,151.2-16.2c47.7-9.5,168.9-51,168.9-61c0,0,0,116.5,0,116.5H0V119.2z" />
+    </svg>
+    <div class="ie-visible pb-0 pb-lg-5"></div>
+  </section>
+) : (
+  <section id="faq">
+    <div class="container pb-5 pt-4 animate-me" data-animation="fadeInRight">
+      <header class="row">
+        <div class="col-md-12 text-center mb-4">
+          {eyebrow && <p class="text-uppercase text-french-rose font-weight-bold">{eyebrow}</p>}
+          <h2 class={headlineSize || undefined}>{headline}</h2>
+        </div>
+      </header>
+      <div class="col-12">
+        <div class="mx-auto">
+          <div class="accordion" id="accordion-faq" data-accordion-theme="clean" data-accordion-multiopen={multiopen ? 'true' : 'false'}>
+            {items.map((item, i) => {
+              const id = `faq-slide-${i + 1}`
+              const headingId = `faqHeading${ordinals[i] ?? (i + 1)}`
+              return (
+                <div class="accordion-item">
+                  <h3 class="accordion-header h4" id={headingId}>
+                    <button
+                      class={`accordion-button${item.open ? '' : ' collapsed'}`}
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target={`#${id}`}
+                      aria-expanded={item.open ? 'true' : 'false'}
+                      aria-controls={id}
+                    >
+                      {item.question}
+                    </button>
+                  </h3>
+                  <div id={id} class={`accordion-collapse collapse${item.open ? ' show' : ''}`}
+                       aria-labelledby={headingId} data-bs-parent="#accordion-faq">
+                    <div class="accordion-body" set:html={item.answer} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<JsonLd data={faqSchema} />
+
+{/* Click-toggle wiring lives sitewide in public/js/reveal-accordion.js
+    (loaded by BaseLayout) so raw-HTML accordions in page markdown work too. */}

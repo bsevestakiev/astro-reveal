@@ -1,0 +1,336 @@
+---
+import { getStrings } from '../../i18n'
+import { cdn, HELP_URL } from '../../lib/env'
+import { localizedHref } from '../../lib/href'
+
+interface Props {
+  lang?: string
+  minimalFooter?: boolean
+}
+
+const { lang = 'en', minimalFooter = false } = Astro.props
+const t = (getStrings(lang) as any).footer
+const lh = (h: string) => localizedHref(h, lang)
+
+const year = new Date().getFullYear()
+const copyright = (t.copyright as string).replace('{year}', String(year))
+
+const compareLinks: { href: string, key: string }[] = [
+  { href: lh('/reveal-vs-logi-analytics'),  key: 'logi' },
+  { href: lh('/reveal-vs-luzmo'),           key: 'luzmo' },
+  { href: lh('/reveal-vs-sisense'),         key: 'sisense' },
+  { href: lh('/reveal-vs-power-bi'),        key: 'powerBi' },
+  { href: lh('/reveal-vs-tableau'),         key: 'tableau' },
+  { href: lh('/reveal-vs-looker'),          key: 'looker' },
+  { href: lh('/reveal-vs-domo'),            key: 'domo' },
+  { href: lh('/reveal-vs-gooddata'),        key: 'goodData' },
+  { href: lh('/reveal-vs-bold-bi'),         key: 'boldBi' },
+  { href: lh('/reveal-vs-panintelligence'), key: 'panintelligence' },
+  { href: lh('/reveal-vs-thoughtspot'),     key: 'thoughtspot' },
+  { href: lh('/reveal-vs-toucan-toco'),     key: 'toucanToco' },
+  { href: lh('/reveal-vs-metabase'),        key: 'metabase' },
+]
+---
+
+<!-- Social + links strip -->
+{!minimalFooter && <section class="bg-gradient--primary text-white" style="margin-bottom: -1px;"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 168" style="enable-background:new 0 0 1920 168; width:100%;height:auto;margin-top:-2px;display:block;" xml:space="preserve" class="ie-hide">
+    <path style="fill:#fff;stroke:#fff;" d="M0,44.4c0,73.1,271.2,94.3,315.5,99.6c269.2,32,521.3-13.2,785-58.9c146.1-25.4,291.6-57.7,440-66.7c126.1-7.7,254.7,6.8,379.4,26V-1.3H0V44.4z"></path>
+  </svg>
+
+  <div class="container">
+    <div class="row pt-5 pb-4">
+      <div class="col-12 text-center">
+        <h2 class="mb-4">{t.social.heading}</h2>
+
+        <!-- Social links -->
+        <ul class="list-inline d-table mx-auto">
+          <li class="list-inline-item">
+            <a class="btn p-1 link--opacity-highlight" rel="noopener" href="https://www.facebook.com/revealbi.io" target="_blank">
+              <img src={cdn('facebook-icon.svg')} alt={t.social.facebook} width="20" height="20" />
+            </a>
+          </li>
+          <li class="list-inline-item">
+            <a class="btn p-1 link--opacity-highlight" rel="noopener" href="https://twitter.com/reveal_bi" target="_blank">
+              <img src={cdn('/marketing/slingshot/shared/x-logo.svg')} alt={t.social.x} width="20" height="20" />
+            </a>
+          </li>
+          <li class="list-inline-item">
+            <a class="btn p-1 link--opacity-highlight" rel="noopener" href="https://www.linkedin.com/showcase/revealbi" target="_blank">
+              <img src={cdn('linkedin-icon.svg')} alt={t.social.linkedin} width="20" height="20" />
+            </a>
+          </li>
+          <li class="list-inline-item">
+            <a class="btn p-1 link--opacity-highlight" rel="noopener" href="https://www.youtube.com/channel/UC858QRm9DgrOITpy4KmHdOg" target="_blank">
+              <img src={cdn('youtube-icon.svg')} alt={t.social.youtube} width="20" height="20" />
+            </a>
+          </li>
+          <li class="list-inline-item">
+            <a class="btn p-1 link--opacity-highlight" rel="noopener" href="https://www.g2.com/products/reveal-2020-01-28/reviews/" target="_blank">
+              <img src={cdn('g2-icon.svg')} alt={t.social.g2} width="20" height="20" />
+            </a>
+          </li>
+        </ul>
+
+        <!-- Link grid -->
+        <section>
+          <div class="container">
+            <div class="row text-center text-xs-center text-sm-left text-md-left pt-4 m-auto justify-content-center">
+
+              <div class="col-xs-12 col-sm-6 col-md-6 col-lg-2">
+                <h5 class="footer-title"><span>{t.columns.platforms}</span></h5>
+                <ul class="list--li-style-none list--li-space-sm pt-1 pl-0">
+                  <li><a class="animate-underline" href={lh('/embedded-analytics')}><span class="underline">{t.platforms.embedded}</span></a></li>
+                </ul>
+              </div>
+
+              <div class="col-xs-12 col-sm-6 col-md-6 col-lg-2">
+                <h5 class="footer-title"><span>{t.columns.company}</span></h5>
+                <ul class="list--li-style-none list--li-space-sm pt-1 pl-0">
+                  <li><a class="animate-underline" href={lh('/about-us')}><span class="underline">{t.company.whoWeAre}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/about-us#request-demo')}><span class="underline">{t.company.contactUs}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/about-us#connect')}><span class="underline">{t.company.globalOffices}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/in-the-news')}><span class="underline">{t.company.inTheNews}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/partners')}><span class="underline">{t.company.partners}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/careers')}><span class="underline">{t.company.careers}</span></a></li>
+                </ul>
+              </div>
+
+              <div class="col-xs-12 col-sm-6 col-md-6 col-lg-2">
+                <h5 class="footer-title"><span>{t.columns.resources}</span></h5>
+                <ul class="list--li-style-none list--li-space-sm pt-1 pl-0">
+                  <li><a class="animate-underline" href={lh('/webinars')}><span class="underline">{t.resourcesLinks.webinars}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/blog')}><span class="underline">{t.resourcesLinks.blogs}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/whitepapers')}><span class="underline">{t.resourcesLinks.whitepapers}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/glossary')}><span class="underline">{t.resourcesLinks.glossary}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/support-policies')}><span class="underline">{t.resourcesLinks.supportPolicies}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/faq')}><span class="underline">{t.resourcesLinks.faqs}</span></a></li>
+                  <li><a class="animate-underline" rel="noopener" href={lh('/license-agreements')} target="_blank"><span class="underline">{t.resourcesLinks.licenseAgreement}</span></a></li>
+                  <li><a class="animate-underline" href={HELP_URL} target="_blank" rel="noopener"><span class="underline">{t.resourcesLinks.documentation}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/embedded-analytics')}><span class="underline">{t.resourcesLinks.embeddedGuide}</span></a></li>
+                  <li><a class="animate-underline" href={lh('/embedded-analytics-statistics')}><span class="underline">{t.resourcesLinks.embeddedStats}</span></a></li>
+                </ul>
+              </div>
+
+              <div class="col-xs-12 col-sm-6 col-md-6 col-lg-2">
+                <h5 class="footer-title"><span>{t.columns.compare}</span></h5>
+                <ul class="list--li-style-none list--li-space-sm pt-1 pl-0">
+                  {compareLinks.map(({ href, key }) => (
+                    <li><a class="animate-underline" href={href}><span class="underline">{t.compareLinks[key]}</span></a></li>
+                  ))}
+                </ul>
+              </div>
+
+              <!-- Newsletter -->
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4">
+                <div class="rounded-1rem pt-5 px-4 pb-3 newsletter--content newsletter--column-half position-relative footer__link-list">
+                  <h4 class="text-15 lh-normal mb-0 text-white"><strong>{t.newsletter.heading}</strong></h4>
+                  <p class="my-3 text-085 color-lavender">{t.newsletter.description}</p>
+                  <div id="lead-form_newsletter-loader" class="loader__container spinner__container" style="min-height:200px">
+                    <div class="spinner spinner--border"></div>
+                  </div>
+                  <form id="lead-form_newsletter" class="lead-tracker-form ui-form placeholder-label-field" data-form-theme="dark" style="display:none">
+                    <div class="form-row">
+                      <div id="apiError_newsletter" class="apiError field-validation-error-msg" style="display:none" set:html={t.newsletter.apiErrorHtml} />
+                      <div id="recaptchaError_newsletter" class="recaptchaError field-validation-error-msg" style="display:none" set:html={t.newsletter.recaptchaErrorHtml} />
+                      <div id="formInvalidEmail_newsletter" class="formInvalidEmail field-validation-error-msg" style="display:none">{t.newsletter.formInvalidEmail}</div>
+                      <div id="formInvalidFreeEmail_newsletter" class="formInvalidFreeEmail field-validation-error-msg" style="display:none">{t.newsletter.formInvalidFreeEmail}</div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-12">
+                        <div class="form-row d-none">
+                          <div class="form-group col">
+                            <input id="Country_newsletter" name="Country" class="sfInput form-control" type="text" value="" tabindex="-1" autocomplete="false" />
+                          </div>
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group col">
+                            <input id="Email_newsletter" name="Email" type="email"
+                              class="form-control sfInput required bg-light rounded-xl form-control-sm px-2 text-secondary py-4 px-2 text-secondary"
+                              aria-labelledby="lblEmail_newsletter"
+                              data-val-length-max="60"
+                              value=""
+                              placeholder={t.newsletter.emailPlaceholder} />
+                          </div>
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group col">
+                            <div class="custom-control custom-checkbox custom-control-inline">
+                              <input name="acceptGDPRFormSubmission" id="acceptGDPRFormSubmission_newsletter" type="checkbox"
+                                class="accept-gdpr custom-control-input" value="yes" aria-required="true" />
+                              <label for="acceptGDPRFormSubmission_newsletter" class="custom-control-label text-075 color-lavender lh-normal mb-0">
+                                {t.newsletter.consentPrefix}
+                                <a class="text-decoration-none font-weight-bolder" href={lh('/terms-of-use')}>{t.newsletter.consentTermsOfUse}</a>{t.newsletter.consentAnd}
+                                <a class="text-decoration-none font-weight-bolder" href={lh('/privacy-policy')}>{t.newsletter.consentPrivacyPolicy}</a>
+                                <p class="mt-2 mb-0 label text-075 color-lavender lh-normal mb-0">{t.newsletter.consentRecaptcha}</p>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <div class="form-row justify-content-center">
+                          <div class="col col-lg text-center">
+                            <button id="submit_newsletter" type="submit" class="submit btn rounded-pill btn-primary py-2" disabled>{t.newsletter.submit}</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                  <div class="thankyou__container thankyou__lead-form_newsletter" style="display:none">
+                    <div class="features-hero__form-message pb-4" style="width:100%">
+                      <h3 class="pb-4 text-white">{t.newsletter.thankYou}</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</section>}
+
+<!-- Copyright bar -->
+<footer id="footer" class="container-fluid footer">
+  <ul class="list-inline list-inline--piped font-weight-light mb-0 pb-2 small">
+    <li class="list-inline-item"><a href={lh('/privacy-policy')}>{t.policies.privacy}</a></li>
+    <li class="list-inline-item"><a href={lh('/cookie-policy')}>{t.policies.cookie}</a></li>
+    <li class="list-inline-item"><a href={lh('/terms-of-use')}>{t.policies.terms}</a></li>
+    <li class="list-inline-item">
+      <img loading="lazy" title="I.S. Partners SOC2 SEAL"
+        src={cdn('/marketing/Website/shared/Seal-SOC2.png')}
+        alt={t.seals.soc2} width="32" height="32" class="mx-1" />
+      <img loading="lazy" title="GDPR SEAL"
+        src={cdn('/marketing/slingshot/security/gdpr-badge.svg')}
+        alt={t.seals.gdpr} width="35" height="35" class="mx-1" />
+      <img loading="lazy" title="IS Partners LLC"
+        src={cdn('/marketing/Website/shared/SOC2-badge.svg')}
+        alt={t.seals.isPartners} width="35" height="35" class="mx-1" />
+    </li>
+  </ul>
+  <div class="footer footer-copyright">
+    <p id="copyright" class="m-0">{copyright}</p>
+  </div>
+</footer>
+
+<!-- Back to top -->
+<a id="back-to-top" href="#" class="mchNoDecorate is-visible">
+  <span class="sr-only">{t.backToTop}</span>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 477.175 477.175" width="24" height="24" aria-hidden="true">
+    <g transform="matrix(6.12323e-17 1 -1 6.12323e-17 477.175 -2.84217e-14)">
+      <path d="M145.188,238.575l215.5-215.5c5.3-5.3,5.3-13.8,0-19.1s-13.8-5.3-19.1,0l-225.1,225.1c-5.3,5.3-5.3,13.8,0,19.1l225.1,225c2.6,2.6,6.1,4,9.5,4s6.9-1.3,9.5-4c5.3-5.3,5.3-13.8,0-19.1L145.188,238.575z" fill="#FBFAFA"/>
+    </g>
+  </svg>
+</a>
+
+<!-- GDPR consent banner -->
+<div id="gdpr" class="fixed-bottom bg-dark py-3 text-white" style="display:none">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-12 col-md-9">
+        <p class="mb-0" style="font-size:0.875rem">
+          <strong>{t.gdpr.intro}</strong> {t.gdpr.body}
+          <a rel="noopener" href={lh('/cookie-policy')} target="_blank">{t.gdpr.cookieLink}</a>.
+        </p>
+      </div>
+      <div class="col-12 col-md-3 pt-3 pt-md-0 text-center">
+        <a id="gdpr_accept" class="btn btn-secondary" href="#">{t.gdpr.accept}</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    function effectiveBg(el) {
+      while (el && el !== document.documentElement) {
+        var bg = window.getComputedStyle(el).backgroundColor;
+        if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg;
+        el = el.parentElement;
+      }
+      return 'rgb(255, 255, 255)';
+    }
+    function paintWave() {
+      var grad = document.querySelector('.bg-gradient--primary.text-white');
+      var svg = grad && grad.querySelector('svg');
+      var path = svg && svg.querySelector('path');
+      if (!grad || !svg || !path) return;
+      // Temporarily hide the SVG so elementFromPoint sees what's painted underneath
+      var prevVisibility = svg.style.visibility;
+      svg.style.visibility = 'hidden';
+      var rect = svg.getBoundingClientRect();
+      // Sample a pixel just above the SVG's top edge, on both sides + center
+      var y = Math.max(0, rect.top - 1);
+      var samples = [
+        document.elementFromPoint(rect.left + 5, y),
+        document.elementFromPoint(rect.left + rect.width / 2, y),
+        document.elementFromPoint(rect.right - 5, y),
+      ];
+      svg.style.visibility = prevVisibility;
+      // Pick the first sample with a non-transparent computed bg, walking up.
+      // Ignore samples that are inside the footer gradient itself, otherwise
+      // we can incorrectly repaint the wave blue on some pages.
+      var bg = 'rgb(255, 255, 255)';
+      for (var i = 0; i < samples.length; i++) {
+        if (samples[i] && !grad.contains(samples[i])) {
+          var sampleBg = effectiveBg(samples[i]);
+          if (sampleBg && sampleBg !== 'rgba(0, 0, 0, 0)' && sampleBg !== 'transparent') {
+            bg = sampleBg;
+            break;
+          }
+        }
+      }
+      path.style.fill = bg;
+      path.style.stroke = bg;
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', paintWave);
+    } else {
+      paintWave();
+    }
+  })();
+</script>
+
+<script is:inline>
+  window.addEventListener('load', function () {
+    if (typeof leadTracker === 'undefined') return;
+    if (!document.getElementById('lead-form_newsletter')) return;
+    var cfg = window.__REVEAL_CONFIG__ || {};
+    leadTracker.execute({
+      macro: 'LeadTracker',
+      lang: 'en',
+      leadFormID: 'lead-form_newsletter',
+      reaptchaKey: cfg.recaptchaSiteKey || '',
+      redirectUrl: '',
+      redirectMode: '_self',
+      thankYouMessage: '1',
+      formContainerId: '',
+      productCode: 'A8',
+      leadProductCode: '',
+      packageName: '',
+      productResourceType: '',
+      osSupport: '',
+      installerType: '',
+      eventTypeParam: 'newsletter signup',
+      eventDetailParam: 'form submitted',
+      prohibitFreeMail: true,
+      prohibitDisposableMail: true,
+      showRequestDemo: false,
+      googleEventType: 'Form Submit',
+      googleEventLabel: 'Reveal - Newsletter',
+      googleEventTypeDownload: '',
+      googleEventLabelDownload: '',
+      zoomWebinarId: '',
+      leadSourceNumber: 'A800003',
+      tier: 'tier_2',
+      formLocation: '',
+      formValue: '2000',
+      productName: 'Reveal',
+      formName: 'form submitted',
+      cookiesPrefix: 'reveal_',
+    });
+  });
+</script>

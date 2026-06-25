@@ -1,0 +1,21 @@
+---
+interface Props {
+  label: string
+}
+const { label } = Astro.props
+---
+<li class="mega-menu-row">
+  <ul class="mega-sub-menu" style="--columns:12" role="presentation">
+    <li class="mega-menu-column mega-menu-columns-12-of-12" style="--columns:12;--span:12">
+      <ul class="mega-sub-menu">
+        <li class="mega-menu-item mega-menu-item-type-widget">
+          <div class="textwidget custom-html-widget">
+            <div class="d-flex text-contact-row">
+              <a href="#" class="p-2 mt-1 ig-show-modal mega-menu-title text-black" data-targetid="requestDemo">{label}</a>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</li>

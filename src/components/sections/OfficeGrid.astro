@@ -1,0 +1,31 @@
+---
+interface Office {
+  name: string
+  contactHtml: string
+}
+
+interface Props {
+  headline: string
+  intro?: string
+  anchor?: string
+  headlineAnchor?: string
+  offices: Office[]
+}
+
+const { headline, intro, anchor, headlineAnchor, offices = [] } = Astro.props
+---
+
+<section class="container pt-5" id={anchor}>
+  <div class="row mb-lg-3">
+    <div class="col-md-12 pl-lg-4 pb-4 text-center">
+      <h2 class="pb-4" id={headlineAnchor} set:html={headline} />
+      {intro && <p set:html={intro} />}
+    </div>
+    {offices.map((office) => (
+      <div class="col-md-6 col-lg-4 pl-md-5 pr-md-5 pl-sm-3 pr-sm-3 pb-5">
+        <h3 class="h4 font-weight-bold" set:html={office.name} />
+        <p set:html={office.contactHtml} />
+      </div>
+    ))}
+  </div>
+</section>

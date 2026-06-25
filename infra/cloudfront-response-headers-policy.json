@@ -1,0 +1,33 @@
+{
+  "_comment": "Response Headers Policy config for the CloudFront distribution serving www.revealbi.io / astro-staging.revealbi.io. Apply via AWS console (CloudFront → Policies → Response headers) or Terraform aws_cloudfront_response_headers_policy. Values mirror public/_headers. CSP intentionally omitted — see _headers comment for rationale.",
+  "Name": "reveal-static-security-headers",
+  "Comment": "Baseline security headers for the marketing site",
+  "SecurityHeadersConfig": {
+    "ContentTypeOptions": {
+      "Override": true
+    },
+    "FrameOptions": {
+      "FrameOption": "SAMEORIGIN",
+      "Override": true
+    },
+    "ReferrerPolicy": {
+      "ReferrerPolicy": "strict-origin-when-cross-origin",
+      "Override": true
+    },
+    "StrictTransportSecurity": {
+      "AccessControlMaxAgeSec": 31536000,
+      "IncludeSubdomains": true,
+      "Preload": false,
+      "Override": true
+    }
+  },
+  "CustomHeadersConfig": {
+    "Items": [
+      {
+        "Header": "Permissions-Policy",
+        "Value": "geolocation=(), microphone=(), camera=()",
+        "Override": true
+      }
+    ]
+  }
+}

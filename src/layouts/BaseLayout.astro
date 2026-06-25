@@ -1,0 +1,302 @@
+---
+import '../styles/global.css'
+import Header from '../components/ui/Header.astro'
+import Footer from '../components/ui/Footer.astro'
+import DemoModal from '../components/ui/DemoModal.astro'
+import GdprBanner from '../components/ui/GdprBanner.astro'
+import Analytics from '../components/Analytics.astro'
+import JsonLd from '../components/seo/JsonLd.astro'
+import { LEAD_API_BASE, LEAD_TRACKING_PATH, ANALYTICS, DEPLOY_ENV, NOINDEX } from '../lib/env'
+import { ORGANIZATION_LD, WEBSITE_LD, webpageLd, imageObjectLd } from '../lib/seo'
+
+interface Props {
+  title: string
+  description?: string
+  image?: string
+  imageAlt?: string
+  canonicalUrl?: string
+  lang?: string
+  ogType?: 'website' | 'article'
+  noindex?: boolean
+  minimalFooter?: boolean
+  minimalNav?: boolean
+  noSearch?: boolean
+  /** Locales this page actually exists in. Drives hreflang + the language switcher
+   * so we don't advertise locale URLs that 404. Defaults to all locales. */
+  availableLocales?: string[]
+}
+
+const {
+  title,
+  description = 'Reveal Embedded Analytics',
+  image = '/images/og-default.jpg',
+  imageAlt = 'Reveal BI logo',
+  canonicalUrl,
+  lang = 'en',
+  ogType = 'website',
+  noindex: pageNoindex = false,
+  minimalFooter = false,
+  minimalNav = false,
+  noSearch = false,
+  availableLocales,
+} = Astro.props
+
+// Normalize trailing slash: strip it unless the path is just "/". Defensive
+// because Astro's i18n routing inconsistently appends a trailing slash to
+// Astro.url.pathname for some locale-prefixed routes (es/, ko/, pt-BR/)
+// even with trailingSlash: 'never'.
+const canonicalPath = Astro.url.pathname === '/' ? '/' : Astro.url.pathname.replace(/\/+$/, '')
+const canonical = canonicalUrl || (Astro.site ? new URL(canonicalPath, Astro.site).toString() : Astro.url.href)
+
+// Absolute OG/Twitter image URL — required by Facebook, LinkedIn, X.
+const siteOrigin = Astro.site ? Astro.site.toString().replace(/\/$/, '') : ''
+const ogImageAbs = /^https?:\/\//i.test(image) ? image : `${siteOrigin}${image.startsWith('/') ? image : `/${image}`}`
+const isDefaultImage = image === '/images/og-default.jpg'
+const imageExt = (ogImageAbs.split('?')[0].split('.').pop() || '').toLowerCase()
+const ogImageType = imageExt === 'png' ? 'image/png'
+  : imageExt === 'webp' ? 'image/webp'
+  : imageExt === 'gif' ? 'image/gif'
+  : 'image/jpeg'
+
+// hreflang alternates. astro.config.mjs uses prefixDefaultLocale: false, so
+// `en` has no prefix and other locales prefix with /{locale}. Strip any
+// current locale prefix to get the neutral path, then re-prefix per locale.
+const ALL_LOCALES = ['en', 'es', 'ja', 'ko', 'pt-BR'] as const
+// Only advertise locales the page actually exists in (defaults to all). `en` is
+// always present (the canonical fallback). Keeps hreflang/og:alternate/switcher
+// from pointing at locale URLs that 404.
+const LOCALES = (availableLocales && availableLocales.length
+  ? ALL_LOCALES.filter((l) => l === 'en' || availableLocales.includes(l))
+  : ALL_LOCALES) as readonly string[]
+const LOCALE_PREFIX_RE = /^\/(es|ja|ko|pt-BR)(?=\/|$)/
+const neutralPath = Astro.url.pathname.replace(LOCALE_PREFIX_RE, '') || '/'
+const hreflangHref = (loc: string) => {
+  const path = loc === 'en' ? neutralPath : `/${loc}${neutralPath === '/' ? '' : neutralPath}`
+  return Astro.site ? new URL(path, Astro.site).toString() : path
+}
+
+// OG locale codes (Facebook expects xx_YY, not BCP-47).
+const OG_LOCALE: Record<string, string> = {
+  en: 'en_US',
+  es: 'es_ES',
+  ja: 'ja_JP',
+  ko: 'ko_KR',
+  'pt-BR': 'pt_BR',
+}
+const ogLocale = OG_LOCALE[lang] || 'en_US'
+const ogLocaleAlternates = LOCALES.filter((l) => l !== lang).map((l) => OG_LOCALE[l])
+
+// Robots: env-wide NOINDEX (staging/preview) wins; otherwise honor per-page flag.
+const robotsNoindex = NOINDEX || pageNoindex
+
+const revealConfig = {
+  leadApiBase: LEAD_API_BASE,
+  leadTrackingPath: LEAD_TRACKING_PATH,
+  recaptchaSiteKey: ANALYTICS.recaptchaSiteKey,
+  deployEnv: DEPLOY_ENV,
+}
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- Branding / mobile-app hints (carried over from revealbi.io). -->
+    <meta name="author" content="Infragistics" />
+    <meta name="application-name" content="Reveal" />
+    <meta name="apple-mobile-web-app-title" content="Reveal" />
+    <meta name="theme-color" content="#2d2a90" />
+    <meta name="msapplication-navbutton-color" content="#2d2a90" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="msapplication-starturl" content="/" />
+
+    <!-- Facebook/Meta domain verification (carried over from revealbi.io). -->
+    <meta name="facebook-domain-verification" content="i2o4p15ysejbr93xeaz7gqhxkgp5a6" />
+
+    {robotsNoindex
+      ? <meta name="robots" content="noindex,nofollow" />
+      : <meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large" />}
+
+    <link rel="manifest" href="/wp-content/themes/reveal/manifest.en.json" />
+
+    <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/images/icons/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/images/icons/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/icons/apple-touch-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/icons/apple-touch-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/icons/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/icons/icon-512x512.png" />
+    <link rel="mask-icon" href="/images/icons/safari-pinned-tab.svg" color="#2d2a90" />
+    <link rel="shortcut icon" type="image/x-icon" href="/images/icons/favicon.ico" />
+
+    <title>{title}</title>
+    <slot name="head" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" type="application/xml" href="/sitemap_index.xml" />
+
+    <!-- hreflang alternates for i18n routing (en + es/ja/ko/pt-BR + x-default). -->
+    {LOCALES.map((loc) => (
+      <link rel="alternate" hreflang={loc} href={hreflangHref(loc)} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={hreflangHref('en')} />
+
+    <!-- Open Graph -->
+    <meta property="og:locale" content={ogLocale} />
+    {ogLocaleAlternates.map((alt) => (
+      <meta property="og:locale:alternate" content={alt} />
+    ))}
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="Reveal Embedded Analytics" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageAbs} />
+    <meta property="og:image:secure_url" content={ogImageAbs} />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta property="og:image:type" content={ogImageType} />
+    {isDefaultImage && <meta property="og:image:width" content="1200" />}
+    {isDefaultImage && <meta property="og:image:height" content="630" />}
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@reveal_bi" />
+    <meta name="twitter:creator" content="@reveal_bi" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageAbs} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+
+    <!-- Sitewide structured data: Organization + WebSite. WebPage + ImageObject
+         are emitted per-page below to match the live WP/Yoast/RankMath
+         output. Article, FAQPage, BreadcrumbList come from the route's
+         layout/section slots — see docs/seo/pass-3-jsonld.md. -->
+    <JsonLd data={ORGANIZATION_LD} />
+    <JsonLd data={WEBSITE_LD} />
+    <JsonLd data={webpageLd({
+      url: canonical,
+      title,
+      description,
+      inLanguage: ({ en: 'en-US', es: 'es-ES', ja: 'ja-JP', ko: 'ko-KR', 'pt-BR': 'pt-BR' } as Record<string, string>)[lang] || 'en-US',
+      imageUrl: ogImageAbs,
+    })} />
+    <JsonLd data={imageObjectLd({
+      url: ogImageAbs,
+      ...(isDefaultImage ? { width: 1200, height: 630 } : {}),
+      inLanguage: ({ en: 'en-US', es: 'es-ES', ja: 'ja-JP', ko: 'ko-KR', 'pt-BR': 'pt-BR' } as Record<string, string>)[lang] || 'en-US',
+    })} />
+    <slot name="jsonld" />
+
+    <!-- Consent Mode v2 default-deny — must run before any analytics loads.
+         IGconsentType seeds GDPR banner variant queried by plugins.js. -->
+    <script is:inline set:html={`
+      try { localStorage.setItem('IGconsentType','basic'); } catch(e) {}
+      window.dataLayer=window.dataLayer||[];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent','default',{
+        'functionality_storage':'denied',
+        'security_storage':'denied',
+        'ad_storage':'denied',
+        'ad_user_data':'denied',
+        'ad_personalization':'denied',
+        'analytics_storage':'denied',
+        'personalization_storage':'denied'
+      });
+    `} />
+
+    <Analytics />
+  </head>
+  <body>
+    <Header lang={lang} minimalNav={minimalNav} availableLocales={LOCALES} />
+
+    <main id="content" role="main" {...(noSearch ? { 'data-pagefind-ignore': true } : { 'data-pagefind-body': true })}>
+      <slot />
+    </main>
+
+    <Footer lang={lang} minimalFooter={minimalFooter} />
+
+    <DemoModal lang={lang} />
+
+    <GdprBanner />
+
+    <!-- Runtime config consumed by leadTracker.js / reCAPTCHA wiring (see Phase 2 of cleancode.md) -->
+    <script is:inline set:html={`window.__REVEAL_CONFIG__=${JSON.stringify(revealConfig)};`} />
+
+    <!-- Persist inbound UTM params for leadTracker.js regardless of trailing slash URLs. -->
+    <script is:inline>
+      (function () {
+        var params = new URLSearchParams(window.location.search || '');
+        var keys = [
+          'utm_id', 'utm_content', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term',
+          'gclid', 'dclid', 'fbclid', 'msclkid', 'li_fat_id', 'ttclid', 'twclid', 'wbraid', 'gbraid'
+        ];
+        var sitePrefix = 'reveal_';
+        var maxAgeSeconds = 60 * 60 * 24 * 90; // 90 days
+        var secure = window.location.protocol === 'https:' ? '; Secure' : '';
+
+        for (var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var value = params.get(key);
+          if (!value) continue;
+
+          document.cookie = [
+            encodeURIComponent(key) + '=' + encodeURIComponent(value),
+            'Path=/',
+            'Max-Age=' + maxAgeSeconds,
+            'SameSite=Lax'
+          ].join('; ') + secure;
+
+          // Mirror as reveal-prefixed cookie for leadTracker prefixed ingestion.
+          document.cookie = [
+            encodeURIComponent(sitePrefix + key) + '=' + encodeURIComponent(value),
+            'Path=/',
+            'Max-Age=' + maxAgeSeconds,
+            'SameSite=Lax'
+          ].join('; ') + secure;
+        }
+      })();
+    </script>
+
+    <!-- JS bundle: jQuery first, then plugins, then mega-menu, then theme scripts -->
+    <script is:inline src="/js/jquery.min.js"></script>
+    <script is:inline src="/js/jquery-migrate.min.js"></script>
+    <script is:inline src="/js/polyfills.js"></script>
+    <script is:inline src="/js/maxmegamenu.js"></script>
+    <script is:inline src="/js/maxmegamenu-pro.js"></script>
+    <script is:inline src="/js/plugins.js"></script>
+    <script is:inline src="/js/menu.js"></script>
+    <script is:inline src="/js/script.js"></script>
+    <script is:inline src="/js/tooltips.js"></script>
+    <script is:inline src="/js/leadTracker.js"></script>
+    <script is:inline src="/js/sf.common.js"></script>
+    <script is:inline src="/js/reveal-accordion.js"></script>
+    <script is:inline src="/js/reveal-expandable-table.js" defer></script>
+
+    <!-- Scroll-triggered fade-in animations -->
+    <script is:inline>
+      (function () {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              var el = entry.target;
+              el.classList.add('animated');
+              el.classList.add(el.getAttribute('data-animation') || 'fadeIn');
+              observer.unobserve(el);
+            }
+          });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.animate-me').forEach(function (el) {
+          observer.observe(el);
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+---
+interface Props {
+  headline: string
+  subhead?: string
+  videoWebm: string
+  videoMp4: string
+  videoPoster: string
+  videoAlt?: string
+}
+
+const {
+  headline,
+  subhead,
+  videoWebm,
+  videoMp4,
+  videoPoster,
+  videoAlt = 'AI Analytics Inside Your Product',
+} = Astro.props
+---
+
+<section class="pb-5 mb-5 overflow-hidden text-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 animate-me" data-animation="fadeInLeft">
+        <h2 class="mb-4" set:html={headline} />
+        {subhead && <p class="mb-4" set:html={subhead} />}
+        <video
+          class="w-100 img-fluid rounded-1rem shadow-lg overflow-hidden"
+          autoplay
+          loop
+          muted
+          playsinline
+          preload="metadata"
+          poster={videoPoster}
+        >
+          <source src={videoWebm} type="video/webm" />
+          <source src={videoMp4} type="video/mp4" />
+          <img
+            fetchpriority="high"
+            loading="lazy"
+            decoding="async"
+            class="w-100 img-fluid"
+            src={videoPoster}
+            alt={videoAlt}
+            title={videoAlt}
+          />
+        </video>
+      </div>
+    </div>
+  </div>
+</section>

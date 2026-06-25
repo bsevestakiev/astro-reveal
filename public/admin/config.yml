@@ -1,0 +1,772 @@
+backend:
+  name: github
+  # TEST REPO — re-pointed away from Infragistics-IS/Marketing-Reveal so Sveltia
+  # can never commit to the production site. Relay base_url removed for the same
+  # reason (was the AWS OAuth relay for the prod repo).
+  repo: bsevestakiev/astro-reveal
+  branch: cms-content
+  # Custom commit-message templates so the git log reads cleanly
+  # ("content(blog): white-label-analytics — update" vs Decap's noisy default).
+  commit_messages:
+    create: 'content({{collection}}): {{slug}} — create'
+    update: 'content({{collection}}): {{slug}} — update'
+    delete: 'content({{collection}}): {{slug}} — delete'
+    uploadMedia: 'media: upload {{path}}'
+    deleteMedia: 'media: delete {{path}}'
+    openAuthoring: '{{message}}'
+
+# No publish_mode set on purpose. Sveltia does not implement Decap's
+# `editorial_workflow` — every Save commits directly to `backend.branch:`
+# above. As of mid-2026 editorial workflow is still unimplemented upstream
+# (planned for Sveltia 1.0), so we approximate a review step by routing
+# Sveltia at `cms-content` — a dedicated, NON-deployed buffer branch.
+#
+# Flow: editor saves in Sveltia (and /blog-from-brief, /blog-from-design
+# write here too) → commits land on `cms-content` → `cms-content` does NOT
+# auto-deploy (deploy.yml only triggers on `staging` and `main`) → a PR
+# `cms-content` → `staging` is reviewed and merged → staging auto-deploys
+# for visual QA on astro-staging.revealbi.io → `staging` is promoted to
+# `main` via a normal PR for production. (Preview deploy of `cms-content`
+# itself is deferred — would be a separate AWS bucket/CloudFront.)
+#
+# Do NOT add push-rejecting branch protection on `cms-content`: Sveltia
+# errors on rejected pushes rather than falling back to PR creation.
+#
+# NOTE: the live /admin/ reads the *deployed* config.yml, so this branch
+# switch only takes effect on production /admin/ once it reaches `main`,
+# and on astro-staging.revealbi.io/admin/ once it reaches `staging`.
+
+media_folder: 'public/images'
+public_folder: '/images'
+
+# Multilingual config. Each entry shows locale tabs at the top of the editor;
+# Sveltia's "translate" button calls OpenAI to fill non-EN locales from EN.
+# n8n's missing-files-only translation pipeline still runs alongside; whichever
+# writer creates the file first wins (n8n won't clobber existing files).
+#
+# `initial_locales: default` enables ONLY the default locale (en) when an entry
+# is opened/created, so editors can save with English alone — without it, every
+# `i18n: true` field is required in all five locales and the Save is blocked
+# until each tab is filled. EN is the source of truth and n8n generates the
+# rest, so EN-only authoring is exactly what we want; an editor can still toggle
+# a non-EN locale on per entry to hand-translate. (Replaces the deprecated
+# `save_all_locales: false`; `default` = default locale only.)
+i18n:
+  structure: multiple_folders
+  locales: [en, es, ja, ko, pt-BR]
+  default_locale: en
+  initial_locales: default
+
+collections:
+  - name: pages
+    label: '📄 Pages'
+    folder: 'src/content/pages'
+    extension: md
+    format: yaml-frontmatter
+    i18n: true
+    create: false
+    slug: '{{filename}}'
+    summary: '{{filename}} — {{title}}'
+    sortable_fields: ['filename', 'title']
+    fields: &pages_fields
+      - { name: title, label: Title, widget: string, i18n: translate }
+      - { name: description, label: Description, widget: text, required: false, i18n: translate }
+      - { name: cover, label: Cover image URL, widget: string, required: false, i18n: duplicate }
+      - name: seo
+        label: 'SEO (overrides)'
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+          - { name: title,       label: 'SEO title (overrides <title> + og:title)',                   widget: string,  required: false, i18n: translate }
+          - { name: description, label: 'SEO description (overrides <meta description> + og:desc)',   widget: text,    required: false, i18n: translate }
+          - { name: ogType,      label: 'OG type',                                                    widget: select,  options: ['website', 'article'], required: false, i18n: duplicate }
+          - { name: ogImage,     label: 'OG image URL (1200×630, overrides cover for socials only)',  widget: string,  required: false, i18n: duplicate }
+          - { name: ogImageAlt,  label: 'OG image alt text',                                          widget: string,  required: false, i18n: translate }
+          - { name: noindex,     label: 'Block search engines from indexing this page',               widget: boolean, required: false, i18n: duplicate }
+          - { name: canonical,   label: 'Canonical URL (rare; absolute https URL)',                   widget: string,  required: false, i18n: duplicate }
+      - name: sections
+        label: Sections
+        widget: list
+        required: false
+        types:
+          - name: hero
+            label: Hero
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, i18n: translate }
+              - name: subheadlines
+                label: Subheadlines
+                widget: list
+                required: false
+                field: { name: line, widget: string, i18n: translate }
+              - { name: ctaLabel, label: CTA label, widget: string, required: false, i18n: translate }
+              - { name: secondaryCtaLabel, label: Secondary CTA label, widget: string, required: false, i18n: translate }
+              - { name: secondaryCtaUrl, label: Secondary CTA URL, widget: string, required: false, i18n: duplicate }
+              - { name: image, label: Image URL, widget: string, required: false, i18n: duplicate }
+              - name: imageSrcset
+                label: Image srcset
+                widget: list
+                required: false
+                fields:
+                  - { name: media, label: Media query, widget: string, i18n: duplicate }
+                  - { name: srcset, label: Srcset URL, widget: string, i18n: duplicate }
+              - { name: imageAlt, label: Image alt, widget: string, required: false, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: dark-hero
+            label: Dark hero
+            fields:
+              - { name: title, label: Title (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: variant, label: 'Variant (centered, split-image, split-form, dark-navy, flat-split, tech-centered)', widget: string, required: false, i18n: duplicate }
+              - { name: image, label: Image URL, widget: string, required: false, i18n: duplicate }
+              - { name: imageAlt, label: Image alt, widget: string, required: false, i18n: translate }
+              - name: imageSrcset
+                label: Image srcset
+                widget: list
+                required: false
+                fields:
+                  - { name: media, label: Media query, widget: string, i18n: duplicate }
+                  - { name: srcset, label: Srcset URL, widget: string, i18n: duplicate }
+              - { name: ctaLabel, label: CTA label, widget: string, required: false, i18n: translate }
+              - { name: ctaHref, label: CTA href, widget: string, required: false, i18n: duplicate }
+              - { name: secondaryCtaLabel, label: Secondary CTA label, widget: string, required: false, i18n: translate }
+              - { name: secondaryCtaHref, label: Secondary CTA href, widget: string, required: false, i18n: duplicate }
+              - name: breadcrumbs
+                label: Breadcrumbs
+                widget: list
+                required: false
+                fields:
+                  - { name: label, label: Label, widget: string, i18n: translate }
+                  - { name: url, label: URL, widget: string, required: false, i18n: duplicate }
+              - { name: accentColor, label: Accent color (CSS), widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: pricing-hero
+            label: Pricing hero
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - name: features
+                label: Features
+                widget: list
+                required: false
+                field: { name: feature, label: Feature (HTML allowed), widget: string, i18n: translate }
+              - { name: ctaLabel, label: CTA label, widget: string, required: false, i18n: translate }
+              - { name: ratingsImage, label: Ratings image URL, widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: logo-slider
+            label: Logo slider
+            fields:
+              - name: logos
+                label: Logos
+                widget: list
+                fields:
+                  - { name: src, label: Logo src, widget: string, i18n: duplicate }
+                  - { name: alt, label: Logo alt, widget: string, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: feature-row
+            label: Feature row
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: eyebrow, label: Eyebrow, widget: string, required: false, i18n: translate }
+              - { name: image, label: Image URL, widget: string, required: false, i18n: duplicate }
+              - name: imageSrcset
+                label: Image srcset
+                widget: list
+                required: false
+                fields:
+                  - { name: media, label: Media query, widget: string, i18n: duplicate }
+                  - { name: srcset, label: Srcset URL, widget: string, i18n: duplicate }
+              - { name: imageAlt, label: Image alt, widget: string, required: false, i18n: translate }
+              - { name: imageClass, label: Image CSS class, widget: string, required: false, i18n: duplicate }
+              - { name: reversed, label: Reversed (image right), widget: boolean, default: false, required: false, i18n: duplicate }
+              - { name: variant, label: Variant (e.g. dark), widget: string, required: false, i18n: duplicate }
+              - { name: textColClass, label: Text column CSS class, widget: string, required: false, i18n: duplicate }
+              - name: cta
+                label: CTA
+                widget: object
+                required: false
+                collapsed: true
+                fields:
+                  - { name: label, label: Label, widget: string, required: false, i18n: translate }
+                  - { name: href, label: Href, widget: string, required: false, i18n: duplicate }
+              - { name: slotContent, label: Slot content (HTML), widget: text, required: false, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: icon-grid
+            label: Icon grid
+            fields:
+              - { name: eyebrow, label: Eyebrow, widget: string, required: false, i18n: translate }
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead2, label: Second subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: variant, label: Variant (white, gray-card, vborder, feature-list), widget: string, required: false, i18n: duplicate }
+              - { name: cols, label: Columns, widget: number, value_type: int, default: 4, required: false, i18n: duplicate }
+              - name: cards
+                label: Cards
+                widget: list
+                fields:
+                  - { name: icon, label: Icon URL, widget: string, required: false, i18n: duplicate }
+                  - { name: iconAlt, label: Icon alt, widget: string, required: false, i18n: translate }
+                  - { name: iconStyle, label: Icon inline style, widget: string, required: false, i18n: duplicate }
+                  - { name: title, label: Title, widget: string, i18n: translate }
+                  - { name: body, label: Body, widget: text, i18n: translate }
+                  - { name: bgClass, label: Background CSS class, widget: string, required: false, i18n: duplicate }
+                  - { name: href, label: Card href, widget: string, required: false, i18n: duplicate }
+                  - { name: link, label: Card link, widget: string, required: false, i18n: duplicate }
+                  - { name: linkLabel, label: Link label, widget: string, required: false, i18n: translate }
+                  - { name: image, label: Image URL, widget: string, required: false, i18n: duplicate }
+                  - name: items
+                    label: Items
+                    widget: list
+                    required: false
+                    field: { name: item, label: Bullet item, widget: string, i18n: translate }
+              - { name: footnote, label: Footnote (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: comparison-table
+            label: Comparison table
+            fields:
+              - { name: eyebrow, label: Eyebrow, widget: string, required: false, i18n: translate }
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: competitor, label: Competitor name, widget: string, i18n: translate }
+              - name: rows
+                label: Rows
+                widget: list
+                fields:
+                  - { name: feature, label: Feature, widget: string, i18n: translate }
+                  - { name: reveal, label: Reveal value, widget: string, i18n: translate }
+                  - { name: competitor, label: Competitor value, widget: string, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: feature-steps
+            label: Feature steps
+            fields:
+              - { name: eyebrow, label: Eyebrow, widget: string, required: false, i18n: translate }
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - name: steps
+                label: Steps
+                widget: list
+                fields:
+                  - { name: icon, label: Icon URL, widget: string, required: false, i18n: duplicate }
+                  - { name: iconAlt, label: Icon alt, widget: string, required: false, i18n: translate }
+                  - { name: iconColor, label: Icon color (hex), widget: string, required: false, i18n: duplicate }
+                  - { name: title, label: Title, widget: string, i18n: translate }
+                  - { name: body, label: Body, widget: text, i18n: translate }
+              - { name: footnote, label: Footnote (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: variant, label: Variant (light, dark), widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: ai-dark-section
+            label: AI dark section
+            fields:
+              - name: rows
+                label: Rows
+                widget: list
+                fields:
+                  - { name: eyebrow, label: Eyebrow, widget: string, i18n: translate }
+                  - { name: headline, label: Headline (HTML allowed), widget: text, i18n: translate }
+                  - { name: body, label: Body, widget: text, i18n: translate }
+                  - name: checks
+                    label: Check items
+                    widget: list
+                    required: false
+                    fields:
+                      - { name: text, label: Text, widget: string, i18n: translate }
+                  - name: cta
+                    label: CTA
+                    widget: object
+                    fields:
+                      - { name: label, label: Label, widget: string, i18n: translate }
+                      - { name: href, label: Href, widget: string, i18n: duplicate }
+                  - { name: image, label: Image URL, widget: string, i18n: duplicate }
+                  - name: imageSrcset
+                    label: Image srcset
+                    widget: list
+                    required: false
+                    fields:
+                      - { name: media, label: Media query, widget: string, i18n: duplicate }
+                      - { name: srcset, label: Srcset URL, widget: string, i18n: duplicate }
+                  - { name: imageAlt, label: Image alt, widget: string, required: false, i18n: translate }
+                  - { name: imageLeft, label: Image left, widget: boolean, default: false, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: fast-implementation
+            label: Fast implementation
+            fields:
+              - { name: eyebrow, label: Eyebrow, widget: string, required: false, i18n: translate }
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - name: compareBefore
+                label: Compare before
+                widget: object
+                fields:
+                  - { name: label, label: Label, widget: string, i18n: translate }
+                  - { name: value, label: Value, widget: string, i18n: translate }
+              - name: compareAfter
+                label: Compare after
+                widget: object
+                fields:
+                  - { name: logo, label: Logo URL, widget: string, i18n: duplicate }
+                  - { name: logoAlt, label: Logo alt, widget: string, required: false, i18n: translate }
+                  - { name: value, label: Value, widget: string, i18n: translate }
+              - name: benefits
+                label: Benefits
+                widget: list
+                required: false
+                field: { name: benefit, label: Benefit, widget: string, i18n: translate }
+              - { name: footnote, label: Footnote (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: stats-band
+            label: Stats band
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - name: stats
+                label: Stats
+                widget: list
+                fields:
+                  - { name: value, label: Value (e.g. +50%), widget: string, i18n: translate }
+                  - { name: label, label: Label, widget: string, i18n: translate }
+                  - { name: description, label: Description, widget: text, i18n: translate }
+                  - { name: suffix, label: Suffix, widget: string, required: false, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: pricing-teaser
+            label: Pricing teaser
+            fields:
+              - { name: eyebrow, label: Eyebrow, widget: string, required: false, i18n: translate }
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - name: features
+                label: Features
+                widget: list
+                required: false
+                fields:
+                  - { name: text, label: Text, widget: string, i18n: translate }
+              - name: pillars
+                label: Pillars
+                widget: list
+                required: false
+                fields:
+                  - { name: icon, label: Icon URL, widget: string, i18n: duplicate }
+                  - { name: iconAlt, label: Icon alt, widget: string, i18n: translate }
+                  - { name: title, label: Title, widget: string, i18n: translate }
+                  - { name: body, label: Body, widget: text, i18n: translate }
+                  - { name: bgClass, label: Background CSS class, widget: string, i18n: duplicate }
+              - { name: ctaLabel, label: CTA label, widget: string, required: false, i18n: translate }
+              - { name: ctaHref, label: CTA href, widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: reviews
+            label: Reviews
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: quote, label: Quote (HTML allowed), widget: text, required: false, i18n: translate }
+              - name: badges
+                label: Badges
+                widget: list
+                required: false
+                fields:
+                  - { name: src, label: Badge src, widget: string, i18n: duplicate }
+                  - { name: alt, label: Badge alt, widget: string, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: faq
+            label: FAQ
+            fields:
+              - { name: headline, label: Headline, widget: string, required: false, i18n: translate }
+              - { name: variant, label: Variant (e.g. flat), widget: string, required: false, i18n: duplicate }
+              - name: items
+                label: Items
+                widget: list
+                fields:
+                  - { name: question, label: Question, widget: string, i18n: translate }
+                  - { name: answer, label: Answer (HTML allowed), widget: text, i18n: translate }
+                  - { name: open, label: Open by default, widget: boolean, default: false, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: inline-cta
+            label: Inline CTA
+            fields:
+              - { name: icon, label: Icon URL, widget: string, required: false, i18n: duplicate }
+              - { name: iconAlt, label: Icon alt, widget: string, required: false, i18n: translate }
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: body, label: Body (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: ctaLabel, label: CTA label, widget: string, required: false, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: cta-block
+            label: CTA block
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: subheadline, label: Subheadline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: ctaLabel, label: CTA label, widget: string, required: false, i18n: translate }
+              - { name: ctaUrl, label: CTA URL, widget: string, required: false, i18n: duplicate }
+              - { name: secondaryCtaLabel, label: Secondary CTA label, widget: string, required: false, i18n: translate }
+              - { name: secondaryCtaUrl, label: Secondary CTA URL, widget: string, required: false, i18n: duplicate }
+              - { name: demoModal, label: Open demo modal, widget: boolean, default: false, required: false, i18n: duplicate }
+              - { name: variant, label: Variant (e.g. gradient), widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: section-header
+            label: Section header
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, i18n: translate }
+              - { name: body, label: Body (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: anchor, label: Anchor id, widget: string, required: false, i18n: duplicate }
+              - { name: variant, label: Variant, widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: lead-form
+            label: Lead form
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: body, label: Body (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: anchor, label: Anchor id, widget: string, required: false, i18n: duplicate }
+              - { name: formId, label: Form id, widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: banner
+            label: Banner
+            fields:
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: features
+            label: Features (legacy)
+            fields:
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: team
+            label: Team (legacy)
+            fields:
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: video-split-hero
+            label: Video split hero
+            fields:
+              - { name: title, label: Title (HTML allowed), widget: text, i18n: translate }
+              - { name: subhead, label: Subhead, widget: string, required: false, i18n: translate }
+              - { name: ctaLabel, label: CTA label, widget: string, required: false, i18n: translate }
+              - { name: ctaHref, label: CTA href, widget: string, required: false, i18n: duplicate }
+              - { name: videoSrc, label: Video src URL, widget: string, i18n: duplicate }
+              - { name: videoPoster, label: Video poster URL, widget: string, required: false, i18n: duplicate }
+              - { name: videoTitle, label: Video title, widget: string, required: false, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: blog-teaser
+            label: Blog teaser
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: viewAllLabel, label: View-all label, widget: string, required: false, i18n: translate }
+              - { name: viewAllUrl, label: View-all URL, widget: string, required: false, i18n: duplicate }
+              - name: slugs
+                label: Slugs
+                widget: list
+                required: false
+                field: { name: slug, label: Blog slug, widget: string, i18n: duplicate }
+              - { name: anchor, label: Anchor id, widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: ai-compare-list
+            label: AI compare list
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, i18n: translate }
+              - name: columns
+                label: Columns
+                widget: list
+                fields:
+                  - { name: headline, label: Column headline, widget: string, i18n: translate }
+                  - name: iconType
+                    label: Icon type
+                    widget: select
+                    default: 'check'
+                    options:
+                      - { label: Check, value: check }
+                      - { label: X, value: x }
+                  - name: items
+                    label: Items
+                    widget: list
+                    fields:
+                      - { name: text, label: Item text, widget: string, i18n: translate }
+              - { name: footnote, label: Footnote (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: story-teaser
+            label: Story teaser
+            fields:
+              - { name: headline, label: Headline (HTML allowed), widget: text, i18n: translate }
+              - { name: subhead, label: Subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: viewAllLabel, label: View-all label, widget: string, required: false, i18n: translate }
+              - { name: viewAllUrl, label: View-all URL, widget: string, required: false, i18n: duplicate }
+              - name: stories
+                label: Stories
+                widget: list
+                fields:
+                  - { name: slug, label: Story slug, widget: string, i18n: duplicate }
+                  - { name: industry, label: Industry, widget: string, required: false, i18n: translate }
+              - { name: anchor, label: Anchor id, widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: competitor-matrix
+            label: Competitor matrix
+            fields:
+              - { name: topEyebrow, label: Top eyebrow, widget: string, required: false, i18n: translate }
+              - { name: preHeadline, label: Pre-headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: headline, label: Headline (HTML allowed), widget: text, i18n: translate }
+              - name: summary
+                label: Summary cards
+                widget: list
+                required: false
+                fields:
+                  - { name: icon, label: Icon URL, widget: string, required: false, i18n: duplicate }
+                  - { name: iconAlt, label: Icon alt, widget: string, required: false, i18n: translate }
+                  - { name: title, label: Title, widget: string, i18n: translate }
+                  - { name: body, label: Body, widget: text, i18n: translate }
+              - { name: middleEyebrow, label: Middle eyebrow, widget: string, required: false, i18n: translate }
+              - { name: middleHeadline, label: Middle headline (HTML allowed), widget: text, required: false, i18n: translate }
+              - { name: middleSubhead, label: Middle subhead (HTML allowed), widget: text, required: false, i18n: translate }
+              - name: columns
+                label: Columns
+                widget: list
+                required: false
+                field: { name: column, label: Column header, widget: string, i18n: translate }
+              - name: rows
+                label: Rows
+                widget: list
+                required: false
+                fields:
+                  - { name: label, label: Row label, widget: string, i18n: translate }
+                  - name: cells
+                    label: Cells
+                    widget: list
+                    field: { name: cell, label: Cell (check, x, or text), widget: string, i18n: translate }
+              - { name: anchor, label: Anchor id, widget: string, required: false, i18n: duplicate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+          - name: feature-tabs
+            label: Feature tabs
+            fields:
+              - { name: topEyebrow, label: Top eyebrow, widget: string, required: false, i18n: translate }
+              - { name: headline, label: Headline (HTML allowed), widget: text, i18n: translate }
+              - { name: intro, label: Intro, widget: string, required: false, i18n: translate }
+              - { name: anchor, label: Anchor id, widget: string, required: false, i18n: duplicate }
+              - name: tabs
+                label: Tabs
+                widget: list
+                fields:
+                  - { name: id, label: Tab id (slug), widget: string, i18n: duplicate }
+                  - { name: label, label: Tab label, widget: string, i18n: translate }
+                  - { name: title, label: Title (HTML allowed), widget: text, i18n: translate }
+                  - { name: image, label: Image URL, widget: string, required: false, i18n: duplicate }
+                  - { name: imageAlt, label: Image alt, widget: string, required: false, i18n: translate }
+                  - { name: video, label: Video URL, widget: string, required: false, i18n: translate }
+                  - { name: videoPoster, label: Video poster URL, widget: string, required: false, i18n: duplicate }
+                  - { name: body, label: Body (HTML allowed), widget: text, i18n: translate }
+              - { name: zone, label: Zone, widget: number, value_type: int, required: false, i18n: duplicate }
+
+      - { name: body, label: Body (HTML/Markdown), widget: markdown, required: false, i18n: translate }
+
+  # Blog posts. Schema mirrors `blogSchema` in src/content/config.ts.
+  # Body is markdown — the Comparison Table, Callout, and CTA Banner editor
+  # components in public/admin/editor-components.js surface here automatically.
+  - name: blog
+    label: '📰 Blog'
+    folder: 'src/content/blog'
+    extension: md
+    format: yaml-frontmatter
+    i18n: true
+    create: true
+    slug: '{{slug}}'
+    summary: '{{filename}} — {{title}}'
+    sortable_fields: ['date', 'filename', 'title']
+    fields:
+      - { name: title, label: Title, widget: string, i18n: translate }
+      - { name: description, label: Description (meta + lead paragraph), widget: text, required: false, i18n: translate }
+      # Date picker (date-only). All blog dates are already YYYY-MM-DD, so pinning
+      # the format is safe; `format` keeps it stored as a plain string.
+      - name: date
+        label: Last updated
+        widget: datetime
+        required: false
+        i18n: duplicate
+        date_format: 'YYYY-MM-DD'
+        time_format: false
+        format: 'YYYY-MM-DD'
+        picker_utc: true
+      # Author dropdown — options must match src/lib/blog-authors.ts exactly
+      # (an unlisted name renders with no avatar/bio).
+      - name: author
+        label: Author
+        widget: select
+        required: false
+        i18n: duplicate
+        options:
+          - Casey Ciniello
+          - Bilyana Petrova
+          - Martin Atanasov
+          - Zdravko Kolev
+          - Jason Beres
+      - { name: cover, label: Cover image URL, widget: string, required: false, hint: 'Used for social cards and blog index thumbnails.', i18n: duplicate }
+      - { name: heroImage, label: Hero image URL, widget: string, required: false, hint: 'Top-of-post header image. Full URL or /-prefixed CDN path.', i18n: duplicate }
+      # Categories dropdown. Renamed from the unused singular `category` field to
+      # `categories` (a list) to match what posts actually use. Options are the EN
+      # taxonomy; non-EN locales hold translated category strings, but with
+      # `initial_locales: default` those tabs stay off during normal EN editing.
+      - name: categories
+        label: Categories
+        widget: select
+        multiple: true
+        required: false
+        i18n: translate
+        options:
+          - SaaS Analytics Trends
+          - Embedded Analytics
+          - Product Updates
+          - Technical Insights
+          - Product Reviews
+          - AI Analytics
+          - Business Intelligence
+          - Developer Experience
+          - Web SDK
+          - TypeScript
+          - Reveal 2.0
+      - name: tags
+        label: Tags
+        widget: list
+        required: false
+        field: { name: tag, label: Tag, widget: string, i18n: translate }
+      - { name: summary, label: Executive summary (HTML allowed), widget: text, required: false, hint: 'Renders in the sidebar callout box. Plain text is fine.', i18n: translate }
+      - name: takeaways
+        label: Key takeaways
+        widget: list
+        required: false
+        hint: 'One bullet per entry. Renders as the "Key Takeaways" sidebar list.'
+        field: { name: takeaway, label: Takeaway, widget: string, i18n: translate }
+      # Bottom CTA toggle. Editor-component toolbar buttons aren't surfaced by
+      # Sveltia yet, so this checkbox is how editors add the end-of-post
+      # "Request a Demo" banner (rendered by BlogLayout). Leave off for posts
+      # that already hand-place a CTA banner in the body, to avoid duplicates.
+      - { name: ctaDemo, label: "Add a 'Request a Demo' CTA banner at the bottom", widget: boolean, default: false, required: false, i18n: duplicate }
+      - { name: ctaDemoHeadline, label: 'CTA headline (optional — overrides the default)', widget: string, required: false, i18n: translate }
+      - { name: ctaDemoBody, label: 'CTA message (optional — overrides the default)', widget: text, required: false, i18n: translate }
+      # Block-based body builder (＋ Add → pick a block → reorder). This is the
+      # recommended way to author new posts — each block is an on-brand form, no
+      # raw HTML. Leave empty to use the freeform "Body (markdown)" field below
+      # instead (existing posts do that). If any blocks are added here, the
+      # layout renders THESE and ignores the markdown body.
+      - name: content
+        label: Content blocks
+        widget: list
+        required: false
+        types:
+          - name: text
+            label: Text
+            summary: '{{fields.body}}'
+            fields:
+              - { name: body, label: Text (markdown), widget: markdown, i18n: translate }
+          - name: comparison-table
+            label: Comparison Table
+            fields:
+              - { name: headers, label: 'Header row (separate columns with | )', widget: string, i18n: translate }
+              - name: rows
+                label: Data rows
+                widget: list
+                required: false
+                field: { name: row, label: 'Row (cells separated by | )', widget: string, i18n: translate }
+          - name: callout
+            label: Callout (highlight)
+            fields:
+              - { name: body, label: Callout body (markdown), widget: text, i18n: translate }
+          - name: bonus-tip
+            label: Bonus Tip
+            fields:
+              - { name: body, label: Tip body (markdown), widget: text, i18n: translate }
+          - name: cta-banner
+            label: CTA Banner
+            fields:
+              - { name: headline, label: Headline, widget: string, required: false, i18n: translate }
+              - { name: msg, label: Message, widget: text, required: false, i18n: translate }
+              - { name: buttonText, label: Button text, widget: string, default: 'REQUEST A DEMO', required: false, i18n: translate }
+              - { name: buttonLink, label: Button link, widget: string, default: 'https://www.revealbi.io/request-demo', required: false, i18n: duplicate }
+      - { name: body, label: 'Body (markdown — legacy; used only when no Content blocks above)', widget: markdown, required: false, i18n: translate }
+
+  # Whitepapers. Same shape as the blog collection so editors get the same
+  # fields and the same in-body components (Callout, CTA Banner, Gate,
+  # Bonus Tip). The route `/whitepapers/<slug>/` renders these through
+  # BlogLayout with isWhitepaper={true}: pink hero, gated lead-form, and
+  # an About-the-Author card driven by the `authorBio` field. Insert the
+  # `<!-- gate -->` marker in the body where the lead-form should split
+  # preview from gated content.
+  - name: whitepapers
+    label: '📑 Whitepapers'
+    folder: 'src/content/whitepapers'
+    extension: md
+    format: yaml-frontmatter
+    i18n: true
+    create: true
+    slug: '{{slug}}'
+    summary: '{{filename}} — {{title}}'
+    sortable_fields: ['date', 'filename', 'title']
+    fields:
+      - { name: title, label: Title, widget: string, i18n: translate }
+      - { name: description, label: Description (meta + lead paragraph), widget: text, required: false, i18n: translate }
+      - { name: date, label: 'Last updated (YYYY-MM-DD)', widget: string, required: false, i18n: duplicate }
+      # Author dropdown — options must match src/lib/blog-authors.ts exactly.
+      - name: author
+        label: Author
+        widget: select
+        required: false
+        i18n: duplicate
+        options:
+          - Casey Ciniello
+          - Bilyana Petrova
+          - Martin Atanasov
+          - Zdravko Kolev
+          - Jason Beres
+      - { name: authorBio, label: Author bio (HTML allowed), widget: text, required: false, hint: 'Renders in the About-the-Author card below the gated content. Plain text or HTML <p>/<a>/<br>.', i18n: translate }
+      - { name: cover, label: Cover image URL, widget: string, required: false, hint: 'Used for the hero image and the listing-page thumbnail.', i18n: duplicate }
+      - { name: heroImage, label: Hero image URL, widget: string, required: false, hint: 'Optional. Defaults to cover when omitted.', i18n: duplicate }
+      # Categories dropdown. Renamed from the unused singular `category` field to
+      # `categories` (a list) to match what posts actually use. Options are the EN
+      # taxonomy; non-EN locales hold translated category strings, but with
+      # `initial_locales: default` those tabs stay off during normal EN editing.
+      - name: categories
+        label: Categories
+        widget: select
+        multiple: true
+        required: false
+        i18n: translate
+        options:
+          - SaaS Analytics Trends
+          - Embedded Analytics
+          - Product Updates
+          - Technical Insights
+          - Product Reviews
+          - AI Analytics
+          - Business Intelligence
+          - Developer Experience
+          - Web SDK
+          - TypeScript
+          - Reveal 2.0
+      - name: tags
+        label: Tags
+        widget: list
+        required: false
+        field: { name: tag, label: Tag, widget: string, i18n: translate }
+      - { name: summary, label: Executive summary (HTML allowed), widget: text, required: false, i18n: translate }
+      - name: takeaways
+        label: Key takeaways
+        widget: list
+        required: false
+        hint: 'One bullet per entry.'
+        field: { name: takeaway, label: Takeaway, widget: string, i18n: translate }
+      - { name: body, label: 'Body (markdown — use the Gate button to split preview vs gated)', widget: markdown, required: false, i18n: translate }

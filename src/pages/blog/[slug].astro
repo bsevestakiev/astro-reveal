@@ -1,0 +1,75 @@
+---
+import { getCollection, render } from 'astro:content'
+import BlogLayout from '../../layouts/BlogLayout.astro'
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog')
+  const enPosts = posts.filter(p => p.id.startsWith('en/') && p.id !== 'en/index')
+
+  return enPosts.map(post => {
+    const slug = post.id.replace(/^en\//, '')
+    const related = enPosts
+      .filter(p => p.id !== post.id)
+      .sort((a, b) => (b.data.date ?? '').localeCompare(a.data.date ?? ''))
+      .slice(0, 3)
+      .map(p => ({
+        slug: p.id.replace(/^en\//, ''),
+        title: p.data.title,
+        cover: p.data.cover,
+        date: p.data.date,
+        author: p.data.author,
+        category: p.data.categories?.[0] ?? p.data.category,
+      }))
+
+    return {
+      params: { slug },
+      props: { post, related },
+    }
+  })
+}
+
+const { post, related } = Astro.props
+const { Content, headings } = await render(post)
+const readingTime = Math.max(1, Math.ceil((post.body ?? '').split(/\s+/).filter(Boolean).length / 200))
+
+// Build the Table of Contents from the section <h2>s. Astro's `headings`
+// only covers markdown `##` syntax, so posts authored with raw HTML
+// `<h2 id="...">` (the wp-block-heading style) would otherwise get no TOC.
+// Fall back to parsing those headings out of the body when needed.
+let tocHeadings = headings.filter(h => h.depth === 2)
+if (tocHeadings.length === 0) {
+  tocHeadings = [...(post.body ?? '').matchAll(/<h2\b[^>]*\bid=["']([^"']+)["'][^>]*>([\s\S]*?)<\/h2>/gi)].map(m => ({
+    depth: 2,
+    slug: m[1],
+    text: m[2].replace(/<[^>]+>/g, '').replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').trim(),
+  }))
+}
+---
+
+<BlogLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={post.data.cover}
+  heroImage={post.data.heroImage}
+  publishDate={post.data.date}
+  author={post.data.author}
+  category={post.data.categories?.[0] ?? post.data.category}
+  tags={post.data.tags}
+  summary={post.data.summary}
+  takeaways={post.data.takeaways}
+  headings={tocHeadings}
+  hideHeroSubtitle={post.data.hideHeroSubtitle}
+  ctaDemo={post.data.ctaDemo}
+  ctaDemoHeadline={post.data.ctaDemoHeadline}
+  ctaDemoBody={post.data.ctaDemoBody}
+  content={post.data.content}
+  relatedPosts={related}
+  readingTime={readingTime}
+  breadcrumbs={[
+    { label: 'Home', url: '/' },
+    { label: 'Blog', url: '/blog' },
+    { label: post.data.title },
+  ]}
+>
+  <Content />
+</BlogLayout>

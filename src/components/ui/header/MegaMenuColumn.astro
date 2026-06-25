@@ -1,0 +1,11 @@
+---
+interface Props {
+  span?: number
+}
+const { span = 3 } = Astro.props
+---
+<li class={`mega-menu-column mega-menu-columns-${span}-of-12`} style={`--columns:12;--span:${span}`}>
+  <ul class="mega-sub-menu">
+    <slot />
+  </ul>
+</li>

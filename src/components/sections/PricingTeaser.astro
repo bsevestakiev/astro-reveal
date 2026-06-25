@@ -1,0 +1,75 @@
+---
+interface Feature { text: string }
+interface Pillar { icon: string; iconAlt: string; title: string; body: string }
+interface Props {
+  eyebrow?: string
+  headline: string
+  subhead?: string
+  features: Feature[]
+  pillars: Pillar[]
+  ctaLabel: string
+  ctaHref: string
+}
+
+const { eyebrow, headline, subhead, features, pillars, ctaLabel, ctaHref } = Astro.props
+---
+
+<section class="overflow-hidden bg-light-gray-card">
+  <div class="container py-5 my-5">
+    <div class="row animate-me" data-animation="fadeInRight">
+      <div class="col-12 text-center mb-4">
+        {eyebrow && <p class="text-uppercase text-french-rose font-weight-bold mb-3">{eyebrow}</p>}
+        <h2 class="mb-4">{headline}</h2>
+        {subhead && <p class="mx-auto mb-5">{subhead}</p>}
+      </div>
+    </div>
+
+    <div class="card border-0 shadow rounded-xl p-4 p-md-5 animate-me" data-animation="fadeInUp">
+      <div class="row justify-content-center mb-4">
+        <div class="col-12">
+          <h3 class="font-weight-bold text-center mb-4">One Flat Rate. Unlimited Scale.</h3>
+          <div class="row justify-content-center">
+            {features.map(f => (
+              <div class="col-12 col-md-6 col-lg-auto mb-3 mb-lg-0">
+                <div class="d-flex align-items-center justify-content-start">
+                  <img decoding="async" src="/images/homepage/reveal-check-mark-icon.svg"
+                       width="20" height="20" alt="" aria-hidden="true" class="ai-check-icon mr-2" />
+                  <span>{f.text}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-4 border-light-divider" />
+
+      <div class="row justify-content-center">
+        <div class="col-12 text-center mb-4">
+          <h3 class="h3 font-weight-bold">Why Fixed Pricing Wins</h3>
+        </div>
+      </div>
+
+      <div class="row justify-content-center mb-4">
+        {pillars.map(p => (
+          <div class="col-12 col-md-4 mb-4 mb-md-0 text-center">
+            <div class="mb-3">
+              <div class="d-inline-flex align-items-center justify-content-center rounded">
+                <img loading="lazy" decoding="async" src={p.icon} alt={p.iconAlt} title={p.iconAlt}
+                     width="55" height="55" />
+              </div>
+            </div>
+            <h4 class="h5 font-weight-bold mb-3">{p.title}</h4>
+            <p class="mb-0">{p.body}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="row">
+        <div class="col-12 text-center mt-4">
+          <a href={ctaHref} class="btn btn-primary trackCTA">{ctaLabel}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

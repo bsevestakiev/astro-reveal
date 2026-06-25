@@ -1,0 +1,84 @@
+---
+interface Filter {
+  label: string
+  value: string
+  active?: boolean
+}
+
+interface Chart {
+  name: string
+  image: string
+  imageAlt: string
+  categories: string[]
+}
+
+interface Props {
+  headline: string
+  subhead?: string
+  filters: Filter[]
+  charts: Chart[]
+}
+
+const { headline, subhead, filters, charts } = Astro.props
+
+const activeFilter = filters.find(f => f.active)?.value ?? filters[0]?.value ?? 'most-popular'
+---
+
+<section class="container py-5">
+  <header class="row">
+    <div class="col-md-12 text-center">
+      <h2 id="use-the-right-chart-type-for-your-data" set:html={headline} />
+      {subhead && <p set:html={subhead} />}
+    </div>
+  </header>
+  <div class="row row-eq-height justify-content-center mx-auto mt-3">
+    <nav
+      aria-label="Filter Slingshot Data Connectors"
+      class="filters"
+      data-container-display-type="flex"
+      data-filter-content="filter__content"
+      role="toolbar"
+    >
+      {filters.map((f, i) => (
+        <button
+          aria-label={`Filter Chart Types by ${f.label}`}
+          aria-pressed={f.active ? 'true' : 'false'}
+          class={`btn bg-transparent btn--filter${f.active ? ' btn--active' : ''} rounded font-weight-normal px-3 py-2 shadow-none`}
+          data-filter={f.value}
+          tabindex={f.active ? '0' : '-1'}
+          type="button"
+        >{f.label}</button>
+      ))}
+      <br />
+    </nav>
+  </div>
+  <div class="row mx-auto filter__content">
+    {charts.map((chart) => {
+      const catClasses = chart.categories.join(' ')
+      const visible = chart.categories.includes(activeFilter)
+      return (
+        <article
+          aria-hidden={visible ? 'false' : 'true'}
+          class={`col-6 col-md-3 py-3 filter__item ${catClasses}`}
+          tabindex={visible ? '0' : '-1'}
+          style={visible ? undefined : 'display:none;'}
+        >
+          <div class="p-3 border rounded h-100 text-center">
+            <img
+              alt={chart.imageAlt}
+              class="b-lazy"
+              decoding="async"
+              height="135"
+              loading="lazy"
+              src={chart.image}
+              title={chart.imageAlt}
+              width="220"
+            />
+            <p></p>
+            <h3 class="h5 font-weight-bold">{chart.name}</h3>
+          </div>
+        </article>
+      )
+    })}
+  </div>
+</section>

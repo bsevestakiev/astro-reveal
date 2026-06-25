@@ -1,0 +1,12 @@
+---
+interface Props {
+  label: string
+}
+const { label } = Astro.props
+---
+<li class="mega-menu-item mega-menu-item-type-widget">
+  <div class="textwidget custom-html-widget">
+    <p class="text-uppercase mb-1 nav-page-headings">{label}</p>
+    <hr style="float:left;width:4ch;margin-top:5px;margin-bottom:0" />
+  </div>
+</li>

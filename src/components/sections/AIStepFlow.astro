@@ -1,0 +1,158 @@
+---
+interface Step {
+  icon: string
+  iconAlt: string
+  iconColor?: string
+  title: string
+  body: string
+}
+
+interface Props {
+  headline: string
+  footnote?: string
+  steps: Step[]
+}
+
+const { headline, footnote, steps } = Astro.props
+---
+
+<style>
+  .question-insight-section {
+    position: relative;
+    overflow: hidden;
+    background: #111a24;
+  }
+  .question-insight-section::before,
+  .question-insight-section::after {
+    display: none;
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 28rem;
+    height: 28rem;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    filter: blur(18px);
+  }
+  .question-insight-section::before {
+    left: -10rem;
+    background: radial-gradient(circle, rgba(250, 177, 101, 0.68) 0%, rgba(250, 177, 101, 0) 68%);
+  }
+  .question-insight-section::after {
+    right: -10rem;
+    background: radial-gradient(circle, rgba(237, 66, 123, 0.55) 0%, rgba(237, 66, 123, 0) 70%);
+  }
+  .question-insight-shell {
+    position: relative;
+    z-index: 1;
+  }
+  .question-insight-heading {
+    color: #ffffff;
+  }
+  .question-insight-card {
+    background: linear-gradient(90deg, rgba(96, 102, 108, 0.88) 0%, rgba(122, 93, 112, 0.82) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.92);
+    border-radius: 1.1rem;
+    padding: 3rem 2rem 2.5rem;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  }
+  .question-insight-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+  .question-insight-step {
+    text-align: center;
+    color: #ffffff;
+  }
+  .question-insight-icon {
+    border-radius: 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  .question-insight-icon img {
+    width: 5.25rem;
+    height: 5.25rem;
+  }
+  .question-insight-title {
+    color: #ffffff;
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+  .question-insight-copy {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+  .question-insight-footer {
+    color: #ffffff;
+  }
+  @media (max-width: 991.98px) {
+    .question-insight-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .question-insight-card {
+      padding: 2rem 1.5rem;
+    }
+  }
+  @media (max-width: 575.98px) {
+    .question-insight-grid {
+      grid-template-columns: 1fr;
+    }
+    .question-insight-section::before,
+    .question-insight-section::after {
+      width: 16rem;
+      height: 16rem;
+    }
+  }
+</style>
+
+<section class="question-insight-section py-5 mt-5">
+  <div class="container py-lg-4 my-lg-4 question-insight-shell">
+    <div class="row animate-me" data-animation="fadeInRight">
+      <div class="col-12 text-center mb-5">
+        <h2 class="mb-0 question-insight-heading" set:html={headline} />
+      </div>
+    </div>
+
+    <div class="row justify-content-center animate-me" data-animation="fadeInUp">
+      <div class="col-12">
+        <div class="question-insight-card">
+          <div class="question-insight-grid">
+            {steps.map((step) => (
+              <div class="question-insight-step">
+                <div
+                  class="question-insight-icon"
+                  style={step.iconColor ? `background-color:${step.iconColor};` : ''}
+                >
+                  <img
+                    loading="lazy"
+                    decoding="async"
+                    src={step.icon}
+                    alt={step.iconAlt}
+                    width="48"
+                    height="48"
+                    title={step.iconAlt}
+                  />
+                </div>
+                <h3 class="question-insight-title font-weight-bold mb-3">{step.title}</h3>
+                <p class="question-insight-copy mb-0" set:html={step.body} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {footnote && (
+      <div class="row mt-5 animate-me" data-animation="fadeInRight">
+        <div class="col-12 text-center">
+          <p class="h5 font-weight-bold mb-0 question-insight-footer" set:html={footnote} />
+        </div>
+      </div>
+    )}
+  </div>
+</section>

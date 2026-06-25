@@ -1,0 +1,57 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import BlogHero from '../../components/blog/BlogHero.astro'
+import PostList from '../../components/blog/PostList.astro'
+import { getEnPosts, buildPagination, type PaginationLinks } from '../../lib/blog'
+import { ALL_AUTHORS, getAuthorBio } from '../../lib/blog-authors'
+
+export async function getStaticPaths() {
+  const all = await getEnPosts()
+  return ALL_AUTHORS.map((author) => {
+    const posts = all.filter((p) => p.data.author === author.name)
+    return {
+      params: { slug: author.slug },
+      props: {
+        authorName: author.name,
+        posts,
+        // Single page — show all of an author's posts so pagination links never 404.
+        pagination: buildPagination(1, 1, `/author/${author.slug}`),
+      },
+    }
+  })
+}
+
+interface Props {
+  authorName: string
+  posts: CollectionEntry<'blog'>[]
+  pagination: PaginationLinks
+}
+
+const { authorName, posts, pagination } = Astro.props
+const bio = getAuthorBio(authorName)
+// Plain-text description from the bio (strip any HTML), capped for meta length.
+const metaDescription = bio
+  ? bio.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 160)
+  : `Articles on embedded analytics, data visualization and BI by ${authorName} at Reveal.`
+---
+
+<BaseLayout
+  title={`${authorName}, Author at Reveal`}
+  description={metaDescription}
+>
+  <BlogHero
+    title={authorName}
+    subhead={`Embedded analytics insights, how-tos and product news from ${authorName}.`}
+  />
+
+  {bio && (
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 py-4 text-muted small" set:html={bio} />
+      </div>
+    </div>
+  )}
+
+  <PostList posts={posts} pagination={pagination} emptyMessage={`No posts by ${authorName} yet.`} />
+</BaseLayout>

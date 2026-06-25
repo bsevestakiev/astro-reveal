@@ -1,0 +1,52 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import BlogHero from '../../../components/blog/BlogHero.astro'
+import PostList from '../../../components/blog/PostList.astro'
+import {
+  getEnPosts,
+  postHasCategorySlug,
+  BLOG_CATEGORIES,
+  BLOG_PAGE_SIZE,
+  buildPagination,
+  type PaginationLinks,
+} from '../../../lib/blog'
+
+export async function getStaticPaths() {
+  const all = await getEnPosts()
+  return BLOG_CATEGORIES.map((cat) => {
+    const posts = all.filter((p) => postHasCategorySlug(p, cat.slug))
+    const totalPages = Math.max(1, Math.ceil(posts.length / BLOG_PAGE_SIZE))
+    return {
+      params: { cat: cat.slug },
+      props: {
+        catName: cat.name,
+        catSlug: cat.slug,
+        posts: posts.slice(0, BLOG_PAGE_SIZE),
+        pagination: buildPagination(1, totalPages, `/blog/category/${cat.slug}`),
+      },
+    }
+  })
+}
+
+interface Props {
+  catName: string
+  catSlug: string
+  posts: CollectionEntry<'blog'>[]
+  pagination: PaginationLinks
+}
+
+const { catName, catSlug, posts, pagination } = Astro.props
+---
+
+<BaseLayout
+  title={`${catName} Blog By Reveal BI`}
+  description={`Read our ${catName.toLowerCase()} blog to find out the latest about embedded analytics, data visualization, BI trends and more. Great practical tips delivered by our analytics experts.`}
+>
+  <BlogHero
+    title="Stay up to date with Reveal"
+    subhead="Reveal business intelligence blog gives you the latest embedded analytics trends, how-tos, best practices, and product news."
+  />
+
+  <PostList posts={posts} pagination={pagination} emptyMessage={`No posts in ${catName} yet.`} />
+</BaseLayout>

@@ -1,0 +1,60 @@
+---
+import JsonLd from '../seo/JsonLd.astro'
+import { stripHtml } from '../../lib/seo'
+
+interface IndexLink { label: string; href: string }
+interface IndexColumn { title: string; links: IndexLink[] }
+interface Item { anchor: string; question: string; answer: string }
+interface Props {
+  headline: string
+  headlineAnchor?: string
+  indexColumns?: IndexColumn[]
+  items: Item[]
+}
+
+const { headline, headlineAnchor, indexColumns = [], items } = Astro.props
+
+const animations = ['fadeInLeft', 'fadeInRight']
+
+// Google's FAQPage validator rejects HTML in acceptedAnswer.text — strip tags.
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((item, i) => ({
+    '@type': 'Question',
+    position: i + 1,
+    name: stripHtml(item.question),
+    acceptedAnswer: { '@type': 'Answer', text: stripHtml(item.answer) },
+  })),
+}
+---
+
+<section class="container mb-5">
+  <header class="row pt-0 pt-md-5 container">
+    <h1 id={headlineAnchor} set:html={headline} />
+  </header>
+  {indexColumns.length > 0 && (
+    <div class="row pt-3">
+      {indexColumns.map((col, i) => (
+        <div class="col-md-6">
+          <div class={`animate-me animated ${animations[i] ?? 'fadeInLeft'}`} data-animation={animations[i] ?? 'fadeInLeft'}>
+            <h5 class="font-weight-bold" set:html={col.title} />
+            <ul class="list--li-style-none list--li-space-xs pt-1 pl-0">
+              {col.links.map((link) => (
+                <li><a href={link.href}>{link.label}</a></li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+  {items.map((item) => (
+    <>
+      <h3 class="text-primary pt-4" id={item.anchor} set:html={item.question} />
+      <Fragment set:html={item.answer} />
+    </>
+  ))}
+</section>
+
+<JsonLd data={faqSchema} />

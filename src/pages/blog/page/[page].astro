@@ -1,0 +1,44 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import BlogHero from '../../../components/blog/BlogHero.astro'
+import PostList from '../../../components/blog/PostList.astro'
+import { getEnPosts, BLOG_PAGE_SIZE, buildPagination, type PaginationLinks } from '../../../lib/blog'
+
+export async function getStaticPaths() {
+  const posts = await getEnPosts()
+  const totalPages = Math.max(1, Math.ceil(posts.length / BLOG_PAGE_SIZE))
+  const paths = []
+  for (let p = 2; p <= totalPages; p++) {
+    paths.push({
+      params: { page: String(p) },
+      props: {
+        posts: posts.slice((p - 1) * BLOG_PAGE_SIZE, p * BLOG_PAGE_SIZE),
+        pagination: buildPagination(p, totalPages, '/blog'),
+        currentPage: p,
+      },
+    })
+  }
+  return paths
+}
+
+interface Props {
+  posts: CollectionEntry<'blog'>[]
+  pagination: PaginationLinks
+  currentPage: number
+}
+
+const { posts, pagination, currentPage } = Astro.props
+---
+
+<BaseLayout
+  title={`Business Intelligence Blog By Reveal BI — Page ${currentPage}`}
+  description="Read our business intelligence blog to find out the latest about embedded analytics, data visualization, BI trends and more."
+>
+  <BlogHero
+    title="Stay up to date with Reveal"
+    subhead="Reveal business intelligence blog gives you the latest embedded analytics trends, how-tos, best practices, and product news."
+  />
+
+  <PostList posts={posts} pagination={pagination} />
+</BaseLayout>

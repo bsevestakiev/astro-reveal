@@ -1,0 +1,196 @@
+---
+// Tabbed feature panel on a light (#ecedf4) background band with wave SVGs above/below.
+// Mirrors WP's TOP FEATURES section from white-label-analytics.
+// Unlike FeatureTabs (pink band), this variant uses the light purple-grey band.
+
+interface Tab {
+  id: string
+  label: string
+  title: string
+  image?: string
+  imageAlt?: string
+  video?: string
+  videoPoster?: string
+  body: string
+}
+
+interface Props {
+  eyebrow?: string
+  headline: string
+  intro?: string
+  tabs: Tab[]
+  anchor?: string
+  bgColor?: string
+}
+
+const { eyebrow, headline, intro, tabs, anchor = 'top-features', bgColor = '#ecedf4' } = Astro.props
+---
+
+<div style={`background-color: ${bgColor};`} id={anchor}>
+  <!-- Top wave -->
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+       x="0px" y="0px" viewBox="0 5 1920 184"
+       style="enable-background:new 0 5 1920 184; position:relative; top:-1px;"
+       xml:space="preserve" class="ie-hide" aria-hidden="true">
+    <path class="sta" style="fill:#fff; stroke:#fff; stroke-width: 2px;"
+          d="M1920,17.9c-213.4,67.7-435.3,108-659.4,110.8c-163.5,2-326.4-22-488.2-43.1c-46.7-6.1-93.3-12.4-139.9-18.9 C529,52.2,424.8,37.8,320.1,39.3c-50.8,0.7-101.4,6.3-151.2,16.2C121.2,65,0,106.5,0,116.5C0,116.5,0,0,0,0h1920V17.9z">
+    </path>
+  </svg>
+
+  <section class="container pt-4 pt-md-0 pb-4 mb-md-5">
+    <div class="row justify-content-center">
+      <header class="col-12 col-md-10 text-center mb-3">
+        {eyebrow && (
+          <p class="text-uppercase text-french-rose font-weight-bold">{eyebrow}</p>
+        )}
+        <h2 set:html={headline} />
+        {intro && <p set:html={intro} />}
+      </header>
+    </div>
+
+    <!-- Tab nav -->
+    <div class="row row-eq-height justify-content-center my-3 pb-3">
+      <nav role="toolbar" class="filters lft-tab-filters-container w-100"
+           data-filter-content="lft-filter__content"
+           aria-label="Filter Reveal Features"
+           data-container-display-type="flex">
+        {tabs.map((t, i) => (
+          <button
+            class={`btn btn--filter lft-btn--filter${i === 0 ? ' btn--active lft-btn--active' : ''}`}
+            data-secondary="true"
+            type="button"
+            data-filter={t.id}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? '0' : '-1'}
+          >{t.label}</button>
+        ))}
+      </nav>
+    </div>
+
+    <!-- Tab panels -->
+    <div class="row row-eq-height lft-filter__content bg-color-white rounded-lg pb-3 p-0 p-md-5 m-1 m-md-0">
+      {tabs.map((t, i) => (
+        <div
+          class={`filter__item ${t.id}`}
+          data-secondary="true"
+          tabindex="-1"
+          aria-hidden={i === 0 ? 'false' : 'true'}
+          style={i === 0 ? undefined : 'display:none;'}
+        >
+          <div class="container container--md-mw1250">
+            <div class="row align-items-center">
+              <div class="animate-me col-12 col-md-7 order-2" data-animation="fadeInRight">
+                {t.video ? (
+                  <div class="d-block mx-auto rounded-xl">
+                    <video class="d-block w-100" autoplay loop muted playsinline poster={t.videoPoster}>
+                      <source src={t.video} type="video/mp4" />
+                    </video>
+                  </div>
+                ) : t.image ? (
+                  <img
+                    decoding="async"
+                    class="d-block"
+                    src={t.image}
+                    alt={t.imageAlt ?? t.title}
+                    title={t.imageAlt ?? t.title}
+                  />
+                ) : null}
+              </div>
+              <div class="animate-me col-12 mx-auto order-1 col-md-5 text-left" data-animation="fadeInRight">
+                <h3 class="my-4 h2" set:html={t.title} />
+                <p class="mb-4" set:html={t.body} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Bottom wave -->
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+       x="0px" y="0px" viewBox="0 0 1920 135.3"
+       style="enable-background:new 0 0 1920 135.3; position:relative; top:2px;"
+       xml:space="preserve" class="ie-hide" aria-hidden="true">
+    <path class="sts" style="fill:#fff;stroke:#fff;"
+          d="M0,119.2C213.4,51.5,435.3,11.2,659.4,8.4c163.5-2,326.4,22,488.2,43.1c46.7,6.1,93.3,12.4,139.9,18.9 c103.5,14.6,207.6,28.9,312.4,27.4c50.8-0.7,101.4-6.3,151.2-16.2c47.7-9.5,168.9-51,168.9-61c0,0,0,116.5,0,116.5H0V119.2z">
+    </path>
+  </svg>
+</div>
+
+<style is:global>
+.lft-tab-filters-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+.lft-tab-filters-container .lft-btn--filter {
+  border-radius: 4px !important;
+  font-weight: bold !important;
+  font-size: 0.9rem;
+  text-transform: none;
+  padding: 0.625rem 2.5rem;
+  background-color: #f6f7fa;
+  color: #212529;
+}
+.lft-tab-filters-container .lft-btn--active,
+.lft-tab-filters-container .lft-btn--filter:hover {
+  color: #fff !important;
+  background: #ec457d !important;
+}
+@media (max-width: 1200px) {
+  .lft-tab-filters-container {
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+  }
+  .lft-tab-filters-container .lft-btn--filter {
+    margin: 0.3rem;
+    padding: 0.625rem 0.5rem;
+  }
+}
+.lft-filter__content {
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  max-height: 800px;
+}
+@media (max-width: 768px) {
+  .lft-filter__content {
+    max-height: none;
+  }
+}
+</style>
+
+<script is:inline>
+(function () {
+  var containers = document.querySelectorAll('.lft-tab-filters-container');
+  containers.forEach(function (nav) {
+    var contentBox = nav.closest('.container') && nav.closest('.container').parentElement
+      ? nav.closest('section') || nav.parentElement.parentElement
+      : nav.parentElement.parentElement;
+    // find the sibling .lft-filter__content
+    var parent = nav.parentElement;
+    while (parent && !parent.querySelector('.lft-filter__content')) {
+      parent = parent.parentElement;
+    }
+    var panels = parent ? parent.querySelectorAll('.lft-filter__content > .filter__item') : [];
+    nav.querySelectorAll('button[data-filter]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var target = btn.getAttribute('data-filter');
+        nav.querySelectorAll('button[data-filter]').forEach(function (b) {
+          var active = b === btn;
+          b.classList.toggle('btn--active', active);
+          b.classList.toggle('lft-btn--active', active);
+          b.setAttribute('aria-pressed', active ? 'true' : 'false');
+          b.setAttribute('tabindex', active ? '0' : '-1');
+        });
+        panels.forEach(function (p) {
+          var show = p.classList.contains(target);
+          p.style.display = show ? '' : 'none';
+          p.setAttribute('aria-hidden', show ? 'false' : 'true');
+        });
+      });
+    });
+  });
+})();
+</script>

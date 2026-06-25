@@ -1,0 +1,31 @@
+---
+interface Props {
+  title: string
+  body?: string
+  image?: string
+  imageAlt?: string
+}
+
+const { title, body, image, imageAlt = '' } = Astro.props
+---
+
+<div class="bg-light bg-header-teardrop-secondary pt-5">
+  <div class="jumbotron mb-0 position-relative bg-transparent py-0">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 col-lg-6 align-self-center mt-md-4">
+          <h1 set:html={title} />
+          {body && <Fragment set:html={body} />}
+        </div>
+        <div class="col-md-12 col-lg-6">
+          {image && (
+            <img alt={imageAlt} class="d-none d-lg-block" decoding="async" src={image} title={imageAlt} />
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="border-wave-bottom ie-hide">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 180.3" style="enable-background:new 0 0 1920 180.3;" xml:space="preserve"><path style="fill: #ffffff; stroke: #ffffff;" d="M-2,145.7C211.7,78.1,435,37.9,659.4,35.2c113-1.4,226.1,6.8,337.4,26.1c108.4,18.7,209.2,58.9,315.4,83 c67.7,15.3,135.9,24.7,205.5,24.1c152.4-1.3,302.6-50.2,405-166.9v182.7H-1.4L-2,145.7z"/></svg>
+  </div>
+</div>

@@ -1,0 +1,149 @@
+---
+import { getStrings } from '../../i18n'
+import { cdn } from '../../lib/env'
+import { localizedHref } from '../../lib/href'
+
+interface Props {
+  lang?: string
+}
+
+const { lang = 'en' } = Astro.props
+const t = (getStrings(lang) as any).demoModal
+const lh = (h: string) => localizedHref(h, lang)
+---
+
+<div class="ig-modal ig-modal--white" id="requestDemo" tabindex="-1" role="dialog" aria-hidden="true"
+  data-maxwidth="470px" style="padding:0;border-radius:5px 5px 0 0;background:transparent">
+  <div class="text-center sidebar-right sidebar-right--header">
+    <div class="overflow-hidden rounded-xl shadow">
+      <header class="text-white bg--french-rose">
+        <p class="h3"><strong>{t.title}</strong></p>
+        <p class="text-0875">{t.subtitle}</p>
+      </header>
+      <div class="text-left sidebar-card bg-white mb-0">
+        <div id="lead-form_2-loader" class="loader__container spinner__container" style="min-height:200px">
+          <div class="spinner spinner--border"></div>
+        </div>
+        <form id="lead-form_2" class="lead-tracker-form ui-form" data-form-theme="modal-layout" style="display:none">
+          <div class="form-row">
+            <div class="col-12"><span class="ui-form__required-note">{t.requiredNote}</span></div>
+            <div id="apiError2" class="apiError field-validation-error-msg" style="display:none" set:html={t.apiErrorHtml} />
+            <div id="formInvalidEmail2" class="formInvalidEmail field-validation-error-msg" style="display:none">{t.formInvalidEmail}</div>
+            <div id="formInvalidFreeEmail2" class="formInvalidFreeEmail field-validation-error-msg" style="display:none">{t.formInvalidFreeEmail}</div>
+          </div>
+          <div class="form-row">
+            <div class="col-12">
+              <div class="form-row d-none">
+                <div class="form-group col">
+                  <input id="Country_2" name="Country" class="sfInput form-control" type="text" value="" tabindex="-1" autocomplete="false" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col">
+                  <input id="Email_2" name="Email" type="email" class="form-control sfInput required"
+                    aria-labelledby="lblEmail_2" data-val-length-max="60" value="" />
+                  <label id="lblEmail_2" for="Email_2">{t.fields.email}</label>
+                </div>
+              </div>
+              <div class="form-row name">
+                <div class="form-group col-12">
+                  <input id="FirstName_2" name="FirstName" type="text" class="form-control sfInput"
+                    aria-labelledby="lblFirstName_2" data-val-length-max="100" value="" />
+                  <label id="lblFirstName_2" for="FirstName_2">{t.fields.firstName}</label>
+                </div>
+                <div class="form-group col-12">
+                  <input id="LastName_2" name="LastName" type="text" class="form-control sfInput"
+                    aria-labelledby="lblLastName_2" data-val-length-max="100" value="" />
+                  <label id="lblLastName_2" for="LastName_2">{t.fields.lastName}</label>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-12">
+                  <input id="Company_2" name="Company" type="text" class="form-control sfInput"
+                    aria-labelledby="lblCompany_2" data-val-length-min="2" data-val-length-max="50" value="" />
+                  <label id="lblCompany_2" for="Company_2">{t.fields.company}</label>
+                </div>
+                <div class="form-group col-12">
+                  <input id="Phone_2" name="Phone" type="tel" class="form-control sfInput"
+                    aria-labelledby="lblPhone_2" data-val-length-max="25" value="" />
+                  <label id="lblPhone_2" for="Phone_2">{t.fields.phone}</label>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col">
+                  <div class="custom-control custom-checkbox custom-control-inline">
+                    <input name="acceptGDPRFormSubmission" id="acceptGDPRFormSubmission_2" type="checkbox"
+                      class="accept-gdpr custom-control-input" value="yes" aria-required="true" />
+                    <label id="LblacceptGDPRFormSubmission_2" for="acceptGDPRFormSubmission_2" class="custom-control-label">
+                      {t.consentPrefix}
+                      <a class="text-decoration-none font-weight-bolder" href={lh('/terms-of-use')}>{t.consentTermsOfUse}</a>{t.consentAnd}
+                      <a class="text-decoration-none font-weight-bolder" href={lh('/privacy-policy')}>{t.consentPrivacyPolicy}</a>
+                      <p class="mt-2 mb-0 label">{t.consentRecaptcha}</p>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-row justify-content-center">
+                <div class="col col-lg text-center">
+                  <button id="submit_2" type="submit" class="submit btn rounded-pill btn-primary" disabled>{t.submit}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="thankyou__container thankyou__lead-form_2" style="display:none">
+          <div class="features-hero__form-message pb-4 text-center" style="width:100%">
+            <img decoding="async" class="w-25 mb-3"
+              src={cdn('/marketing/slingshot/checkmark.svg')}
+              alt={t.thankYou.altText} />
+            <p class="pb-4">{t.thankYou.line1}</p>
+            <p>{t.thankYou.line2}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  window.addEventListener('load', function () {
+    if (typeof leadTracker === 'undefined') return;
+    if (!document.getElementById('lead-form_2')) return;
+    var cfg = window.__REVEAL_CONFIG__ || {};
+    leadTracker.execute({
+      macro: 'LeadTracker',
+      lang: 'en',
+      leadFormID: 'lead-form_2',
+      reaptchaKey: cfg.recaptchaSiteKey || '',
+      redirectUrl: '/thank-you-for-your-interest-in-reveal',
+      redirectMode: '_self',
+      thankYouMessage: '1',
+      formContainerId: 'modal-demo_0000',
+      productCode: 'A8',
+      leadProductCode: '',
+      packageName: '',
+      productResourceType: '',
+      osSupport: '',
+      installerType: '',
+      eventTypeParam: 'demo request',
+      eventDetailParam: 'form submitted',
+      prohibitFreeMail: true,
+      prohibitDisposableMail: true,
+      showRequestDemo: false,
+      googleEventType: 'Form Submit',
+      googleEventLabel: 'Reveal - Request More Info',
+      googleEventTypeDownload: '',
+      googleEventLabelDownload: '',
+      zoomWebinarId: '',
+      leadSourceNumber: 'A800001',
+      tier: 'tier_1',
+      formLocation: '',
+      formValue: '2000',
+      productName: 'Reveal',
+      formName: 'form submitted',
+      cookiesPrefix: 'reveal_',
+    });
+  });
+</script>

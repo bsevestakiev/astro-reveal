@@ -1,0 +1,114 @@
+---
+interface SrcsetEntry { media: string; srcset: string }
+
+interface Props {
+  headline: string
+  subheadline?: string
+  ctaLabel?: string
+  ctaUrl?: string
+  demoModal?: boolean
+  bgColor?: string
+  image: string
+  imageSrcset?: SrcsetEntry[]
+  imageAlt?: string
+  anchor?: string
+}
+
+const {
+  headline,
+  subheadline,
+  ctaLabel = 'Book a Personalized Demo',
+  ctaUrl = '#',
+  demoModal = true,
+  bgColor = '#E8195B',
+  image,
+  imageSrcset,
+  imageAlt = '',
+  anchor,
+} = Astro.props
+---
+
+<section id={anchor} class="py-5 overflow-hidden">
+  <div class="container">
+    <div
+      class="cta-image-card position-relative overflow-hidden text-white"
+      style={`background-color: ${bgColor}; border-radius: 24px;`}
+    >
+      <div class="wave-lines-overlay" aria-hidden="true"></div>
+      <div class="row align-items-center justify-content-between px-4 px-md-5 py-5">
+        <div class="col-md-5 align-content-center py-3">
+          <h2 class="mb-3" set:html={headline} />
+          {subheadline && <p class="mb-4" set:html={subheadline} />}
+          {demoModal ? (
+            <a
+              class="btn btn-primary trackCTA ig-show-modal"
+              href={ctaUrl}
+              data-targetid="requestDemo"
+              data-xd-ga-action="Gated Demo"
+              data-xd-ga-label="Reveal"
+            >{ctaLabel}</a>
+          ) : (
+            <a class="btn btn-primary trackCTA" href={ctaUrl}>{ctaLabel}</a>
+          )}
+        </div>
+        <div class="col-md-6 text-center cta-image-card__img-col">
+          <picture>
+            {imageSrcset && imageSrcset.map((e: SrcsetEntry) => (
+              <source media={e.media} srcset={e.srcset} />
+            ))}
+            <img
+              loading="lazy"
+              decoding="async"
+              class="img-fluid cta-image-card__img"
+              src={image}
+              alt={imageAlt}
+              title={imageAlt}
+            />
+          </picture>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-image-card {
+    container-type: inline-size;
+  }
+
+  .wave-lines-overlay {
+    position: absolute;
+    inset: 0;
+    background: url('https://static.infragistics.com/marketing/reveal/embedded-analytics/wave-lines.svg') no-repeat;
+    background-position: bottom -250px right -90px;
+    background-size: contain;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .cta-image-card .row {
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-image-card__img-col {
+    align-self: flex-end;
+  }
+
+  .cta-image-card__img {
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    /* overflow upward */
+    margin-top: -60px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  @media (max-width: 767px) {
+    .cta-image-card__img {
+      margin-top: 24px;
+      border-radius: 8px;
+    }
+  }
+</style>

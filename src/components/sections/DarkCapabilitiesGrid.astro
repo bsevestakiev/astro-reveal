@@ -1,0 +1,46 @@
+---
+interface Card {
+  icon: string
+  iconAlt: string
+  title: string
+  body: string
+}
+
+interface Props {
+  headline: string
+  cards: Card[]
+  iconSize?: number
+}
+
+const { headline, cards, iconSize = 35 } = Astro.props
+---
+
+<div id="capabilities" class="bg-color-lucky-point pt-4 pt-lg-5 pb-5">
+  <div class="container py-lg-5">
+    <h2 class="text-center mb-5 text-white" set:html={headline} />
+    <div class="row mx-auto pb-3">
+      {cards.map((card) => (
+        <div class="col-sm-12 col-md-6 mb-4">
+          <div class="p-4-5 h-100 border rounded-lg h4 bg-white">
+            <div class="d-flex justify-content-start align-items-center mb-3">
+              <img
+                decoding="async"
+                loading="lazy"
+                class="d-inline-block pt-1 mr-3 rounded-xl"
+                src={card.icon}
+                alt={card.iconAlt}
+                width={iconSize}
+                height={iconSize}
+                title={card.iconAlt}
+              />
+              <div class="h4 d-inline-block mb-0">
+                <strong class="align-middle">{card.title}</strong>
+              </div>
+            </div>
+            <p class="h5 small" style="line-height: 1.5;">{card.body}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>

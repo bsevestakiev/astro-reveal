@@ -1,0 +1,162 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { getAuthor, getAuthorBio, getAvatarUrl } from '../../lib/blog-authors'
+
+export async function getStaticPaths() {
+  const webinars = await getCollection('webinars')
+  return webinars
+    .filter(w => w.id.startsWith('en/'))
+    .map(webinar => ({
+      params: { slug: webinar.id.replace(/^en\//, '') },
+      props: { webinar },
+    }))
+}
+
+const { webinar } = Astro.props
+const { Content } = await render(webinar)
+const presenter = getAuthor(webinar.data.presenter)
+const presenterBio = getAuthorBio(webinar.data.presenter)
+const today = new Date()
+today.setHours(0, 0, 0, 0)
+const isDatePast = webinar.data.date ? new Date(webinar.data.date) < today : false
+const hasRecording = Boolean(webinar.data.youtube_id)
+const isPast = hasRecording || isDatePast
+const formattedDate = webinar.data.date
+  ? new Date(webinar.data.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  : null
+---
+
+<BaseLayout
+  title={`${webinar.data.title} | Reveal Webinar`}
+  description={webinar.data.description}
+>
+
+  <!-- Hero section (pink background) -->
+  <div style="background:#EC417A;">
+    <div class="container py-5">
+      <div class="row align-items-start">
+
+        <!-- Left: breadcrumbs, chips, title, description -->
+        <div class="col-12 col-lg-7">
+
+          <nav aria-label="breadcrumbs" class="rank-math-breadcrumb mb-3">
+            <p>
+              <a href="/" class="text-white">Home</a>
+              <span class="separator text-white"> / </span>
+              <a href="/webinars" class="text-white">Webinars</a>
+              <span class="separator text-white"> / </span>
+              <span class="last text-white">{webinar.data.title}</span>
+            </p>
+          </nav>
+
+          <!-- Meta chip row (desktop only) -->
+          <div class="d-none d-lg-inline-flex align-items-center p-2 px-3 text-light mb-3" style="background:#ca3869;border-radius:5px;">
+            <div class="pr-3 mr-3 border-right">Free Webinar</div>
+            {formattedDate && (
+              <div class="pr-3 mr-3 border-right">
+                <time itemprop="datePublished" datetime={webinar.data.datetime ?? webinar.data.date}>
+                  {formattedDate}
+                </time>
+              </div>
+            )}
+            {webinar.data.time && (
+              <div class="pr-3 mr-3 border-right">{webinar.data.time}</div>
+            )}
+            {webinar.data.duration && (
+              <div>
+                <img class="mr-1" src="https://static.infragistics.com/marketing/Website/Webinars/2023/app-builder/clock.svg" alt="" style="width:15px;height:15px;margin-bottom:3px;" aria-hidden="true" />
+                {webinar.data.duration}
+              </div>
+            )}
+          </div>
+
+          <!-- Title (desktop) -->
+          <h1 class="text-white d-none d-lg-block mb-4" set:html={webinar.data.title} />
+
+          <!-- Description + subhead -->
+          {webinar.data.description && (
+            <p class="h4 mb-3 text-white">{webinar.data.description}</p>
+          )}
+          {webinar.data.subhead && (
+            <p class="h4 text-white mb-0">{webinar.data.subhead}</p>
+          )}
+        </div>
+
+        <!-- Mobile title (hidden on desktop) -->
+        <div class="col-12 d-block d-lg-none order-first mb-3">
+          <h1 class="text-white mb-2">{webinar.data.title}</h1>
+          {formattedDate && (
+            <time class="d-block mb-4 text-white" itemprop="datePublished" datetime={webinar.data.datetime ?? webinar.data.date}>
+              {formattedDate}{webinar.data.time ? ` | ${webinar.data.time}` : ''}
+            </time>
+          )}
+        </div>
+
+        <!-- Right: recording / form / concluded card -->
+        <div class="col-12 col-lg-5 pt-2 pt-lg-0 order-0 order-lg-1 mb-5 mb-lg-0">
+          {hasRecording ? (
+            <div class="embed-responsive embed-responsive-16by9 rounded shadow">
+              <iframe
+                class="embed-responsive-item"
+                src={`https://www.youtube.com/embed/${webinar.data.youtube_id}`}
+                title={webinar.data.title}
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            </div>
+          ) : isPast ? (
+            <div class="bg-light p-4">
+              Sorry, but this webinar has concluded. Check out our <a href="https://www.youtube.com/@RevealBI" target="_blank" rel="noopener">YouTube channel</a> to watch the recording.
+            </div>
+          ) : (
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h4 class="card-title">Register for this Webinar</h4>
+                <p class="text-muted small">Reserve your spot — it's free.</p>
+                <form id="lead-form_1" class="ig-lead-form" novalidate>
+                  <div class="form-group">
+                    <label for="wf-first-name">First Name</label>
+                    <input type="text" id="wf-first-name" name="FirstName" class="form-control" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="wf-email">Work Email</label>
+                    <input type="email" id="wf-email" name="Email" class="form-control" required />
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block mt-3">Reserve My Spot</button>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Body section (white) -->
+  <div class="container py-5">
+    <article class="entry-content col-12 col-lg-7">
+      <Content />
+    </article>
+
+    {presenter && (
+      <>
+        <h2 class="my-4 font-weight-bold">About the presenter</h2>
+        <div class="container bg-light rounded-xl py-4">
+          <div class="row py-4 px-4">
+            <div class="col-2 px-0">
+              <img alt={presenter.name} src={getAvatarUrl(presenter.name, 120)} class="avatar avatar-120 photo rounded-circle" height="120" width="120" decoding="async" />
+            </div>
+            <div class="col-10 pl-4 pr-0">
+              <span class="d-block h3 font-weight-bold">{presenter.name}</span>
+              {presenterBio && <Fragment set:html={presenterBio} />}
+            </div>
+          </div>
+        </div>
+      </>
+    )}
+  </div>
+
+</BaseLayout>

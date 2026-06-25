@@ -1,0 +1,121 @@
+---
+interface SummaryCard { icon?: string; iconAlt?: string; title: string; body: string }
+type Cell = 'check' | 'x' | string
+interface Row { label: string; cells: Cell[] }
+
+interface Props {
+  topEyebrow?: string
+  preHeadline?: string
+  headline: string
+  summary?: SummaryCard[]
+  middleEyebrow?: string
+  middleHeadline?: string
+  middleSubhead?: string
+  columns: string[]
+  rows: Row[]
+  anchor?: string
+}
+
+const {
+  topEyebrow,
+  preHeadline,
+  headline,
+  summary = [],
+  middleEyebrow,
+  middleHeadline,
+  middleSubhead,
+  columns,
+  rows,
+  anchor = 'why-reveal',
+} = Astro.props
+---
+
+<section id={anchor} class="navmenu-size--container">
+  <div class="container-fluid py-5 px-md-5 pt-0 rounded-xl" style="background-color:#ebebf5">
+    <div class="pt-5">
+      <header class="row">
+        <div class="col-md-12 text-center mb-5">
+          {topEyebrow && (
+            <p class="text-uppercase text-french-rose font-weight-bold">{topEyebrow}</p>
+          )}
+          {preHeadline && (
+            <h2 class="mb-0 real-world-results">{preHeadline}</h2>
+          )}
+          <h2 set:html={headline} />
+        </div>
+      </header>
+
+      {summary.length > 0 && (
+        <div class="row pb-3 mw-900px mx-auto text-center text-md-left">
+          {summary.map((card, i) => (
+            <div class={`col-md-6 mb-5 mb-md-0${i === 0 ? ' whyreveal--items-border' : ' pl-3 pl-md-5'}`}>
+              {card.icon && (
+                <img loading="lazy" decoding="async" src={card.icon} alt={card.iconAlt ?? card.title}
+                     style="height:50px" class="mb-3" title={card.title} />
+              )}
+              <h3 class="h5 text-black"><strong>{card.title}</strong></h3>
+              <p>{card.body}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div class="pt-5" id="compare-features">
+      {(middleEyebrow || middleHeadline || middleSubhead) && (
+        <header class="row">
+          <div class="col-md-12 text-center mb-2">
+            {middleEyebrow && (
+              <p class="text-uppercase text-french-rose font-weight-bold pt-4">{middleEyebrow}</p>
+            )}
+            {middleHeadline && <h2 set:html={middleHeadline} />}
+            {middleSubhead && <p class="mw-800px mx-auto">{middleSubhead}</p>}
+          </div>
+        </header>
+      )}
+
+      <div class="row">
+        <div class="col-12 mw-950px m-auto">
+          <div class="bg-color-white rounded-xl overflow-hidden">
+            <div class="table-responsive-sm mw-100">
+              <table class="table comparison-table mw-100 mb-0" border="0" cellpadding="10">
+                <tbody>
+                  <tr>
+                    <th class="table-row-width table--compare-features">&nbsp;</th>
+                    {columns.map((col, i) => (
+                      <th class="h5 text-center table-cell-width"
+                          style={`width:100px${i === 0 ? ';background-color:#ec417a!important;color:#fff' : ''}`}>
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                  {rows.map(row => (
+                    <tr>
+                      <td>{row.label}</td>
+                      {row.cells.map((cell, i) => {
+                        const cellStyle = i === 0
+                          ? 'filter:invert(40%) sepia(80%) saturate(500%) hue-rotate(90deg) brightness(90%) contrast(85%)'
+                          : ''
+                        if (cell === 'check') {
+                          return <td style={cellStyle} class="checked text-center">✓</td>
+                        }
+                        if (cell === 'x') {
+                          return <td class="text-center" style="opacity:0.4">✕</td>
+                        }
+                        return (
+                          <td class="text-center" style={cellStyle}>
+                            <strong>{cell}</strong>
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

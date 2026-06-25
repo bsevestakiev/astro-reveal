@@ -1,0 +1,220 @@
+---
+// Pink rounded card wrapping a tabbed UI: filter buttons + per-tab image/video + text.
+// Mirrors WP's `#top-features` section markup (filter__item / btn--filter classes).
+
+interface Tab {
+  id: string
+  label: string
+  title: string
+  image?: string
+  imageAlt?: string
+  video?: string
+  videoPoster?: string
+  body: string
+}
+
+interface Props {
+  topEyebrow?: string
+  headline: string
+  intro?: string
+  tabs: Tab[]
+  anchor?: string
+  layout?: 'tabs' | 'stacked'
+}
+
+const { topEyebrow, headline, intro, tabs, anchor = 'top-features', layout = 'tabs' } = Astro.props
+const activeId = tabs[0]?.id
+---
+
+{layout === 'stacked' ? (
+<section class="container py-5" id={anchor}>
+  <div class="row">
+    <div class="col-12 text-center mt-4">
+      {topEyebrow && (
+        <p class="text-uppercase text-french-rose font-weight-bold mb-3">{topEyebrow}</p>
+      )}
+      <h2 class="h1" set:html={headline} />
+      {intro && (
+        <div class="mw-900px mx-auto">
+          <p class="mb-4">{intro}</p>
+        </div>
+      )}
+    </div>
+  </div>
+
+  {tabs.map((t, i) => (
+    <div class={`row justify-content-between mb-lg-5 align-items-center mt-5${i % 2 === 1 ? ' flex-row-reverse' : ''}`}>
+      <div class="col-md-5 animate-me pl-lg-4" data-animation="fadeInRight">
+        <h2 id={t.id} set:html={t.title} />
+        <div set:html={t.body} />
+      </div>
+      <div class="col-md-7 mb-4 mt-4 animate-me" data-animation="fadeInLeft">
+        <div class="d-block mx-auto rounded-xl">
+          {t.video ? (
+            <video class="d-block w-100" autoplay loop muted playsinline poster={t.videoPoster}>
+              <source src={t.video} type="video/mp4" />
+            </video>
+          ) : t.image && (
+            <img decoding="async" class="d-block w-100" src={t.image} alt={t.imageAlt ?? t.title} />
+          )}
+        </div>
+      </div>
+    </div>
+  ))}
+</section>
+) : (
+<section class="navmenu-size--container" id={anchor}>
+  <div class="container-fluid position-relative px-3 py-md-5 px-md-5 mb-5 text-white rounded-xl overflow-hidden" style="background: #ec417a;">
+    <div class="position-relative pt-5" style="z-index: 1;">
+      {topEyebrow && (
+        <p class="text-center text-uppercase font-weight-bold link--opacity-highlight8">{topEyebrow}</p>
+      )}
+      <h2 class="pb-4 text-center" set:html={headline} />
+      {intro && (
+        <div class="mw-900px mx-auto text-center">
+          <p class="mb-5">{intro}</p>
+        </div>
+      )}
+
+      <div class="row row-eq-height justify-content-center px-0 px-md-5 d-none d-md-block">
+        <nav role="toolbar" class="col-12 filters tab-filters-container" data-filter-content="filter__content" aria-label="Filter Top Features">
+          {tabs.map((t, i) => (
+            <button
+              class={`btn btn--filter${i === 0 ? ' btn--active' : ''}`}
+              data-secondary="true"
+              type="button"
+              data-filter={t.id}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? '0' : '-1'}
+            >{t.label}</button>
+          ))}
+        </nav>
+      </div>
+
+      <div class="row row-eq-height filter__content py-3 p-md-5 d-none d-md-block">
+        {tabs.map((t, i) => (
+          <div
+            class={`filter__item ${t.id}`}
+            data-secondary="true"
+            tabindex="-1"
+            aria-hidden={i === 0 ? 'false' : 'true'}
+            style={i === 0 ? undefined : 'display:none;'}
+          >
+            <div class="container-fluid">
+              <div class="row align-items-center">
+                <div class="col-12 col-md-7 order-2">
+                  {t.video ? (
+                    <video class="d-block w-100" autoplay loop muted playsinline poster={t.videoPoster}>
+                      <source src={t.video} type="video/mp4" />
+                    </video>
+                  ) : t.image && (
+                    <img decoding="async" class="d-block" src={t.image} alt={t.imageAlt ?? t.title} />
+                  )}
+                </div>
+                <div class="col-12 col-md-5 mx-auto order-1 text-left">
+                  <h3 class="my-4" set:html={t.title} />
+                  <div set:html={t.body} />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Mobile accordion (no JS dependency: details/summary native disclosure) -->
+      <div class="d-block d-md-none px-3 pb-4">
+        {tabs.map(t => (
+          <details class="mb-3 bg-white text-dark rounded p-3">
+            <summary class="font-weight-bold" set:html={t.title} />
+            <div class="mt-3" set:html={t.body} />
+          </details>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+)}
+
+<style is:global>
+  /* Page-scoped overrides from the WP `#top-features` source so the white-on-pink
+     tab buttons render with a yellow underline highlight instead of falling back
+     to the generic gray-pill .btn--filter look. */
+  .tab-filters-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .tab-filters-container .btn--filter {
+    flex-grow: 1;
+    border: none !important;
+    background: none !important;
+    padding: 0.625rem 2.5rem;
+    border-radius: 0;
+    font-weight: bold;
+    font-size: 1.3rem;
+    text-transform: none;
+    position: relative;
+    color: #fff !important;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent !important;
+    text-align: center;
+  }
+  .tab-filters-container .btn--filter::after {
+    content: "";
+    position: absolute;
+    left: -2px;
+    bottom: 0;
+    height: 3px;
+    width: calc(100% + 4px);
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+  }
+  .tab-filters-container .btn--filter:hover,
+  .tab-filters-container .btn--filter.btn--active {
+    color: #fff !important;
+    background-color: transparent !important;
+  }
+  .tab-filters-container .btn--filter:hover::after,
+  .tab-filters-container .btn--filter.btn--active::after {
+    background-color: #ffcc00;
+  }
+  .tab-filters-container .btn--filter:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  @media (max-width: 1200px) {
+    .tab-filters-container {
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+      gap: 0.6rem;
+    }
+    .tab-filters-container .btn--filter {
+      margin: 0.3rem;
+      padding: 0.625rem 0.5rem;
+      width: 35%;
+    }
+  }
+</style>
+
+<script is:inline>
+  // Vanilla tab toggle. Activates one panel at a time, syncs aria + classes.
+  document.querySelectorAll('#top-features .filters').forEach(nav => {
+    const panels = nav.parentElement.parentElement.querySelectorAll('.filter__content > .filter__item')
+    nav.querySelectorAll('button[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-filter')
+        nav.querySelectorAll('button[data-filter]').forEach(b => {
+          const active = b === btn
+          b.classList.toggle('btn--active', active)
+          b.setAttribute('aria-pressed', active ? 'true' : 'false')
+          b.setAttribute('tabindex', active ? '0' : '-1')
+        })
+        panels.forEach(p => {
+          const show = p.classList.contains(target)
+          p.style.display = show ? '' : 'none'
+          p.setAttribute('aria-hidden', show ? 'false' : 'true')
+        })
+      })
+    })
+  })
+</script>

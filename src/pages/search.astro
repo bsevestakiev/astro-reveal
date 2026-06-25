@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+---
+
+<BaseLayout title="Search — Reveal Embedded Analytics" description="Search the Reveal documentation, blog, glossary, and more.">
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" slot="head" />
+
+  <div class="container py-5">
+    <h1 class="mb-4">Search</h1>
+    <div id="search"></div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    const script = document.createElement('script')
+    script.src = '/pagefind/pagefind-ui.js'
+    script.onload = () => {
+      const ui = new PagefindUI({
+        element: '#search',
+        showImages: false,
+        excerptLength: 20,
+      })
+      const q = new URLSearchParams(window.location.search).get('s')
+      if (q) ui.triggerSearch(q)
+    }
+    document.head.appendChild(script)
+  })
+</script>

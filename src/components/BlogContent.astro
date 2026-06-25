@@ -1,0 +1,67 @@
+---
+// Renders the optional block-based post body (`content: []` from the schema's
+// blogContentSchema). Each block maps to the same on-brand markup the freeform
+// markdown bodies use, so block-built and markdown-built posts look identical.
+// When a post has no `content`, BlogLayout renders the markdown body instead —
+// this component is never invoked for those, so existing posts are untouched.
+import { renderMarkdown } from '../lib/render-markdown'
+
+interface Block {
+  type: string
+  body?: string
+  headers?: string
+  rows?: string[]
+  headline?: string
+  msg?: string
+  buttonText?: string
+  buttonLink?: string
+}
+
+const { content = [] } = Astro.props as { content?: Block[] }
+
+const splitCells = (line: string) =>
+  line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim())
+
+// Markdown-bearing blocks (text/callout/bonus-tip) are rendered async up front.
+const html = await Promise.all(
+  content.map((b) =>
+    b.type === 'text' || b.type === 'callout' || b.type === 'bonus-tip'
+      ? renderMarkdown(b.body ?? '')
+      : Promise.resolve(''),
+  ),
+)
+---
+{content.map((b, i) => {
+  if (b.type === 'text') return <Fragment set:html={html[i]} />
+  if (b.type === 'callout') return <aside class="alert alert-danger rounded-xl" set:html={html[i]} />
+  if (b.type === 'bonus-tip') return <div class="alert alert-secondary icon--tips" set:html={html[i]} />
+  if (b.type === 'cta-banner')
+    return (
+      <div class="banner banner--embedded text-left text-white">
+        <p class="banner__headline">{b.headline}</p>
+        <p class="banner__msg">{b.msg}</p>
+        <a href={b.buttonLink || 'https://www.revealbi.io/request-demo'} class="btn btn-secondary">
+          {b.buttonText || 'START TODAY'}
+        </a>
+      </div>
+    )
+  if (b.type === 'comparison-table') {
+    const headerCells = (b.headers || '').split('|').map((c) => c.trim()).filter(Boolean)
+    const rows = (b.rows || []).filter((r) => r && r.trim()).map((r) => splitCells(r))
+    return (
+      <reveal-expandable-table>
+        <table>
+          <thead>
+            <tr>{headerCells.map((h) => <th>{h}</th>)}</tr>
+          </thead>
+          <tbody>
+            {rows.map((cells) => (
+              <tr>{cells.map((c) => <td>{c}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </reveal-expandable-table>
+    )
+  }
+  return null
+})}

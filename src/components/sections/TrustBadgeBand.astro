@@ -1,0 +1,37 @@
+---
+interface Badge {
+  src: string
+  alt: string
+  title?: string
+  width?: number
+  height?: number
+}
+interface Props {
+  headline: string
+  subhead?: string
+  badges: Badge[]
+  anchor?: string
+}
+
+const { headline, subhead, badges, anchor } = Astro.props
+---
+
+<section data-wpr-lazyrender="1" class="bg-color-whisper py-5 mt-5">
+  <div class="container mt-5">
+    <div class="row animate-me animated fadeInLeft" data-animation="fadeInLeft">
+      <div class="col-md-12 text-center">
+        <h2 id={anchor} set:html={headline} />
+        {subhead && <p class="h5 my-4 mx-md-auto mw-950px" set:html={subhead} />}
+        <div class="mx-auto">
+          {badges.map((b: Badge) => (
+            <div class="d-inline-block m-3 p-4 bg-white rounded-circle shadow">
+              <img decoding="async" class="b-lazy loaded" alt={b.alt}
+                   width={b.width ?? 75} height={b.height ?? 75}
+                   src={b.src} title={b.title ?? 'Security'} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

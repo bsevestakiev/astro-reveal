@@ -1,0 +1,193 @@
+header:
+  nav:
+    product: "製品"
+    solutions: "ソリューション"
+    resources: "リソース"
+    help: "ヘルプ"
+    pricing: "価格設定"
+  cta:
+    bookDemo: "個別デモを予約する"
+    requestDemo: "デモをリクエスト"
+    freeTrial: "SDKの無料トライアル"
+  search:
+    placeholder: "検索..."
+    button: "検索"
+    langBarLabel: "言語バー"
+    toggleMenu: "メニューの切り替え"
+  product:
+    heading: "製品"
+    requestDemoCard:
+      title: "デモをリクエスト"
+      description: "Revealがお客様のアプリケーションの分析体験をどのように変革できるかをご覧ください。"
+      ctaLabel: "デモを予約"
+    items:
+      embeddedAnalytics:
+        title: "埋め込み分析"
+        description: "ソフトウェアアプリケーション向けに、完璧なデータ統合とビジュアライゼーションを作成します"
+      dataSources:
+        title: "データソース"
+        description: "幅広いデータソースに接続し、リアルタイムのビジュアライゼーションを作成します"
+      whiteLabel:
+        title: "ホワイトラベル分析"
+        description: "Revealのホワイトラベル機能で、完全にブランド化された分析体験を提供します"
+      revealAi:
+        title: "Reveal AI"
+        description: "拡張分析と会話型分析により、AIのパワーをアプリケーションに組み込みます"
+      features:
+        title: "機能"
+        description: "Revealの堅牢な埋め込み分析機能で、ブランドを強化します"
+      chartTypes:
+        title: "チャートタイプ"
+        description: "傾向やパターンを特定し、複雑な情報を素早く理解します"
+      security:
+        title: "セキュリティ"
+        description: "データセキュリティを最優先事項として、Revealをゼロから構築しています"
+      onPrem:
+        title: "オンプレミス分析"
+        description: "データ、セキュリティ、コンプライアンスを完全に制御しながら、独自のインフラストラクチャに埋め込み分析をデプロイします。"
+  solutions:
+    heading: "ユースケース"
+    items:
+      isv: "ISV"
+      it: "IT"
+      telecommunications: "電気通信"
+      manufacturing: "製造業"
+      supplyChain: "サプライチェーン"
+      healthcare: "ヘルスケア"
+      banking: "銀行"
+      finance: "金融"
+      mining: "鉱業"
+      insurance: "保険"
+      retail: "小売"
+      realEstate: "不動産"
+      education: "教育"
+      crm: "CRM"
+      crypto: "暗号通貨"
+      energy: "エネルギー"
+  resources:
+    heading: "リソース"
+    items:
+      blogs:
+        title: "ブログ"
+        description: "最新の埋め込み分析のトレンド、ベストプラクティス、製品ニュースを発見してください"
+      glossary:
+        title: "用語集"
+        description: "定義と例でBI用語について詳しく学ぶことができます"
+      whitepapers:
+        title: "ホワイトペーパー"
+        description: "さまざまなトピックに関する詳細なホワイトペーパーにアクセスできます"
+      webinars:
+        title: "ウェビナー"
+        description: "埋め込み分析のベストプラクティスとデモにご参加ください"
+      customerStories:
+        title: "導入事例"
+        description: "他の企業がRevealを活用してアプリを改善する方法をご覧ください"
+      partners:
+        title: "パートナー"
+        description: "Revealのリセラープログラムで、提供サービスを強化しませんか"
+
+footer:
+  social:
+    heading: "最新ニュースとアップデートをフォロー"
+    facebook: "Facebook"
+    x: "X (Twitter)"
+    linkedin: "LinkedIn"
+    youtube: "YouTube"
+    g2: "G2"
+  columns:
+    platforms: "プラットフォーム"
+    company: "会社情報"
+    resources: "リソース"
+    compare: "比較"
+  platforms:
+    embedded: "Reveal 埋め込み分析"
+  company:
+    whoWeAre: "会社概要"
+    contactUs: "お問い合わせ"
+    globalOffices: "グローバルオフィス"
+    inTheNews: "ニュース"
+    partners: "パートナー"
+    careers: "採用情報"
+  resourcesLinks:
+    webinars: "ウェビナー"
+    blogs: "ブログ"
+    whitepapers: "ホワイトペーパー"
+    glossary: "用語集"
+    supportPolicies: "サポートポリシー"
+    faqs: "よくある質問"
+    licenseAgreement: "ライセンス契約"
+    documentation: "ドキュメント"
+    embeddedGuide: "埋め込み分析ガイド"
+    embeddedStats: "埋め込み分析の統計"
+  compareLinks:
+    logi: "Logi Analytics との比較"
+    qrvey: "Qrvey との比較"
+    luzmo: "Luzmo との比較"
+    sisense: "Sisense との比較"
+    powerBi: "PowerBI との比較"
+    tableau: "Tableau との比較"
+    looker: "Looker との比較"
+    domo: "Domo との比較"
+    goodData: "GoodData との比較"
+    boldBi: "Bold BI との比較"
+    panintelligence: "Panintelligence との比較"
+    thoughtspot: "ThoughtSpot との比較"
+    toucanToco: "Toucan Toco との比較"
+    metabase: "Metabase との比較"
+  newsletter:
+    heading: "ニュースレターを購読！"
+    description: "今すぐ購読して、厳選された記事、電子書籍、イベントをメールでお受け取りください。お客様のメールアドレスは安全です。スパムは送りません。"
+    apiErrorHtml: '申し訳ございません、フォームに問題が発生したようです。<a href="#" onclick="location.reload();" style="color:red;text-decoration:underline;font-weight:bold">もう一度お試しください</a>、または<a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold">support@revealbi.io</a>までお問い合わせください。'
+    recaptchaErrorHtml: '申し訳ございませんが、Google様によりボットと判断されました。お手数ですが、<a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold">support@revealbi.io</a>までご連絡ください。'
+    formInvalidEmail: "このメールアドレスは有効ではありません。更新して再度お試しください。"
+    formInvalidFreeEmail: "会社のメールアドレスをご利用ください。"
+    emailPlaceholder: "メールアドレス"
+    consentPrefix: "Infragisticsの利用規約を理解し、同意します"
+    consentTermsOfUse: "利用規約"
+    consentAnd: " および "
+    consentPrivacyPolicy: "プライバシーポリシー"
+    consentRecaptcha: "このサイトはreCAPTCHAによって保護されており、Googleのプライバシーポリシーと利用規約が適用されます。"
+    submit: "登録する"
+    thankYou: "登録ありがとうございます！"
+  policies:
+    privacy: "プライバシーポリシー"
+    cookie: "クッキーポリシー"
+    terms: "利用規約"
+  seals:
+    soc2: "SOC2認証"
+    gdpr: "GDPR認証"
+    isPartners: "IS Partners LLC"
+  copyright: "© Copyright {year} INFRAGISTICS. All Rights Reserved."
+  backToTop: "トップへ戻る"
+  gdpr:
+    intro: "お客様のプライバシーは重要です:"
+    body: "当社のウェブサイトでは、独自のクッキーおよびサードパーティのクッキーを使用して、お客様の体験を向上させています。ウェブサイトの利用を続けることにより、お客様がこれらを受け入れることに同意したとご理解いただきます。"
+    cookieLink: "クッキーポリシー"
+    accept: "閉じる"
+
+demoModal:
+  title: "個別デモを予約する"
+  subtitle: "フォームにご記入いただき、Revealの個別デモをご覧ください。"
+  requiredNote: "必須"
+  apiErrorHtml: '申し訳ございません、問題が発生したようです。<a href="#" onclick="location.reload();" style="color:red;text-decoration:underline;font-weight:bold">もう一度お試しください</a>、または<a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold">support@revealbi.io</a>までお問い合わせください。'
+  formInvalidEmail: "このメールアドレスは有効ではありません。"
+  formInvalidFreeEmail: "会社のメールアドレスをご利用ください。"
+  fields:
+    email: "会社メールアドレス"
+    firstName: "名"
+    lastName: "姓"
+    company: "会社名"
+    phone: "電話番号"
+  consentPrefix: "Infragisticsの利用規約を理解し、同意します"
+  consentTermsOfUse: "利用規約"
+  consentAnd: " および "
+  consentPrivacyPolicy: "プライバシーポリシー"
+  consentRecaptcha: "このサイトはreCAPTCHAによって保護されており、Googleのプライバシーポリシーと利用規約が適用されます。"
+  submit: "送信"
+  thankYou:
+    line1: "お問い合わせありがとうございます！"
+    line2: "Revealの担当者よりまもなくご連絡いたします！"
+    altText: "ありがとうございます"
+
+webinarsPage:
+  onDemand: "オンデマンドウェビナー"

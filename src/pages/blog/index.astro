@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import BlogHero from '../../components/blog/BlogHero.astro'
+import PostList from '../../components/blog/PostList.astro'
+import { getEnPosts, BLOG_PAGE_SIZE, buildPagination } from '../../lib/blog'
+
+const posts = await getEnPosts()
+const totalPages = Math.max(1, Math.ceil(posts.length / BLOG_PAGE_SIZE))
+const pageItems = posts.slice(0, BLOG_PAGE_SIZE)
+const pagination = buildPagination(1, totalPages, '/blog')
+---
+
+<BaseLayout
+  title="Business Intelligence Blog By Reveal BI"
+  description="Read our business intelligence blog to find out the latest about embedded analytics, data visualization, BI trends and more. Great practical tips delivered by our analytics experts."
+>
+  <BlogHero
+    title="Stay up to date with Reveal"
+    subhead="Reveal business intelligence blog gives you the latest embedded analytics trends, how-tos, best practices, and product news."
+  />
+
+  <PostList posts={pageItems} pagination={pagination} />
+</BaseLayout>

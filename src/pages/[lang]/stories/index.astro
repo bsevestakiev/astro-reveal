@@ -1,0 +1,50 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import DarkHero from '../../../components/sections/DarkHero.astro'
+import Card from '../../../components/ui/Card.astro'
+
+export async function getStaticPaths() {
+  return ['es', 'ja', 'ko', 'pt-BR'].map(lang => ({ params: { lang } }))
+}
+
+const { lang } = Astro.params
+
+const allStories = await getCollection('stories')
+const stories = allStories.filter(s => s.id.startsWith(`${lang}/`))
+const sortedStories = [...stories].sort((a, b) => a.id.localeCompare(b.id))
+---
+
+<BaseLayout
+  title="Customer Stories | Reveal"
+  description="See how companies around the world embed analytics with Reveal."
+  lang={lang}
+>
+  <DarkHero
+    title="Successful Teams Using Reveal"
+    subhead="Learn more about how Reveal has helped teams get extraordinary results by empowering high performing teams"
+    breadcrumbs={[{ label: 'Home', url: `/${lang}` }, { label: 'Stories' }]}
+  />
+
+  <section class="container py-5">
+    <div class="row">
+      {sortedStories.map(story => {
+        const slug = story.id.replace(new RegExp(`^${lang}/`), '')
+        return (
+          <div class="col-12 col-md-6 col-lg-4 mb-4">
+            <Card
+              variant="story"
+              title={story.data.title}
+              url={`/${lang}/stories/${slug}`}
+              image={story.data.cover}
+              imageAlt={story.data.title}
+            />
+          </div>
+        )
+      })}
+      {sortedStories.length === 0 && (
+        <div class="col-12"><p class="text-muted">Customer stories coming soon.</p></div>
+      )}
+    </div>
+  </section>
+</BaseLayout>

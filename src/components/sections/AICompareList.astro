@@ -1,0 +1,51 @@
+---
+interface ColumnItem { text: string }
+interface Column { headline: string; items: ColumnItem[]; iconType: 'check' | 'x' }
+interface Props {
+  headline: string
+  columns: Column[]
+  footnote?: string
+}
+const { headline, columns, footnote } = Astro.props
+
+const checkIcon = 'https://static.infragistics.com/marketing/reveal/icons/checkmark-green.svg'
+const xIcon = 'https://static.infragistics.com/marketing/reveal/icons/reveal-icon-x-circle-pink.svg'
+---
+
+<section id="what-reveal-ai-is" class="py-5 mb-5 text-white bg-dark-navy position-relative overflow-hidden">
+  <div class="circle-reveal-ai-orange" aria-hidden="true"></div>
+  <div class="circle-reveal-ai-pink" aria-hidden="true"></div>
+  <div class="container my-lg-5 px-4 py-4 position-relative z-index-1">
+    <div class="row animate-me" data-animation="fadeInRight">
+      <div class="col-12 text-center mb-5">
+        <h2 class="mb-0" set:html={headline} />
+      </div>
+    </div>
+    <div class="row justify-content-center animate-me" data-animation="fadeInUp">
+      {columns.map((col, idx) => (
+        <div class={`col-12 col-md-4 ${idx === 0 ? 'mb-4 mb-md-0 mr-md-3' : ''}`}>
+          <div class="border rounded-xl p-4 h-100" style="background-color: rgba(255, 255, 255, 0.1)">
+            <h3 class="font-weight-bold mb-3">{col.headline}</h3>
+            <ul class="list-unstyled mb-0">
+              {col.items.map((item, i) => (
+                <li class={`${i === col.items.length - 1 ? 'mb-0' : 'mb-3'} d-flex align-items-start`}>
+                  <img loading="lazy" decoding="async"
+                       src={col.iconType === 'check' ? checkIcon : xIcon}
+                       alt="" aria-hidden="true" width="20" height="20" class="mr-2 mt-1" />
+                  <span>{item.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))}
+    </div>
+    {footnote && (
+      <div class="row mt-5 animate-me" data-animation="fadeInRight">
+        <div class="col-12 text-center">
+          <p class="h5 font-weight-bold mb-0" set:html={footnote} />
+        </div>
+      </div>
+    )}
+  </div>
+</section>

@@ -1,0 +1,97 @@
+---
+interface CheckItem { text: string }
+interface Row {
+  eyebrow: string
+  headline: string
+  body: string
+  checks: CheckItem[]
+  cta: { label: string; href: string }
+  image: string
+  imageSrcset?: { media: string; srcset: string }[]
+  imageAlt?: string
+  imageLeft?: boolean
+}
+interface Props { rows: Row[] }
+
+const { rows } = Astro.props
+---
+
+<section class="py-5 overflow-hidden position-relative bg-dark-navy">
+  <div class="circle-decoration-orange d-none d-lg-block animate-me"
+       data-animation="fadeInLeft" aria-hidden="true"></div>
+
+  <div class="container py-lg-5 my-lg-5 position-relative z-index-1">
+    {rows.map((row, i) => (
+      <div class={`row align-items-center${i < rows.length - 1 ? ' mb-5 pb-lg-4' : ''}`}>
+        {row.imageLeft ? (
+          <>
+            <div class="col-12 col-lg-7 mb-4 mb-lg-0 animate-me" data-animation="fadeInLeft">
+              <div class="ai-dark-image-wrap position-relative">
+                {row.image === '/images/homepage/reveal-embedded-ai-load-chat-480.webp' && (
+                  <div class="circle-loved-users-pink ai-load-chat-pink-left d-none d-md-block" aria-hidden="true"></div>
+                )}
+                <picture>
+                  {(row.imageSrcset ?? []).map(s => <source media={s.media} srcset={s.srcset} />)}
+                  <img loading="lazy" decoding="async" class="w-100 img-fluid rounded-lg"
+                       src={row.image} alt={row.imageAlt ?? ''} title={row.imageAlt ?? ''} />
+                </picture>
+              </div>
+            </div>
+            <div class="col-12 col-lg-5 text-white animate-me" data-animation="fadeInRight">
+              <p class="text-uppercase font-weight-bold mb-3 ai-analyst-tag">{row.eyebrow}</p>
+              <h2 class="mb-4 text-white" set:html={row.headline} />
+              <p class="mb-4 text-ai-body">{row.body}</p>
+              <ul class="list-unstyled mb-4 text-light-gray">
+                {row.checks.map(c => (
+                  <li class="mb-2">
+                    <img decoding="async" src="/images/homepage/reveal-check-mark-icon.svg"
+                         width="16" height="16" alt="" aria-hidden="true" class="ai-check-icon" />
+                    {c.text}
+                  </li>
+                ))}
+              </ul>
+              <a href={row.cta.href} class="font-weight-bold text-warning animate-underline">
+                {row.cta.label} →
+              </a>
+            </div>
+          </>
+        ) : (
+          <>
+            <div class="col-12 col-lg-5 mb-4 mb-lg-0 text-white animate-me" data-animation="fadeInLeft">
+              <p class="text-uppercase font-weight-bold mb-3 ai-analyst-tag">{row.eyebrow}</p>
+              <h2 class="mb-4 text-white" set:html={row.headline} />
+              <p class="mb-4 text-ai-body">{row.body}</p>
+              <ul class="list-unstyled mb-4 text-light-gray">
+                {row.checks.map(c => (
+                  <li class="mb-2">
+                    <img decoding="async" src="/images/homepage/reveal-check-mark-icon.svg"
+                         width="16" height="16" alt="" aria-hidden="true" class="ai-check-icon" />
+                    {c.text}
+                  </li>
+                ))}
+              </ul>
+              <a href={row.cta.href} class="font-weight-bold text-warning animate-underline">
+                {row.cta.label} →
+              </a>
+            </div>
+            <div class="col-12 col-lg-7 animate-me" data-animation="fadeInRight">
+              <div class="ai-dark-image-wrap position-relative">
+                {row.image === '/images/homepage/reveal-embedded-ai-convo-analytics-480.webp' && (
+                  <div class="circle-decoration-orange ai-convo-orange-above d-none d-lg-block" aria-hidden="true"></div>
+                )}
+                {row.image === '/images/homepage/reveal-embedded-ai-load-chat-480.webp' && (
+                  <div class="circle-loved-users-pink ai-load-chat-pink-left d-none d-md-block" aria-hidden="true"></div>
+                )}
+                <picture>
+                  {(row.imageSrcset ?? []).map(s => <source media={s.media} srcset={s.srcset} />)}
+                  <img loading="lazy" decoding="async" class="w-100 img-fluid rounded-lg"
+                       src={row.image} alt={row.imageAlt ?? ''} title={row.imageAlt ?? ''} />
+                </picture>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    ))}
+  </div>
+</section>

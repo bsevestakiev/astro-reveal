@@ -1,0 +1,79 @@
+---
+interface Card {
+  headerClass: string
+  icon: string
+  iconAlt: string
+  iconWidth?: number
+  title: string
+  bullets: string[]
+}
+
+interface Props {
+  headline: string
+  subhead?: string
+  cards: Card[]
+}
+
+const { headline, subhead, cards } = Astro.props
+---
+
+<section id="verticals" class="pt-4 pt-lg-5 pb-5 bg-color-gallery cv-auto">
+  <div class="container py-lg-5">
+    <h2 id="reveal-on-prem-for-every-vertical" class="text-center font-weight-bold" set:html={headline} />
+    {subhead && <p class="text-center mb-5" set:html={subhead} />}
+    <div class="row justify-content-center">
+      {cards.map((card) => (
+        <div class="col-md-6 col-lg-4 mb-5 px-4">
+          <div class="card shadow-sm border-0 h-100 text-center">
+            <div class={`card-header ${card.headerClass}`}>
+              <div class="d-flex justify-content-center mb-2">
+                <img
+                  decoding="async"
+                  loading="lazy"
+                  src={card.icon}
+                  width={card.iconWidth ?? 50}
+                  class="mt-3"
+                  alt="App Builder On Prem"
+                  title="App Builder On Prem"
+                />
+              </div>
+              <h4 class="text-white psnh4">{card.title}</h4>
+            </div>
+            <div class="card-body text-left p-4">
+              <ul class="pl-3 mb-0 mx-3">
+                {card.bullets.map((bullet) => (
+                  <li>{bullet}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+.card-header.vertical-financial {
+    background: #ec417a;
+}
+.card-header.vertical-healthcare {
+    background: #F78DA7;
+}
+.card-header.vertical-manufacturing {
+    background: #6C8CFD;
+}
+.card-header.vertical-public {
+    background: #FBB764;
+}
+.card-header.vertical-defense {
+    background: #2A41A2;
+}
+
+.card-header.vertical-financial, .card-header.vertical-healthcare, .card-header.vertical-manufacturing, .card-header.vertical-public, .card-header.vertical-defense {
+    color: #fff;
+    font-weight: 600;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+</style>

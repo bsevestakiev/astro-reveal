@@ -1,0 +1,74 @@
+---
+interface Row {
+  feature: string
+  reveal: string
+  competitor: string
+  tooltip?: string
+}
+
+interface Props {
+  eyebrow?: string
+  headline: string
+  subhead?: string
+  subhead2?: string
+  competitor: string
+  rows: Row[]
+  ctaBelow?: string
+  firstColumnLabel?: string
+  bg?: 'gallery' | 'white'
+}
+
+const { eyebrow, headline, subhead, subhead2, competitor, rows, ctaBelow, firstColumnLabel = 'Feature', bg } = Astro.props
+---
+
+<section class:list={['py-5 mb-3 mt-0 overflow-hidden', { 'bg-color-gallery': bg === 'gallery' || bg === undefined, 'bg-white': bg === 'white' }]}>
+  <div class="container">
+    <div class="row">
+      <div class="col-12 text-center mb-5">
+        {eyebrow && (
+          <p class="text-uppercase text-french-rose font-weight-bold mb-3">{eyebrow}</p>
+        )}
+        <h2 class="mb-3" set:html={headline} />
+        {subhead && <p class="mx-auto mw-900px" set:html={subhead} />}
+        {subhead2 && <p class="mx-auto mw-900px" set:html={subhead2} />}
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-9">
+        <div class="table-responsive-sm mw-100">
+          <table cellpadding="10" class="table comparison-table mw-100">
+            <tbody class="bg-white">
+              <tr>
+                <th style="background-color:#ffa7a7!important;width:33%">{firstColumnLabel}</th>
+                <th class="h5" style="background-color:#ec417a!important;width:33%">Reveal</th>
+                <th class="h5" style="width:33%">{competitor}</th>
+              </tr>
+              {rows.map((row: Row) => (
+                <tr>
+                  <td>
+                    {row.feature}
+                    {row.tooltip && (
+                      <img src="https://static.infragistics.com/marketing/slingshot/shared/tooltip-info.svg"
+                           data-toggle="tooltip" data-placement="right" title={row.tooltip}
+                           width="20" height="20" class="tooltip-icon align-text-bottom" alt="Info" />
+                    )}
+                  </td>
+                  <td>{row.reveal}</td>
+                  <td>{row.competitor}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {ctaBelow && (
+            <div class="text-center my-5">
+              <a class="btn btn-primary mb-2 mr-0 mr-sm-3 trackCTA ig-show-modal"
+                 data-targetid="requestDemo" href="#"
+                 data-xd-ga-action="Request a Demo from homepageb"
+                 data-xd-ga-label="Reveal">{ctaBelow}</a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

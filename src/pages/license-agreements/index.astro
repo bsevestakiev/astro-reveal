@@ -1,0 +1,25 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+const pages = await getCollection('pages')
+const page = pages.find(p => p.id === 'en/license-agreements')!
+const rendered = await render(page)
+const Content = rendered.Content
+
+const seo = page.data.seo
+---
+
+<BaseLayout
+  title={seo?.title ?? (page.data.title.trimEnd().endsWith('Reveal') ? page.data.title : `${page.data.title} | Reveal`)}
+  description={seo?.description ?? page.data.description}
+  image={seo?.ogImage ?? page.data.cover}
+  imageAlt={seo?.ogImageAlt}
+  ogType={seo?.ogType}
+  noindex={seo?.noindex}
+  canonicalUrl={seo?.canonical}
+  minimalFooter={page.data.minimalFooter}
+  minimalNav={page.data.minimalNav}
+>
+  <Content />
+</BaseLayout>

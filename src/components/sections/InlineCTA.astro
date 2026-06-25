@@ -1,0 +1,65 @@
+---
+interface Props {
+  icon?: string
+  iconAlt?: string
+  headline: string
+  headlineClass?: string
+  body?: string
+  ctaLabel: string
+  ctaHref?: string
+  ctaVariant?: string
+  demoModal?: boolean
+  wrapperClass?: string
+  secondaryCtaLabel?: string
+  secondaryCtaHref?: string
+  secondaryCtaClass?: string
+}
+
+const {
+  icon,
+  iconAlt = '',
+  headline,
+  headlineClass = 'mb-3',
+  body,
+  ctaLabel,
+  ctaHref = '#',
+  ctaVariant = 'primary',
+  demoModal = true,
+  wrapperClass = '',
+  secondaryCtaLabel,
+  secondaryCtaHref,
+  secondaryCtaClass = 'd-none',
+} = Astro.props
+
+const effectiveDemoModal = demoModal
+---
+
+<section class={`pt-5${wrapperClass ? ' ' + wrapperClass : ''}`}>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      {icon && (
+        <img decoding="async" src={icon} alt={iconAlt} width="60" height="60" title={iconAlt} />
+      )}
+      <h2 class={headlineClass} set:html={headline} />
+      {body && <p class="mb-4">{body}</p>}
+      {effectiveDemoModal ? (
+        <a class={`btn btn-${ctaVariant} ig-show-modal trackCTA`}
+           href={ctaHref}
+           data-xd-ga-action="Gated Demo"
+           data-targetid="requestDemo"
+           data-xd-ga-label="Reveal">
+          {ctaLabel}
+        </a>
+      ) : (
+        <a class={`btn btn-${ctaVariant} trackCTA`} href={ctaHref}>{ctaLabel}</a>
+      )}
+      {secondaryCtaLabel && secondaryCtaHref && (
+        <span class={secondaryCtaClass}>
+          <a class="btn btn-outline-primary mb-2 trackCTA" href={secondaryCtaHref}>{secondaryCtaLabel}</a>
+        </span>
+      )}
+    </div>
+  </div>
+</div>
+</section>

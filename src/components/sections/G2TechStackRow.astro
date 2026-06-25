@@ -1,0 +1,42 @@
+---
+interface Logo { src: string; alt: string; title?: string; width?: number; height?: number }
+interface Props {
+  headline: string
+  body?: string
+  anchor?: string
+  topLogos?: Logo[]
+  bottomLogos?: Logo[]
+}
+
+const {
+  headline,
+  body,
+  anchor = 'tech-stack',
+  topLogos = [],
+  bottomLogos = [],
+} = Astro.props
+---
+
+<section class="container pb-5">
+<div id={anchor} class="row justify-content-between mb-lg-3 align-items-center">
+   <div class="col-md-6 mb-4 mt-4 animate-me pr-lg-4" data-animation="fadeInLeft">
+      <div>
+         <div class="d-flex justify-content-center align-items-center pb-3 mb-3 border-bottom flex-wrap">
+            {topLogos.map((l: Logo) => (
+            <img decoding="async" class="b-lazy mx-3" src={l.src} title={l.title ?? l.alt} alt={l.alt} width={l.width} height={l.height}>
+            ))}
+         </div>
+         <div class="d-flex justify-content-center align-items-center flex-wrap">
+            {bottomLogos.map((l: Logo) => (
+            <img decoding="async" class="b-lazy mx-3" src={l.src} alt={l.alt} title={l.title ?? l.alt} width={l.width} height={l.height}>
+            ))}
+         </div>
+         <p></p>
+      </div>
+   </div>
+   <div class="col-md-5 animate-me pl-lg-4" data-animation="fadeInRight">
+      <h2 set:html={headline}></h2>
+      {body && <p set:html={body}></p>}
+   </div>
+</div>
+</section>

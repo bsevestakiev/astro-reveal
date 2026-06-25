@@ -1,0 +1,42 @@
+---
+interface Logo { src: string; alt: string; }
+interface Props { label?: string; note?: string; logos: Logo[]; wrapperClass?: string }
+
+const {
+  label,
+  note  = '',
+  logos,
+  wrapperClass = 'mb-5',
+} = Astro.props
+---
+
+<div class={`container ${wrapperClass}`}>
+  {label && (
+    <div class="row align-items-center">
+      <div class="col-12 text-center animate-me" data-animation="fadeInRight">
+        <p class="text-uppercase text-french-rose font-weight-bold pt-4">{label}</p>
+      </div>
+    </div>
+  )}
+
+  <section class="overflow-hidden" id="logo-slider">
+    <div class="container position-relative">
+      <div class="logo-slider">
+        <div class="slide-track">
+          {logos.map(l => (
+            <div class="slide">
+              <img decoding="async" loading="lazy" src={l.src} alt={l.alt} title={l.alt} style="height:35px" />
+            </div>
+          ))}
+          {logos.map(l => (
+            <div class="slide" aria-hidden="true">
+              <img decoding="async" loading="lazy" src={l.src} alt="" style="height:35px" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {note && <p class="text-center mt-4 mb-0">{note}</p>}
+</div>

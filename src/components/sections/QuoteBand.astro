@@ -1,0 +1,31 @@
+---
+interface Props {
+  logo?: string
+  logoAlt?: string
+  quote: string
+  attribution?: string
+  href?: string
+  backgroundImage?: string
+}
+
+const {
+  logo,
+  logoAlt = '',
+  quote,
+  attribution,
+  href,
+  backgroundImage = 'https://static.infragistics.com/marketing/reveal/reseller/quote-chart-background.svg',
+} = Astro.props
+
+const bgStyle = `background-image: url('${backgroundImage}');background-repeat: no-repeat;background-position: bottom;background-size: cover;cursor: pointer;`
+---
+
+<section class="container pb-5 py-mg-5">
+  <div class="col-md-12 text-center mb-5 p-5 text-white bg--french-rose rounded-xl" onclick={href ? `window.open('${href}', '_blank')` : undefined} style={bgStyle}>
+    {logo && (
+      <img alt={logoAlt} class="mb-4" decoding="async" src={logo} title={logoAlt} />
+    )}
+    <h4 class="mx-lg-5 mb-4"><strong set:html={quote} /></h4>
+    {attribution && <p class="mb-0 text-0875" set:html={attribution} />}
+  </div>
+</section>

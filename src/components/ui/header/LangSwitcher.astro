@@ -1,0 +1,48 @@
+---
+interface Locale {
+  code: string
+  label: string
+  prefix: string
+}
+interface Props {
+  lang: string
+  locales: Locale[]
+  ariaLabel?: string
+}
+const { lang, locales, ariaLabel = 'Lang Bar' } = Astro.props
+
+const pathname = Astro.url.pathname
+const prefixes = locales.map(l => l.prefix).filter(Boolean)
+const stripped = (() => {
+  for (const p of prefixes) {
+    if (pathname === p) return '/'
+    if (pathname.startsWith(p + '/')) return pathname.slice(p.length)
+  }
+  return pathname
+})()
+
+function urlFor(locale: Locale): string {
+  if (!locale.prefix) return stripped
+  return stripped === '/' ? locale.prefix : `${locale.prefix}${stripped}`
+}
+---
+<li class="mega-float-right mega-lang-bar mega-w-m-100 mega-menu-item mega-menu-item-has-children mega-align-bottom-left mega-menu-flyout mega-has-icon mega-icon-left mega-hide-text float-right lang-bar w-m-100" id="mega-menu-item-5313">
+  <a class="dashicons-admin-site-alt3 mega-menu-link" href="#" aria-expanded="false" aria-controls="mega-sub-menu-lang" aria-label={ariaLabel}>
+    <span class="mega-indicator" aria-hidden="true"></span>
+  </a>
+  <ul class="mega-sub-menu" id="mega-sub-menu-lang">
+    <li class="mega-col-6 mega-menu-item py-2 px-lg-2 pt-lg-2 pb-lg-1 col-6" id="mega-menu-item-lang-list">
+      <div class="wovn-languages">
+        {locales.map((locale) => (
+          <a class={`wovn-switch ${locale.code === lang ? 'wovn-switch--active' : ''}`}
+            href={urlFor(locale)}
+            hreflang={locale.code}
+            aria-current={locale.code === lang ? 'true' : undefined}
+            data-value={locale.code}>
+            {locale.label}
+          </a>
+        ))}
+      </div>
+    </li>
+  </ul>
+</li>

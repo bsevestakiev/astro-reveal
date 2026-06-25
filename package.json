@@ -1,0 +1,37 @@
+{
+  "name": "reveal-astro",
+  "type": "module",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "node scripts/validate-content.mjs && node scripts/extract-locale-blog-posts.mjs && astro build && node scripts/fix-locale-css-refs.mjs && node scripts/normalize-trailing-slash.mjs && pagefind --site dist && node scripts/build_sitemaps.mjs",
+    "sitemaps": "node scripts/build_sitemaps.mjs",
+    "validate:content": "node scripts/validate-content.mjs",
+    "preview": "astro preview",
+    "astro": "astro",
+    "parity:seed": "node scripts/parity-seed-tracker.mjs",
+    "parity:snap": "node scripts/parity-snap.mjs",
+    "capture": "node scripts/capture-live.mjs",
+    "parity:report": "node scripts/parity-report.mjs"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@tailwindcss/postcss": "^4.3.0",
+    "astro": "^6.1.10",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "devalue": ">=5.8.1"
+  },
+  "devDependencies": {
+    "@astrojs/sitemap": "^3.7.2",
+    "pagefind": "^1.5.2",
+    "playwright": "^1.49.0",
+    "remark-heading-id": "^1.0.1",
+    "yaml": "^2.5.0"
+  }
+}

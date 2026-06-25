@@ -1,0 +1,69 @@
+---
+interface Tag {
+  label: string
+}
+
+interface Props {
+  headline: string
+  body: string
+  tags: Tag[]
+  image: string
+  imageAlt: string
+}
+
+const { headline, body, tags, image, imageAlt } = Astro.props
+---
+
+<div class="my-5">
+  <div class="bg-gradient--primary text-light rounded-xl row align-items-center p-4 no-shadow-strip">
+    <div class="col-lg-8">
+      <h3 class="font-weight-bold text-white" set:html={headline} />
+      <p class="mb-3" set:html={body} />
+      <div class="row no-shadow-badges">
+        {tags.map((tag: Tag) => (
+          <div class="col-auto">
+            <span class="security-tag">{tag.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="col-lg-4 text-center mt-4 mt-lg-0">
+      <img alt={imageAlt} class="img-fluid no-shadow-shield" decoding="async" height="220" src={image} title={imageAlt} width="220" />
+    </div>
+  </div>
+</div>
+
+<style is:global>
+.no-shadow-strip { border-radius: 20px; box-shadow: none; }
+.no-shadow-badges { margin-left: -0.35rem; margin-right: -0.35rem; row-gap: 0.05rem; }
+.no-shadow-badges .col-auto { padding-left: 0.35rem; padding-right: 0.35rem; margin-bottom: 0.55rem; }
+.security-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.44rem 1.05rem !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.17) !important;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+  backdrop-filter: blur(3px);
+}
+.security-tag::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  vertical-align: middle;
+  background: url("https://static.infragistics.com/marketing/reveal/icons/reveal-icon-checkmark-white.svg") center center / contain no-repeat;
+}
+@media (max-width: 575.98px) {
+  .security-tag { font-size: 0.84rem; padding: 0.42rem 0.85rem !important; white-space: normal; }
+}
+</style>

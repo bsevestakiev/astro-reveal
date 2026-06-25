@@ -1,0 +1,268 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import { getStrings } from '../../../i18n'
+
+export async function getStaticPaths() {
+  return ['es', 'ja', 'ko', 'pt-BR'].map(lang => ({ params: { lang } }))
+}
+
+const { lang } = Astro.params
+const onDemandHeading = (getStrings(lang) as any).webinarsPage?.onDemand ?? 'On-demand webinars'
+
+const dateLocaleMap: Record<string, string> = {
+  es: 'es-ES',
+  ja: 'ja-JP',
+  ko: 'ko-KR',
+  'pt-BR': 'pt-BR',
+}
+const dateLocale = dateLocaleMap[lang] ?? 'en-US'
+
+// Match the locale case-insensitively — Astro lowercases collection IDs
+// (e.g. pt-BR/… becomes pt-br/…), so a case-sensitive prefix would drop pt-BR.
+const allWebinars = await getCollection('webinars')
+const webinars = allWebinars
+  .filter(w => w.id.toLowerCase().startsWith(`${lang.toLowerCase()}/`))
+  .sort((a, b) => (b.data.date ?? '').localeCompare(a.data.date ?? ''))
+
+const stripLang = (id: string) => id.replace(new RegExp(`^${lang}/`, 'i'), '')
+
+const today = new Date()
+today.setHours(0, 0, 0, 0)
+const upcoming = webinars.filter(w => !w.data.youtube_id && (!w.data.date || new Date(w.data.date) >= today))
+const past = webinars.filter(w => w.data.youtube_id || (w.data.date && new Date(w.data.date) < today))
+
+const allCategories = ['Advanced Usecases', 'Best Practices', 'Features', 'How To']
+---
+
+<BaseLayout
+  title="Webinars | Reveal"
+  description="Live and on-demand webinars on embedded analytics, BI, and software development."
+  lang={lang}
+>
+  {upcoming.length > 0 && (
+    <section class="py-5 border-bottom">
+      <div class="container">
+        <h2 class="text-center mb-4">Upcoming Webinars</h2>
+        <div class="row justify-content-center">
+          {upcoming.map(webinar => {
+            const slug = stripLang(webinar.id)
+            return (
+              <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                  {webinar.data.cover && (
+                    <img src={webinar.data.cover} alt={webinar.data.title} class="card-img-top" loading="lazy" decoding="async" />
+                  )}
+                  <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{webinar.data.title}</h5>
+                    {webinar.data.date && (
+                      <p class="text-muted small mb-1">
+                        {new Date(webinar.data.date).toLocaleDateString(dateLocale, { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </p>
+                    )}
+                    {webinar.data.description && (
+                      <p class="card-text flex-grow-1">{webinar.data.description}</p>
+                    )}
+                    <a href={`/${lang}/webinars/${slug}`} class="btn btn-primary mt-3">Register</a>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="mt-5" id="webinars">
+    <div class="container results-page">
+      <div class="row">
+        <div class="col-12 text-center">
+          <h2 class="h2 m-0 font-weight-bold">{onDemandHeading}</h2>
+        </div>
+      </div>
+
+      <div id="webinars-categories" class="row justify-content-center mx-auto my-3">
+        <div class="col-auto mb-3 px-1">
+          <button class="btn btn-light rounded font-weight-normal px-3 py-2 border-0 shadow-none text-capitalize filter-btn active" data-filter="all">All</button>
+        </div>
+        {allCategories.map(cat => (
+          <div class="col-auto mb-3 px-1">
+            <button class="btn btn-light rounded font-weight-normal px-3 py-2 border-0 shadow-none text-capitalize filter-btn" data-filter={cat}>{cat}</button>
+          </div>
+        ))}
+      </div>
+
+      <div class="row" id="webinar-cards">
+        {past.map(webinar => {
+          const cats = JSON.stringify(webinar.data.categories ?? [])
+          const ytId = webinar.data.youtube_id ?? ''
+          return (
+            <div class="col-12 col-md-6 col-lg-4 mb-4 webinar-card" data-categories={cats}>
+              <article>
+                <header>
+                  <a class="webinar-video-trigger" href={`https://www.youtube.com/watch?v=${ytId}`} data-yt={ytId} aria-label={`Watch ${webinar.data.title}`}>
+                    {webinar.data.cover && (
+                      <img
+                        src={webinar.data.cover}
+                        alt={webinar.data.title}
+                        class="feature-image border rounded mb-3"
+                        loading="lazy"
+                        decoding="async"
+                        style="width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;"
+                      />
+                    )}
+                  </a>
+                  <h3 class="card-title h4 font-weight-bold px-3 mb-2">{webinar.data.title}</h3>
+                </header>
+                <div class="card-text px-3">
+                  <a class="webinar-video-trigger" href={`https://www.youtube.com/watch?v=${ytId}`} data-yt={ytId}>Watch Now</a>
+                </div>
+              </article>
+            </div>
+          )
+        })}
+      </div>
+
+      <nav aria-label="Webinar pages" class="d-flex justify-content-center mt-2 mb-5" id="webinar-pagination"></nav>
+    </div>
+  </section>
+
+  <!-- YouTube modal -->
+  <dialog id="yt-modal" aria-label="Webinar video">
+    <button id="yt-modal-close" aria-label="Close video">✕</button>
+    <iframe
+      id="yt-modal-iframe"
+      src=""
+      title="Webinar"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+      style="width:100%;aspect-ratio:16/9;border:0;display:block;"
+    ></iframe>
+  </dialog>
+
+</BaseLayout>
+
+<script>
+  const PER_PAGE = 9
+  const btns = document.querySelectorAll<HTMLButtonElement>('.filter-btn')
+  const allCards = Array.from(document.querySelectorAll<HTMLElement>('.webinar-card'))
+  const pagination = document.getElementById('webinar-pagination')!
+  let currentFilter = 'all'
+  let currentPage = 1
+
+  // --- Modal ---
+  const modal = document.getElementById('yt-modal') as HTMLDialogElement
+  const iframe = document.getElementById('yt-modal-iframe') as HTMLIFrameElement
+  const closeBtn = document.getElementById('yt-modal-close')!
+
+  function openModal(ytId: string) {
+    iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1`
+    modal.showModal()
+  }
+
+  function closeModal() {
+    modal.close()
+    iframe.src = ''
+  }
+
+  closeBtn.addEventListener('click', closeModal)
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal() })
+  modal.addEventListener('close', () => { iframe.src = '' })
+
+  document.querySelectorAll<HTMLAnchorElement>('a.webinar-video-trigger').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault()
+      const ytId = a.dataset.yt
+      if (ytId) openModal(ytId)
+    })
+  })
+
+  // --- Filter + Pagination ---
+  function getVisible(): HTMLElement[] {
+    if (currentFilter === 'all') return allCards
+    return allCards.filter(card => {
+      const cats: string[] = JSON.parse(card.dataset.categories ?? '[]')
+      return cats.includes(currentFilter)
+    })
+  }
+
+  function render() {
+    const visible = getVisible()
+    const totalPages = Math.ceil(visible.length / PER_PAGE)
+    const start = (currentPage - 1) * PER_PAGE
+    const end = start + PER_PAGE
+
+    allCards.forEach(card => card.style.display = 'none')
+    visible.slice(start, end).forEach(card => card.style.display = '')
+
+    if (totalPages <= 1) { pagination.innerHTML = ''; return }
+    const prevDisabled = currentPage === 1
+    const nextDisabled = currentPage === totalPages
+    let html = '<ul class="pagination">'
+    html += `<li class="page-item ${prevDisabled ? 'disabled' : ''}"><button class="page-link" data-page="${currentPage - 1}">«</button></li>`
+    for (let p = 1; p <= totalPages; p++) {
+      html += `<li class="page-item ${p === currentPage ? 'active' : ''}"><button class="page-link" data-page="${p}">${p}</button></li>`
+    }
+    html += `<li class="page-item ${nextDisabled ? 'disabled' : ''}"><button class="page-link" data-page="${currentPage + 1}">»</button></li>`
+    html += '</ul>'
+    pagination.innerHTML = html
+
+    pagination.querySelectorAll<HTMLButtonElement>('[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = parseInt(btn.dataset.page ?? '1')
+        if (p < 1 || p > totalPages) return
+        currentPage = p
+        render()
+        document.getElementById('webinars')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    })
+  }
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'))
+      btn.classList.add('active')
+      currentFilter = btn.dataset.filter ?? 'all'
+      currentPage = 1
+      render()
+    })
+  })
+
+  render()
+</script>
+
+<style>
+  .filter-btn.active {
+    background-color: #2d2a90 !important;
+    color: #fff !important;
+  }
+  .filter-btn:hover:not(.active) {
+    background-color: #e0e0e0 !important;
+  }
+  a.webinar-video-trigger { cursor: pointer; }
+
+  #yt-modal {
+    border: none;
+    padding: 0;
+    background: transparent;
+    width: 90%;
+    max-width: 900px;
+    overflow: visible;
+  }
+  #yt-modal::backdrop {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  #yt-modal-close {
+    position: absolute;
+    top: -2rem;
+    right: 0;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+</style>

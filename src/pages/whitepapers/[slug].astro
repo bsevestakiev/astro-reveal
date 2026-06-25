@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content'
+import BlogLayout from '../../layouts/BlogLayout.astro'
+import { renderMarkdown } from '../../lib/render-markdown'
+
+const GATE_MARKER = /\n*<!--\s*gate\s*-->\n*/
+
+export async function getStaticPaths() {
+  const whitepapers = await getCollection('whitepapers')
+  return whitepapers
+    .filter(w => w.id.startsWith('en/'))
+    .map(whitepaper => ({
+      params: { slug: whitepaper.id.replace(/^en\//, '') },
+      props: { whitepaper },
+    }))
+}
+
+const { whitepaper } = Astro.props
+
+// Split the body on the gate marker. If there is no marker, render the
+// whole body as preview and leave the gated half empty (the lead-form
+// section will not render).
+const body: string = whitepaper.body ?? ''
+const match = body.match(GATE_MARKER)
+let previewHtml = ''
+let gatedHtml = ''
+if (match && match.index !== undefined) {
+  previewHtml = await renderMarkdown(body.slice(0, match.index))
+  gatedHtml = await renderMarkdown(body.slice(match.index + match[0].length))
+} else {
+  previewHtml = await renderMarkdown(body)
+}
+---
+
+<BlogLayout
+  title={whitepaper.data.title}
+  description={whitepaper.data.description}
+  publishDate={whitepaper.data.date}
+  author={whitepaper.data.author}
+  cover={whitepaper.data.cover}
+  authorBio={whitepaper.data.authorBio}
+  isWhitepaper={true}
+  leadSourceNumber={whitepaper.data.leadSourceNumber}
+>
+  <Fragment set:html={previewHtml} />
+  {gatedHtml && <Fragment slot="gated" set:html={gatedHtml} />}
+</BlogLayout>

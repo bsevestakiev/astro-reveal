@@ -1,0 +1,100 @@
+---
+interface Pillar {
+  icon: string
+  iconAlt: string
+  title: string
+}
+
+interface Props {
+  headline: string
+  subhead?: string
+  footnote?: string
+  pillars: Pillar[]
+}
+
+const { headline, subhead, footnote, pillars } = Astro.props
+---
+
+<style>
+  .under-the-hood-section {
+    background: linear-gradient(180deg, #fdf0f3 0%, #fff5f7 100%);
+  }
+  .under-hood-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .under-hood-card {
+    padding: 2rem 1.5rem 1.75rem;
+    border-radius: 0.85rem;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .under-hood-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+  .under-hood-card h3 {
+    font-size: 1rem;
+    line-height: 1.3;
+    color: #1d2430;
+    margin: 0;
+    font-weight: 700;
+  }
+  @media (max-width: 1199.98px) {
+    .under-hood-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 767.98px) {
+    .under-hood-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 575.98px) {
+    .under-hood-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<section class="py-5 overflow-hidden under-the-hood-section">
+  <div class="container my-5">
+    <div class="row animate-me" data-animation="fadeInRight">
+      <div class="col-12 text-center mb-4">
+        <h2 class="mb-3" set:html={headline} />
+        {subhead && <p class="mx-auto mw-900px mb-0" set:html={subhead} />}
+      </div>
+    </div>
+
+    <div class="row animate-me" data-animation="fadeInUp">
+      <div class="col-12">
+        <div class="under-hood-grid">
+          {pillars.map((p) => (
+            <div class="under-hood-card">
+              <div class="mb-3">
+                <img loading="lazy" decoding="async" src={p.icon} alt={p.iconAlt} width="56" height="56" title={p.iconAlt} />
+              </div>
+              <h3 set:html={p.title} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    {footnote && (
+      <div class="row animate-me" data-animation="fadeInRight">
+        <div class="col-12 text-center">
+          <p class="h5 font-weight-bold mb-0" set:html={footnote} />
+        </div>
+      </div>
+    )}
+  </div>
+</section>

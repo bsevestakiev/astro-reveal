@@ -1,0 +1,11 @@
+---
+// Mirrors old prod /reveal-navigation: an otherwise empty page (site header +
+// footer come from BaseLayout) whose body content is a second copy of the main
+// navigation menu, exactly as the old WordPress page embedded it inside <main>.
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Header from '../components/ui/Header.astro'
+---
+
+<BaseLayout title="Reveal Navigation | Reveal Embedded Analytics">
+  <Header />
+</BaseLayout>

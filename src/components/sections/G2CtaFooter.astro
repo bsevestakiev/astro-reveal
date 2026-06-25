@@ -1,0 +1,26 @@
+---
+interface Props {
+  headline: string
+  anchor?: string
+  ctaLabel?: string
+  ctaHref?: string
+}
+
+const {
+  headline,
+  anchor = 'get-started-with-reveal-today',
+  ctaLabel,
+  ctaHref = '#request-demo',
+} = Astro.props
+---
+
+<section class="bg-gradient--primary text-white" style="margin-bottom: -1px;">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 168" style="enable-background:new 0 0 1920 168; width:100%;height:auto;margin-top:-2px;" xml:space="preserve" class="ie-hide"><path class="st-footer" style="fill:#f8f9fa;stroke:#f8f9fa;" d="M0,44.4c0,73.1,271.2,94.3,315.5,99.6c269.2,32,521.3-13.2,785-58.9c146.1-25.4,291.6-57.7,440-66.7c126.1-7.7,254.7,6.8,379.4,26V-1.3H0V44.4z"></path></svg>
+<div class="container">
+<div class="row pt-5 pb-4">
+<div class="col-12 text-center">
+<h2 class="mb-4" id={anchor} set:html={headline}></h2>
+<a class="btn btn-secondary" href={ctaHref}>{ctaLabel}</a></div>
+</div>
+</div>
+</section>

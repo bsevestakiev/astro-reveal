@@ -1,0 +1,249 @@
+---
+interface Card {
+  icon: string
+  iconAlt: string
+  iconColor?: string
+  title: string
+  body: string
+}
+
+interface ControlItem {
+  title: string
+  body: string
+}
+
+interface Srcset {
+  media: string
+  srcset: string
+}
+
+interface Props {
+  eyebrow?: string
+  headline: string
+  subhead?: string
+  cards: Card[]
+  controlHeadline?: string
+  controlIntro?: string
+  controlItems?: ControlItem[]
+  controlNote?: string
+  controlImage?: string
+  controlImageAlt?: string
+  controlImageSrcset?: Srcset[]
+}
+
+const {
+  eyebrow,
+  headline,
+  subhead,
+  cards,
+  controlHeadline,
+  controlIntro,
+  controlItems = [],
+  controlNote,
+  controlImage,
+  controlImageAlt = '',
+  controlImageSrcset = [],
+} = Astro.props
+---
+
+<style>
+  .enterprise-ready-section {
+    position: relative;
+    background: linear-gradient(180deg, #f6f7fa 0%, #ffffff 100%);
+  }
+  .enterprise-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .enterprise-card {
+    padding: 1.5rem;
+    border-radius: 0.85rem;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .enterprise-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+  .enterprise-icon {
+    border-radius: 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+  }
+  .enterprise-icon img {
+    width: 3.75rem;
+    height: 3.75rem;
+    filter: none;
+  }
+  .enterprise-card h3 {
+    font-size: 1rem;
+    line-height: 1.3;
+    color: #1d2430;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+  .enterprise-card p {
+    color: #4c4c4c;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+  }
+  .enterprise-footer-text {
+    color: #1d2430;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  @media (max-width: 1199.98px) {
+    .enterprise-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 991.98px) {
+    .enterprise-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 575.98px) {
+    .enterprise-grid {
+      grid-template-columns: 1fr;
+    }
+    .enterprise-card {
+      padding: 1.25rem;
+    }
+    .enterprise-icon {
+      width: 3rem;
+      height: 3rem;
+      margin-bottom: 1rem;
+    }
+  }
+  .control-ai-row {
+    margin-top: 0.5rem;
+  }
+  .control-ai-copy h2 {
+    color: #1d2430;
+    line-height: 1.06;
+  }
+  .control-ai-copy > p {
+    color: #5f6368;
+    max-width: 34rem;
+  }
+  .control-ai-list {
+    list-style: none;
+    margin: 0 0 1.8rem;
+    padding: 0;
+  }
+  .control-ai-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    color: #232830;
+    font-size: 1.05rem;
+    line-height: 1.45;
+    margin-bottom: 1.25rem;
+  }
+  .control-ai-list li:last-child {
+    margin-bottom: 0;
+  }
+  .control-ai-check {
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 999px;
+    background: #6f8dfd;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.68rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 0.33rem;
+  }
+  @media (max-width: 991.98px) {
+    .control-ai-row {
+      gap: 1.75rem;
+    }
+  }
+  @media (max-width: 575.98px) {
+    .control-ai-copy h2 {
+      font-size: 2.2rem;
+    }
+    .control-ai-list li {
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<section class="enterprise-ready-section py-5 overflow-hidden position-relative">
+  <div class="container pt-lg-5 mt-lg-5 position-relative" style="z-index:1;">
+    <div class="row animate-me" data-animation="fadeInLeft">
+      <div class="col-12 col-lg-12 mb-2 mx-auto text-center">
+        {eyebrow && <p class="text-uppercase text-french-rose font-weight-bold mb-3">{eyebrow}</p>}
+        <h2 class="mb-4" set:html={headline} />
+        {subhead && <p set:html={subhead} />}
+      </div>
+    </div>
+
+    <div class="row mb-5 animate-me" data-animation="fadeInUp">
+      <div class="col-12 mb-5">
+        <div class="enterprise-grid">
+          {cards.map((card) => (
+            <div class="enterprise-card">
+              <div class="enterprise-icon">
+                <img loading="lazy" decoding="async" src={card.icon} alt={card.iconAlt} width="28" height="28" title={card.iconAlt} />
+              </div>
+              <h3 class="font-weight-bold">{card.title}</h3>
+              <p set:html={card.body} />
+            </div>
+          ))}
+        </div>
+        <div class="col-12 text-center animate-me" data-animation="fadeInUp">
+          <p class="font-weight-bold mb-0 enterprise-footer-text">AI that operates within your governance framework — not outside it.</p>
+        </div>
+      </div>
+    </div>
+
+    {controlHeadline && (
+      <div class="row align-items-center animate-me control-ai-row" data-animation="fadeInUp">
+        <div class="col-12 col-lg-5 mb-4 mb-lg-0 pr-lg-5 control-ai-copy">
+          <h2 class="mb-3" set:html={controlHeadline} />
+          {controlIntro && <p class="mb-4" set:html={controlIntro} />}
+          {controlItems.length > 0 && (
+            <ul class="control-ai-list">
+              {controlItems.map((item) => (
+                <li class="mb-3">
+                  <span class="control-ai-check" aria-hidden="true">&#x2713;</span>
+                  <span set:html={`<strong>${item.title}</strong><br />${item.body}`} />
+                </li>
+              ))}
+            </ul>
+          )}
+          {controlNote && <p class="mb-0" set:html={controlNote} />}
+        </div>
+
+        {controlImage && (
+          <div class="col-12 col-lg-7 animate-me" data-animation="fadeInRight">
+            <picture>
+              {controlImageSrcset.map((s) => (
+                <source media={s.media} srcset={s.srcset} />
+              ))}
+              <img
+                loading="lazy"
+                decoding="async"
+                class="w-100 img-fluid rounded-lg"
+                src={controlImage}
+                alt={controlImageAlt}
+                title={controlImageAlt}
+              />
+            </picture>
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+</section>

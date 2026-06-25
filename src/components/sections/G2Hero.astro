@@ -1,0 +1,50 @@
+---
+interface Props {
+  headline: string
+  body?: string
+  ctaLabel?: string
+  ctaHref?: string
+  secondaryCtaLabel?: string
+  secondaryCtaHref?: string
+  image?: string
+  imageLazySrc?: string
+  imageSrcset?: string
+  imageAlt?: string
+  imageTitle?: string
+}
+
+const {
+  headline,
+  body,
+  ctaLabel,
+  ctaHref = '#request-demo',
+  secondaryCtaLabel,
+  secondaryCtaHref = '/download-sdk',
+  image,
+  imageLazySrc,
+  imageSrcset,
+  imageAlt = '',
+  imageTitle = '',
+} = Astro.props
+---
+
+<style>.white-nav-background {background:rgba(255,255,255,0.9)}</style>
+<div class="bg-gradient--primary pt-5">
+<div class="jumbotron mb-0 position-relative bg-transparent py-0">
+<div class="container text-white">
+<div class="row">
+<div class="col-md-12 col-lg-6">
+<h1 set:html={headline}></h1>
+{body && <p class="mb-4" set:html={body}></p>}
+<p><a class="btn btn-secondary mb-2 mr-3 trackCTA" href={ctaHref} data-xd-ga-label="Reveal SDK" data-xd-ga-action="Download">{ctaLabel}</a> <a class="d-none d-md-inline-block btn btn-tertiary mb-2" href={secondaryCtaHref}>{secondaryCtaLabel}</a></p>
+</div>
+<div class="col-md-12 col-lg-6 ">
+  <img fetchpriority="high" decoding="async" class="img-fluid b-lazy" title={imageTitle} src={image} data-src={imageLazySrc} data-srcset={imageSrcset} alt={imageAlt} data-sizes="(max-width: 768px) 100vw, (max-width: 1100px) and (min-width: 769px) 50vw, 540px" width="540" height="346">
+</div>
+</div>
+</div>
+</div>
+<div class="border-wave-bottom ie-hide">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 180.3" style="enable-background:new 0 0 1920 180.3;" xml:space="preserve"><path class="st0" style="fill:#f8f9fa;stroke:#f8f9fa;" d="M-2,145.7C211.7,78.1,435,37.9,659.4,35.2c113-1.4,226.1,6.8,337.4,26.1c108.4,18.7,209.2,58.9,315.4,83 c67.7,15.3,135.9,24.7,205.5,24.1c152.4-1.3,302.6-50.2,405-166.9v182.7H-1.4L-2,145.7z"></path></svg>
+</div>
+</div>

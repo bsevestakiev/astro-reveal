@@ -1,0 +1,35 @@
+---
+title: "Thank You for Your Interest in Reveal"
+description: "Thank you for contacting Reveal. Our team will reach out shortly to schedule your personalized embedded analytics demo."
+cover: "/images/2020/10/reveal-logo-gradient-1200x630-1.jpg"
+seo:
+  title: "Thank You For Your Interest In Reveal | Reveal Embedded Analytics"
+  description: "Expect a member of our team to reach out shortly to confirm a convenient time for your personalized demo. In the meantime, you can explore more about Reveal"
+  ogTitle: "Thank You For Your Interest In Reveal | Reveal Embedded Analytics"
+  ogDescription: "Expect a member of our team to reach out shortly to confirm a convenient time for your personalized demo. In the meantime, you can explore more about Reveal"
+  ogType: "article"
+  twitterTitle: "Thank You For Your Interest In Reveal | Reveal Embedded Analytics"
+  twitterDescription: "Expect a member of our team to reach out shortly to confirm a convenient time for your personalized demo. In the meantime, you can explore more about Reveal"
+  ogImage: "/images/2020/10/reveal-logo-gradient-1200x630-1.jpg"
+sections:
+  - type: resource-card-grid
+    headline: "Thank You for Your Interest in Reveal"
+    body: "Expect a member of our team to reach out shortly to confirm a convenient time for your personalized demo. In the meantime, you can explore more about Reveal embedded analytics, and how we have helped other companies like yours to succeed."
+    cards:
+      - href: "/stories"
+        icon: "https://static.infragistics.com/marketing/reveal/book-a-demo/reveal-icon-customer-stories.svg"
+        iconAlt: "Customer Stories"
+        title: "Customer Stories"
+      - href: "/blog"
+        icon: "https://static.infragistics.com/marketing/reveal/book-a-demo/reveal-icon-blogs.svg"
+        iconAlt: "Lastest Blogs"
+        title: "Lastest Blogs"
+      - href: "/webinars"
+        icon: "https://static.infragistics.com/marketing/reveal/book-a-demo/reveal-icon-webinars.svg"
+        iconAlt: "Webinars"
+        title: "Webinars"
+      - href: "/whitepapers"
+        icon: "https://static.infragistics.com/marketing/reveal/book-a-demo/reveal-icon-whitepapers.svg"
+        iconAlt: "Whitepapers"
+        title: "Whitepapers"
+---

@@ -1,0 +1,92 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import SectionRenderer from '../../components/SectionRenderer.astro'
+
+export async function getStaticPaths() {
+  const locales = ['es', 'ja', 'ko', 'pt-BR']
+  const pages = await getCollection('pages')
+  return pages
+    .filter(p => locales.some(l => p.id.toLowerCase().startsWith(`${l.toLowerCase()}/`)) && !p.id.endsWith('/homepage'))
+    .filter(p => p.id.split('/').length === 2)
+    .map(page => {
+      const [idLang, ...slugParts] = page.id.split('/')
+      const lang = locales.find(l => l.toLowerCase() === idLang.toLowerCase()) ?? idLang
+      return {
+        params: { lang, slug: slugParts.join('/') },
+        props: { page },
+      }
+    })
+}
+
+const { lang } = Astro.params
+const { page } = Astro.props
+const sections: any[] = page.data.sections ?? []
+const hasSections = sections.length > 0
+const hasBody = Boolean(page.body?.trim())
+const toc: { label: string; anchor: string }[] = page.data.toc ?? []
+const hasToc = toc.length > 0
+
+// When both sections and body exist, lead-form sections go after the body
+const sectionsBeforeBody = sections.filter((s: any) => s.type !== 'lead-form')
+const sectionsAfterBody = sections.filter((s: any) => s.type === 'lead-form')
+
+const rendered = await render(page)
+const Content = rendered.Content
+
+const seo = page.data.seo
+---
+
+<BaseLayout
+  title={seo?.title ?? `${page.data.title} | Reveal`}
+  description={seo?.description ?? page.data.description}
+  image={seo?.ogImage ?? page.data.cover}
+  imageAlt={seo?.ogImageAlt}
+  ogType={seo?.ogType}
+  noindex={seo?.noindex}
+  canonicalUrl={seo?.canonical}
+  lang={lang}
+  noSearch={page.data.noSearch}
+>
+  {hasSections && !hasBody && <SectionRenderer sections={sections} lang={lang} />}
+  {hasSections && hasBody && sectionsBeforeBody.length > 0 && <SectionRenderer sections={sectionsBeforeBody} lang={lang} />}
+  {hasSections && hasBody && (
+    <div class="container py-5">
+      <div class="row justify-content-between position-relative">
+        {hasToc && (
+          <aside class="col-12 col-lg-3 mb-4 mb-lg-0" role="complementary">
+            <div class="position-sticky" style="top: 8rem;">
+              <div class="border rounded p-3 mb-4">
+                <h4 class="h6 font-weight-bold mb-3">Table of Contents</h4>
+                <ul class="list-unstyled mb-0">
+                  {toc.map((item) => (
+                    <li class="border-top py-2">
+                      <a href={`#${item.anchor}`} class="text-dark text-decoration-none small">{item.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div class="rounded text-white" style="background:#2b46bb;border-radius:0.5rem;padding:1em .8em .3em;margin-bottom:2rem;">
+                <h4 style="font-size:1.5em;font-weight:bold;color:white;margin-bottom:0.5rem;">See Reveal in Action</h4>
+                <p style="color:white;font-size:.95em;margin-bottom:0.75rem;">Watch a pre-recorded demo to discover the ease of embedding Reveal instantly.</p>
+                <div class="row align-items-center">
+                  <div class="col-6">
+                    <a href="/request-demo" class="btn btn-secondary" style="font-size:10px;padding:5px 9px;">Watch a Demo</a>
+                  </div>
+                  <div class="col-6">
+                    <img src="https://static.infragistics.com/marketing/reveal/blogs/reveal-CTA-banner-illustration-new-2.svg" alt="" loading="lazy" class="img-fluid" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        )}
+        <article class={`entry-content stats-article ${hasToc ? 'col-12 col-lg-9' : 'col-12'}`}>
+          <Content />
+        </article>
+      </div>
+    </div>
+  )}
+  {hasSections && hasBody && sectionsAfterBody.length > 0 && <SectionRenderer sections={sectionsAfterBody} lang={lang} />}
+  {!hasSections && Content && <Content />}
+</BaseLayout>

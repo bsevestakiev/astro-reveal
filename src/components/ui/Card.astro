@@ -1,0 +1,126 @@
+---
+import { cdn } from '../../lib/env'
+
+interface Props {
+  title: string
+  url: string
+  image?: string
+  imageAlt?: string
+  author?: string
+  authorUrl?: string
+  date?: string
+  excerpt?: string
+  ctaLabel?: string
+  variant?: 'blog' | 'story'
+  openInNewTab?: boolean
+}
+
+const {
+  title,
+  url,
+  image,
+  imageAlt = '',
+  author,
+  authorUrl,
+  date,
+  excerpt,
+  ctaLabel,
+  variant = 'blog',
+  openInNewTab = false,
+} = Astro.props
+
+const linkTarget = openInNewTab ? '_blank' : '_self'
+const linkRel = openInNewTab ? 'noopener' : undefined
+
+const arrowSrc = cdn('/marketing/slingshot/arrow-blue.svg')
+
+const defaultCta = variant === 'story' ? 'Read Story' : 'Read more'
+const resolvedCta = ctaLabel ?? defaultCta
+---
+
+{variant === 'blog' ? (
+  <article class="item-article pb-5 mb-5 border-bottom">
+    <header class="entry-header">
+      {image && (
+        <a href={url} target={linkTarget} rel={linkRel}>
+          <img
+            class="feature-image wp-post-image img-fluid"
+            src={image}
+            alt={imageAlt}
+            decoding="async"
+            loading="lazy"
+          />
+        </a>
+      )}
+      <h3 class="entry-title my-4">
+        <a class="text-dark font-weight-bold" href={url} target={linkTarget} rel={linkRel}>
+          {title}
+        </a>
+      </h3>
+    </header>
+
+    {(author || date) && (
+      <div class="mb-4 item-article__info" itemscope itemtype="http://schema.org/Article">
+        {author && (
+          <span itemprop="author" class="mr-3">
+            By{' '}
+            {authorUrl ? (
+              <a href={authorUrl}>{author}</a>
+            ) : (
+              author
+            )}
+          </span>
+        )}
+        {date && (
+          <time itemprop="datePublished" datetime={date}>
+            {new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          </time>
+        )}
+      </div>
+    )}
+
+    {excerpt && (
+      <div class="item-article__summary">
+        <p>{excerpt}</p>
+        <a href={url} target={linkTarget} rel={linkRel}>Continue reading...</a>
+      </div>
+    )}
+  </article>
+) : (
+  /* Story / case study card */
+  <article class="item-article card rounded-xl bg-white border-0 h-100 d-flex flex-column rounded-1rem">
+    <header style="background:#ebebf5;margin-bottom:0">
+      {image && (
+        <img
+          loading="lazy"
+          decoding="async"
+          class="card-img-top mt-1 w-100 d-block"
+          style="border-top-left-radius:0.6rem;border-top-right-radius:0.6rem"
+          src={image}
+          alt={imageAlt}
+        />
+      )}
+      <p class="card-title px-3 mb-0 bg-white pb-3 text-feat-story pt-3">
+        <a class="text-dark font-weight-bold text-decoration-none" href={url} target={linkTarget} rel={linkRel}>
+          {title}
+        </a>
+      </p>
+    </header>
+    <div class="card-body pt-0">
+      <a class="card-link" href={url} target={linkTarget} rel={linkRel}>
+        <span class="align-text-top font-weight-bold">{resolvedCta}</span>
+        <span class="align-middle ml-1">
+          <img
+            loading="lazy"
+            decoding="async"
+            src={arrowSrc}
+            class="card-arrow"
+            alt={resolvedCta}
+            width="16"
+            height="16"
+          />
+        </span>
+      </a>
+    </div>
+  </article>
+)}

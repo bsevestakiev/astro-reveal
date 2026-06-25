@@ -1,0 +1,96 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import { getStrings } from '../../../i18n'
+import '../../../styles/glossary.css'
+
+export async function getStaticPaths() {
+  return ['es', 'ja', 'ko', 'pt-BR'].map(lang => ({ params: { lang } }))
+}
+
+const { lang } = Astro.params
+const s = (getStrings(lang) as any).glossaryPage ?? {}
+
+// Localized terms come straight from the translated collection: display name is
+// the short heading (falling back to the title), summary is the description.
+const terms = (await getCollection('glossary'))
+  .filter(e => e.id.startsWith(`${lang}/`))
+  .map(e => ({
+    slug: e.id.replace(new RegExp(`^${lang}/`), ''),
+    name: e.data.heading ?? e.data.title,
+    summary: e.data.description ?? '',
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name, lang))
+
+const groups = new Map<string, typeof terms>()
+for (const term of terms) {
+  const letter = term.name[0].toUpperCase()
+  if (!groups.has(letter)) groups.set(letter, [])
+  groups.get(letter)!.push(term)
+}
+const letterGroups = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b, lang))
+
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+// Only Latin-script locales (es, pt-BR) get the A–Z filter bar; ja/ko titles
+// start with non-Latin characters, so the alphabet bar is hidden there.
+const usable = new Set([...groups.keys()].filter(l => ALPHABET.includes(l)))
+const showTabs = usable.size > 0
+---
+
+<BaseLayout title={`${s.title ?? 'Glossary'} | Reveal`} description={s.intro} lang={lang}>
+  <section class="glossary glossary--reveal container">
+    <header class="glossary__header">
+      <h1>{s.title ?? 'Reveal Analytics Glossary'}</h1>
+      {s.intro && <p class="text-center">{s.intro}</p>}
+    </header>
+
+    {showTabs && (
+      <div id="glossary-filter" class="glossary__tabs clearfix" role="menubar" aria-controls="glossary-listing" aria-label="Glossary Navigation">
+        {ALPHABET.map(letter => (
+          usable.has(letter) ? (
+            <span id={`tab-${letter}`} class="glossary__tab glossary__tab--usable" role="menuitem" tabindex="0" data-target={`target-${letter}`}>{letter}</span>
+          ) : (
+            <span id={`tab-${letter}`} class="glossary__tab" role="menuitem" tabindex="-1">{letter}</span>
+          )
+        ))}
+      </div>
+    )}
+
+    <div id="glossary-listing" class="glossary__section-wrap">
+      <h2 class="sr-only">{s.listHeading ?? 'List of Business Intelligence Terms'}</h2>
+      <dl class="clearfix">
+        {letterGroups.map(([letter, group]) => (
+          <div id={`target-${letter}`}>
+            {group.map(term => (
+              <div class="glossary__item">
+                <dt class="glossary__items-title">
+                  <h3><a href={`/${lang}/glossary/${term.slug}`}>{term.name}</a></h3>
+                </dt>
+                <dd class="glossary__item-summary">
+                  <p>{term.summary}</p>
+                </dd>
+              </div>
+            ))}
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  document.querySelectorAll('.glossary__tab--usable').forEach(tab => {
+    const go = () => {
+      const id = tab.getAttribute('data-target')
+      const target = id && document.getElementById(id)
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    tab.addEventListener('click', go)
+    tab.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        go()
+      }
+    })
+  })
+</script>

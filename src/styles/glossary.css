@@ -1,0 +1,139 @@
+.glossary {
+}
+
+.glossary__header {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    text-align: center;
+}
+
+.glossary__section-wrap {
+    margin-bottom: 30px;
+}
+
+.glossary__section-wrap dl {
+    position: relative;
+    text-align: left;
+}
+
+.glossary__items-title {
+    font-weight: bold;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+    .glossary__items-title h3 {
+        margin-bottom: 0.5rem;
+    }
+
+.glossary__item-summary {
+    list-style: none;
+    margin: 0 0 30px 0;
+    box-sizing: border-box;
+}
+
+.glossary__tabs {
+    display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    margin: 0 0 50px 0;
+    background: transparent;
+    border: none;
+}
+
+.glossary__tabs--fixed {
+    position: fixed;
+    padding: 0;
+    z-index: 11;
+    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.glossary__tab {
+    display: inline-block;
+    margin: 0 0 3px 0;
+    width: 24px;
+    text-align: center;
+    color: #D3D3D3;
+    /*background: #FFF;*/
+    cursor: default;
+    transition: background 0.3s ease, color 0.3s ease;
+    border-right: 1px solid #D3D3D3;
+}
+
+.glossary__tab--usable {
+    cursor: pointer;
+    color: #0099ff;
+}
+
+.glossary--reveal .glossary__tab--usable {
+    cursor: pointer;
+    color: #376fd1;
+}
+
+.glossary__tab--usable:hover,
+.glossary__tab--usable:focus {
+    text-decoration: underline;
+    color: #047fd1;
+}
+
+.glossary--reveal .glossary__tab--usable:hover,
+.glossary--reveal .glossary__tab--usable:focus {
+    color: #2d5aaa;
+}
+
+.glossary__tab:last-child {
+    border-right: none;
+}
+
+/* Search */
+.glossary-search-wrap {
+    position: relative;
+    display: table;
+    margin: 0 auto 25px auto;
+}
+.glossary-search-filter { width: 250px !important; }
+.glossary-search-clear {
+    position: absolute;
+    top: 0;
+    right: 35px;
+    width: 30px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #D3D3D3;
+    opacity: 0;
+    z-index: -1;
+    -webkit-transition: opacity 0.3s ease-in;
+    transition: opacity 0.3s ease-in;
+}
+.active-search + .glossary-search-clear {
+    opacity: 1;
+    z-index: 1;
+}
+.glossary-search-wrap.active-search .glossary-search-filter {
+    width: 200px !important;
+    z-index: 1;
+    left: 30px;
+}
+.glossary__item--inactive {
+    display: none;
+}
+.glossary_no-results-msg {
+  border: 1px solid #ededed;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media only screen and (max-width: 767px) {
+    .glossary__tabs {
+        display: none;
+    }
+}

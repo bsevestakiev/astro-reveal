@@ -1,0 +1,5 @@
+# Placeholder. Populated by the n8n translation pipeline.
+# Any keys missing here fall back to en.yml at build time.
+
+webinarsPage:
+  onDemand: "Webinars sob demanda"

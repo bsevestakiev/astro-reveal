@@ -1,0 +1,123 @@
+---
+// Sticky page-level sub-navigation with anchor links.
+// Ports the original WP `#subnav--container` styling + scroll-spy behavior verbatim.
+
+interface Link {
+  label: string
+  href: string
+  nowrap?: boolean
+}
+
+interface Props {
+  links: Link[]
+}
+
+const { links } = Astro.props
+---
+
+<style is:global>
+  /* Original page CSS, ported verbatim from the scraped WP source. */
+  html { scroll-padding-top: 130px; }
+
+  #subnav--container {
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    background-color: #fff;
+    transition: padding 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  #subnav--container.sticky-active {
+    box-shadow: 0 1px 4px 3px #00000017;
+  }
+
+  #subnav--container .nav-link {
+    position: relative;
+    transition: color 0.3s ease;
+    color: black;
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+  #subnav--container .nav-link.active,
+  #subnav--container .nav-link:hover {
+    text-decoration: none;
+    color: black;
+  }
+  #subnav--container .nav-link.active::after,
+  #subnav--container .nav-link:hover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -10px;
+    width: 100%;
+    height: 4px;
+    background-color: #ec417a;
+    transition: all 0.3s ease;
+  }
+</style>
+
+<section class="bg-color-white w-100 navmenu-size--container d-none d-lg-block" id="subnav--container"
+         style="position:sticky;top:65px;z-index:1019;">
+  <div class="container-fluid">
+    <div class="row justify-content-between align-items-center">
+      <div class="col pl-0">
+        <nav class="navbar navbar-expand-lg navbar-light px-0 justify-content-center" aria-label="Page navigation">
+          <div class="navbar-collapse align-items-center" id="subnav">
+            <div class="navbar-nav font-weight-bold text-decoration-none text-center align-items-center justify-content-center w-100">
+              {links.map(l => (
+                <a class={`nav-item nav-link${l.nowrap ? ' text-nowrap' : ''}`} href={l.href}>{l.label}</a>
+              ))}
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  // Active-link scroll-spy: highlight whichever section is currently in view.
+  // Ported verbatim from the WP source (minus the `sticky-active` toggle which
+  // is handled by `position: sticky` rather than runtime class swaps).
+  document.addEventListener('DOMContentLoaded', function () {
+    const subnav = document.getElementById('subnav--container')
+    if (!subnav) return
+
+    function handleActiveLink() {
+      const navLinks = document.querySelectorAll('#subnav--container .nav-link')
+      const sections = Array.from(navLinks)
+        .map(link => document.getElementById(link.getAttribute('href').split('#')[1]))
+        .filter(s => s)
+
+      let currentSection = ''
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop
+        const sectionHeight = section.offsetHeight
+        if (
+          window.scrollY >= sectionTop - window.innerHeight / 3 &&
+          window.scrollY < sectionTop + sectionHeight - window.innerHeight / 3
+        ) {
+          currentSection = section.getAttribute('id')
+        }
+      })
+
+      navLinks.forEach(link => {
+        const linkHash = link.getAttribute('href').split('#')[1]
+        link.classList.toggle('active', linkHash === currentSection)
+      })
+    }
+
+    function handleScroll() {
+      // Sticky transition: add the `sticky-active` class once the subnav has
+      // reached its sticky resting position so the box-shadow appears.
+      const rect = subnav.getBoundingClientRect()
+      if (rect.top <= 65) {
+        subnav.classList.add('sticky-active')
+      } else {
+        subnav.classList.remove('sticky-active')
+      }
+      handleActiveLink()
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    setTimeout(handleScroll, 100)
+  })
+</script>

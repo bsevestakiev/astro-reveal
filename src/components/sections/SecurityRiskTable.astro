@@ -1,0 +1,220 @@
+---
+interface RiskRow {
+  risk: string
+  category: string
+  mitigation: string
+}
+
+interface Props {
+  headline: string
+  rows: RiskRow[]
+}
+
+const { headline, rows } = Astro.props
+
+const crossIcon = 'https://static.infragistics.com/marketing/slingshot/compete/slingshot-compete-cross-icon.svg'
+const checkIcon = 'https://static.infragistics.com/marketing/slingshot/compete/slingshot-compete-check-mark-icon-periwinkle.svg'
+---
+
+<section class="slg-line py-5 d-none d-lg-block">
+  <div class="wrap d-block pt-5">
+    <h2 class="slg-title text-center mb-5" set:html={headline} />
+    <div class="wrap-cols-label d-flex justify-content-between mb-2 text-muted" style="max-width:70vw;margin:0 auto;padding:0 0 8px;">
+      <span style="width:33%;text-align:center;font-size:0.82rem;text-transform:uppercase;letter-spacing:.06em;">Risk</span>
+      <span style="width:33%;text-align:center;font-size:0.82rem;text-transform:uppercase;letter-spacing:.06em;">Impact</span>
+      <span style="width:33%;text-align:center;font-size:0.82rem;text-transform:uppercase;letter-spacing:.06em;">Reveal Mitigation</span>
+    </div>
+  </div>
+  {rows.map((row: RiskRow, i: number) => (
+    <div class={`wrap pb-4${i === rows.length - 1 ? ' mb-5' : ' mb-2'}`}>
+      <div class="slg-card slg-card--left">
+        <img alt="Risk" class="ico" decoding="async" src={crossIcon} title="Security" />
+        <span class="ml-2" set:html={row.risk} />
+      </div>
+      <div class="mid">
+        <span class="dash dash--left"></span>
+        <div class="pill">{row.category}</div>
+        <span class="dash dash--right"></span>
+        <i aria-hidden="true" class="dash-dot"></i>
+      </div>
+      <div class="slg-card slg-card--right">
+        <img alt="Mitigation" class="ico" decoding="async" src={checkIcon} title="Security" />
+        <span class="ml-2" set:html={row.mitigation} />
+      </div>
+    </div>
+  ))}
+</section>
+
+<style is:global>
+:root {
+  --slg-bg: #F6F7FA;
+  --slg-text: #1f2330;
+  --slg-white: #fff;
+  --slg-grad: linear-gradient(90deg, #fbb365 0%, #ec417a 40%, #ec417a 100%);
+  --slg-cardH: 80px;
+  --slg-cardR: 12px;
+  --slg-pillH: 58px;
+  --slg-midW: 320px;
+  --slg-gap: 180px;
+  --slg-connL: 210px;
+  --slg-connR: 210px;
+  --slg-dash: 7px;
+  --slg-dashGap: 7px;
+  --slg-dot: 9px;
+}
+.slg-title {
+  font-size: clamp(1.6rem, 2.4vw, 2.6rem);
+  font-weight: 700;
+  color: var(--slg-text);
+  line-height: 1.2;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.slg-line { background: var(--slg-bg); padding: 28px 16px; color: var(--slg-text); }
+.slg-line .wrap {
+  max-width: 70vw;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr var(--slg-midW) 1fr;
+  align-items: center;
+  column-gap: var(--slg-gap);
+}
+.slg-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: var(--slg-cardH);
+  padding: 0 24px 0 56px;
+  background: var(--slg-white);
+  color: var(--slg-text);
+  border-radius: var(--slg-cardR);
+  box-shadow: 0 14px 36px rgba(15,23,42,.10);
+  justify-content: flex-start;
+}
+.slg-card--left {
+  background: #FFFFFF;
+  color: var(--slg-text);
+  border-radius: var(--slg-cardR);
+  border: 1px solid transparent;
+  z-index: 0;
+  box-shadow: 0 10px 12px rgba(61,73,138,0.04);
+}
+.slg-card--right {
+  background: #334AD3;
+  color: #fff;
+  border: none;
+  border-radius: var(--slg-cardR);
+  z-index: 0;
+  box-shadow: 0 10px 12px rgba(61,73,138,0.12);
+  position: relative;
+}
+.slg-card .ico {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+.slg-line .mid {
+  position: relative;
+  height: var(--slg-cardH);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.slg-line .pill {
+  position: relative;
+  height: var(--slg-pillH);
+  min-width: 230px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #222;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: .35px;
+  border-radius: 8px;
+  box-shadow: 0 12px 26px rgba(20,27,45,.06);
+  z-index: 3;
+}
+.slg-line .pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--slg-grad);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.slg-line .dash {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2px;
+  border-radius: 999px;
+  background: var(--slg-grad);
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 var(--slg-dash), transparent var(--slg-dash) calc(var(--slg-dash) + var(--slg-dashGap)));
+  mask: repeating-linear-gradient(90deg, #000 0 var(--slg-dash), transparent var(--slg-dash) calc(var(--slg-dash) + var(--slg-dashGap)));
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  overflow: visible;
+  z-index: 1;
+}
+.slg-line .dash--left {
+  right: calc(54.5% + var(--slg-gap) / 2);
+  width: var(--slg-connL);
+  animation: slg-dash-move-left 1.2s linear infinite;
+}
+.slg-line .dash--right {
+  left: calc(55% + var(--slg-gap) / 2);
+  width: var(--slg-connR);
+  animation: slg-dash-move-right 1.2s linear infinite;
+}
+@keyframes slg-dash-move-left {
+  to { -webkit-mask-position: calc(var(--slg-dash) + var(--slg-dashGap)) 0; mask-position: calc(var(--slg-dash) + var(--slg-dashGap)) 0; }
+}
+@keyframes slg-dash-move-right {
+  to { -webkit-mask-position: calc(var(--slg-dash) + var(--slg-dashGap)) 0; mask-position: calc(var(--slg-dash) + var(--slg-dashGap)) 0; }
+}
+.slg-line .dash-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--slg-dot);
+  height: var(--slg-dot);
+  background: #ec417a;
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: 0 0 0 2px var(--slg-bg);
+  left: calc(55% + var(--slg-gap)/2 + var(--slg-connR));
+}
+@media (max-width: 992px) {
+  :root { --slg-midW: 280px; --slg-connL: 150px; --slg-connR: 150px; }
+}
+@media (max-width: 768px) {
+  .slg-line .wrap { grid-template-columns: 1fr; row-gap: 16px; }
+  .slg-line .dash, .slg-line .dash::after { display: none; }
+  .slg-card { font-size: 16px; }
+}
+@media (min-width: 992px) { .slg-line .wrap { max-width: 98vw; } }
+@media (min-width: 1200px) {
+  .slg-line .wrap { max-width: 96vw; }
+  .slg-line .dash--right { left: calc(45% + var(--slg-gap) / 2); }
+  .slg-line .dash-dot { left: calc(49% + var(--slg-gap) / 2 + var(--slg-connR)); }
+  .slg-line .dash--left { right: calc(49.5% + var(--slg-gap) / 2); }
+}
+@media (min-width: 1440px) { .slg-line .wrap { max-width: 76vw; } }
+@media (min-width: 992px) and (max-width: 1199.98px) { :root { --slg-gap: 80px; } }
+@media (min-width: 1200px) and (max-width: 1439.98px) { :root { --slg-gap: 120px; } }
+@media (min-width: 1440px) and (max-width: 1919.98px) { :root { --slg-gap: 150px; } }
+</style>

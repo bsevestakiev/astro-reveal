@@ -1,0 +1,98 @@
+---
+interface Props {
+  headline: string
+  body?: string
+  image?: string
+  imageSrcset?: { media: string; srcset: string }[]
+  imageAlt?: string
+  imageClass?: string
+  reversed?: boolean
+  variant?: 'light' | 'dark' | 'gray-card' | 'gallery' | 'blue'
+  eyebrow?: string
+  cta?: { label: string; href: string }
+  textColClass?: string
+  wrapperClass?: string
+  colSplit?: '7-5' | '5-7' | '6-6' | '5-6'
+  videoSrc?: string
+  videoPoster?: string
+}
+
+const {
+  headline,
+  body,
+  image,
+  imageSrcset = [],
+  imageAlt = '',
+  imageClass = 'w-100 img-fluid',
+  reversed = false,
+  variant = 'light',
+  eyebrow,
+  cta,
+  textColClass = '',
+  wrapperClass = '',
+  colSplit,
+  videoSrc,
+  videoPoster,
+} = Astro.props
+
+// Determine column widths based on colSplit prop.
+// '7-5' → text col-md-5, image col-md-7
+// '5-7' → text col-md-7, image col-md-5
+// '5-6' → text col-md-5, image col-md-6  (WP irregular split, 11 of 12 cols used)
+// '6-6' or undefined → default col-md-6 / col-md-6
+const textCol = colSplit === '7-5' ? 'col-12 col-md-5' : colSplit === '5-7' ? 'col-12 col-md-7' : colSplit === '5-6' ? 'col-12 col-md-5' : 'col-12 col-md-6'
+const imageCol = colSplit === '7-5' ? 'col-12 col-md-7' : colSplit === '5-7' ? 'col-12 col-md-5' : colSplit === '5-6' ? 'col-12 col-md-6' : 'col-12 col-md-6'
+
+const bgClass = variant === 'dark' ? 'bg-dark-navy' : variant === 'gray-card' ? 'bg-light-gray-card' : variant === 'gallery' ? 'bg-color-gallery' : variant === 'blue' ? 'bg-infragistics-blue' : ''
+const textClass = (variant === 'dark' || variant === 'blue') ? 'text-white' : ''
+const bodyTextClass = variant === 'dark' ? 'text-light-blue' : variant === 'blue' ? 'text-white' : ''
+const sectionSpaceClass = variant === 'gallery' ? 'mt-0 mb-0' : (wrapperClass || 'py-5 my-5')
+---
+
+<section class={`${sectionSpaceClass}${bgClass ? ' ' + bgClass : ''}`}>
+  <div class={variant === 'gallery' ? 'container pt-lg-5' : 'container'}>
+    <div class={`row align-items-center${reversed ? ' flex-row-reverse' : ''}`}>
+      <div class={`${textCol} mb-4 mb-lg-0 animate-me${variant === 'blue' ? ' text-white' : ''}${textColClass ? ' ' + textColClass : ''}`}
+           data-animation={reversed ? 'fadeInRight' : 'fadeInLeft'}>
+        {eyebrow && (
+          <p class={`text-uppercase font-weight-bold mb-3${variant === 'dark' ? ' ai-analyst-tag' : ' text-french-rose'}`}>
+            {eyebrow}
+          </p>
+        )}
+        <h2 class={`mb-4${textClass ? ' ' + textClass : ''}`} set:html={headline} />
+        {body && <p class={`mb-4${bodyTextClass ? ' ' + bodyTextClass : ''}`} set:html={body} />}
+        <slot />
+        {cta && (
+          <a href={cta.href} class={`font-weight-bold animate-underline${variant === 'dark' ? ' text-warning' : ''}`}>
+            {cta.label} →
+          </a>
+        )}
+      </div>
+
+      <div class={`${imageCol} animate-me`}
+           data-animation={reversed ? 'fadeInLeft' : 'fadeInRight'}>
+        <div class="position-relative d-block mx-auto rounded-xl">
+          {videoSrc ? (
+            <video class="d-block w-100" autoplay loop muted playsinline poster={videoPoster}>
+              <source src={videoSrc} type="video/mp4" />
+            </video>
+          ) : (
+            <picture>
+              {imageSrcset.map(s => <source media={s.media} srcset={s.srcset} />)}
+              <img loading="lazy" decoding="async" class={imageClass} src={image} alt={imageAlt} title={imageAlt} />
+            </picture>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .bg-infragistics-blue {
+    background-image: url('https://static.infragistics.com/marketing/reveal/ppc/cross-sell-devtools/reveal-infragistics-circles-blue-background.svg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+</style>

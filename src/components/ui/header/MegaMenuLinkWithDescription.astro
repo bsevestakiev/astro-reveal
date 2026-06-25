@@ -1,0 +1,16 @@
+---
+interface Props {
+  href: string
+  title: string
+  description: string
+}
+const { href, title, description } = Astro.props
+---
+<li class="mega-menu-item mega-has-description">
+  <a class="mega-menu-link" href={href}>
+    <span class="mega-description-group">
+      <span class="mega-menu-title">{title}</span>
+      <span class="mega-menu-description">{description}</span>
+    </span>
+  </a>
+</li>

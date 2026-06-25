@@ -1,0 +1,320 @@
+---
+import BaseLayout from './BaseLayout.astro'
+import JsonLd from '../components/seo/JsonLd.astro'
+import { getCollection } from 'astro:content'
+import { getAuthor, getAvatarUrl, getAuthorUrl } from '../lib/blog-authors'
+import { cdn, SITE_URL } from '../lib/env'
+import { ARTICLE_PUBLISHER_LD, stripHtml } from '../lib/seo'
+
+interface Props {
+  title: string
+  description?: string
+  cover?: string
+  author?: string
+  authorBio?: string
+  hasGated?: boolean
+  permalink?: string
+}
+
+const {
+  title,
+  description,
+  cover,
+  author,
+  authorBio,
+  hasGated = false,
+  permalink,
+} = Astro.props
+
+const authorMeta = getAuthor(author)
+const authorAvatar100 = getAvatarUrl(author, 100)
+const authorAvatar200 = getAvatarUrl(author, 200)
+const authorUrl = getAuthorUrl(author)
+
+// "More from <Author>" — recent posts by this author from the blog collection.
+const allPosts = await getCollection('blog')
+const authorPosts = author
+  ? allPosts
+      .filter(p => p.id.startsWith('en/') && p.data.author === author)
+      .sort((a, b) => (b.data.date ?? '').localeCompare(a.data.date ?? ''))
+      .slice(0, 5)
+  : []
+
+// "Recent Content" — last 3 blog posts overall.
+const recent = allPosts
+  .filter(p => p.id.startsWith('en/'))
+  .sort((a, b) => (b.data.date ?? '').localeCompare(a.data.date ?? ''))
+  .slice(0, 3)
+
+const formatDate = (s: string | undefined) =>
+  s ? new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+
+const pageUrl = permalink ?? `${SITE_URL}${Astro.url.pathname}`
+
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: stripHtml(title),
+  description: stripHtml(description),
+  ...(cover ? { image: cover.startsWith('http') ? cover : `${SITE_URL}${cover}` } : {}),
+  ...(author ? {
+    author: {
+      '@type': 'Person',
+      name: author,
+      ...(authorUrl ? { url: `${SITE_URL}${authorUrl}` } : {}),
+    },
+  } : {}),
+  publisher: ARTICLE_PUBLISHER_LD,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': pageUrl,
+  },
+}
+---
+
+<BaseLayout title={`${title} | Reveal`} description={description} image={cover} ogType="article">
+  <JsonLd slot="jsonld" data={articleLd} />
+  <article class="whitepapers">
+    <div class="bg-color-primary text-white">
+      <header class="container">
+        <div class="row py-5 align-items-center">
+          <div class="col-12 col-lg-6">
+            <h1>{title}</h1>
+          </div>
+          {cover && (
+            <div class="col-12 col-lg-6">
+              <figure class="wp-block-image size-medium-small">
+                <img src={cover} alt={title} title={title} fetchpriority="high" />
+              </figure>
+            </div>
+          )}
+        </div>
+      </header>
+    </div>
+
+    <div class="container">
+      <div class="row pt-4 pb-3">
+        <div class="col-12 entry-content">
+          <slot />
+        </div>
+      </div>
+    </div>
+
+    <section id="gating-area" class="whitepapers__gate-top bg-color-white-smoke py-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <h2>Continue Reading</h2>
+            <p>Fill out the form to continue reading.</p>
+            <form id="lead-form_1" class="lead-tracker-form ui-form" data-form-theme="">
+              <div id="apiError1" class="apiError field-validation-error-msg" style="display:none;">
+                Sorry, it seems that we have run into an issue with the form.
+                <a href="#" onclick="location.reload();return false;" style="color:red;text-decoration:underline;font-weight:bold;">Please try again</a>
+                in a few minutes. If you still experience issues, please contact us at
+                <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold;">support@revealbi.io</a>.
+              </div>
+              <div class="form-row">
+                <div class="col-12"><span class="ui-form__required-note">Required</span></div>
+                <div id="recaptchaError1" class="recaptchaError field-validation-error-msg" style="display:none;">Unfortunately, Google has considered you a bot. Please contact <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold;">support@revealbi.io</a>.</div>
+                <div id="formInvalidConditionForm1" class="formInvalidConditionForm field-validation-error-msg" style="display:none;">Please accept the form terms to submit successfully.</div>
+                <div id="formInvalidEmail1" class="formInvalidEmail field-validation-error-msg" style="display:none;">This email address doesn't appear valid. Please update and try again.</div>
+                <div id="formInvalidFreeEmail1" class="formInvalidFreeEmail field-validation-error-msg" style="display:none;">Please use a business email address.</div>
+              </div>
+
+              <div class="form-row">
+                <div class="col-12">
+                  <div class="form-row d-none">
+                    <div class="form-group col">
+                      <input id="Country_1" name="Country" class="sfInput form-control" type="text" value="" tabindex="-1" autocomplete="false" />
+                      <label for="Country_1">Country</label>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col">
+                      <input id="Email_1" name="Email" type="email" class="form-control sfInput required" data-val-length-max="60" data-val-length="Email cannot exceed 60 characters." value="" />
+                      <label for="Email_1">Email</label>
+                    </div>
+                  </div>
+                  <div class="form-row name">
+                    <div class="form-group col-12">
+                      <input id="FirstName_1" name="FirstName" type="text" class="form-control sfInput required" data-val-length-max="100" data-val-length="First Name cannot exceed 100 characters." value="" />
+                      <label for="FirstName_1">First Name</label>
+                    </div>
+                    <div class="form-group col-12">
+                      <input id="LastName_1" name="LastName" type="text" class="form-control sfInput required" data-val-length-max="100" data-val-length="Last Name cannot exceed 100 characters." value="" />
+                      <label for="LastName_1">Last Name</label>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-12">
+                      <input id="Phone_1" name="Phone" type="tel" class="form-control sfInput" data-val-length-max="25" data-val-length="Phone cannot exceed 25 characters." value="" />
+                      <label for="Phone_1">Phone</label>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col">
+                      <div class="custom-control custom-checkbox custom-control-inline">
+                        <input name="acceptGDPRFormSubmission" id="acceptGDPRFormSubmission_1" type="checkbox" class="accept-gdpr custom-control-input" value="yes" aria-required="true" />
+                        <label for="acceptGDPRFormSubmission_1" class="custom-control-label">
+                          I understand and agree to the terms of Infragistics&apos;
+                          <a class="text-decoration-none font-weight-bolder" href="/terms-of-use">Terms of Use</a>
+                          and
+                          <a class="text-decoration-none font-weight-bolder" href="/privacy-policy">Privacy Policy</a>
+                          <p class="mt-2 mb-0 label">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Use apply.</p>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-row justify-content-center">
+                    <div class="col col-lg text-center">
+                      <button id="submit_1" type="submit" class="submit btn rounded-pill btn-primary" disabled>Keep Reading</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <div class="thankyou__container thankyou__lead-form_1" style="display:none;">
+              <div>Form submitted</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {hasGated && (
+      <section id="gated-content" class="whitepapers__gated d-none">
+        <div class="container py-5">
+          <div class="row">
+            <div class="col-12 col-md-9">
+              <slot name="gated" />
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
+  </article>
+
+  {(authorMeta && authorBio) && (
+    <div class="container">
+      <section class="row py-5">
+        <header class="col-12">
+          <h2>About the Author</h2>
+        </header>
+        <div class="col-12 col-md-7">
+          <div class="card shadow h-100 whitepapers__author-card">
+            <div class="card-body">
+              {authorAvatar100 && (
+                <img
+                  alt={authorMeta.name}
+                  src={authorAvatar100}
+                  srcset={authorAvatar200 ? `${authorAvatar200} 2x` : undefined}
+                  class="avatar avatar-100 photo mr-3 mb-2 rounded-circle"
+                  height="100"
+                  width="100"
+                  decoding="async"
+                />
+              )}
+              <h3 class="h4">{authorMeta.name}</h3>
+              <p class="mb-0" set:html={authorBio} />
+            </div>
+          </div>
+        </div>
+        {authorPosts.length > 0 && (
+          <div class="col-12 col-md-5">
+            <div class="card shadow h-100 whitepapers__author-recent-posts">
+              <div class="card-body">
+                <h3 class="h6">More from {authorMeta.name.split(' ')[0]}</h3>
+                <ul class="list-group list-group-flush">
+                  {authorPosts.map((p, i) => (
+                    <li class={`list-group-item px-0 ${i === 0 ? 'border-top-0' : ''}`}>
+                      <a href={`/blog/${p.id.replace(/^en\//, '')}`}>{p.data.title}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {recent.length > 0 && (
+        <section class="row py-4">
+          <div class="col-12">
+            <h2 class="mb-3">Recent Content</h2>
+            <div class="row">
+              {recent.map(p => (
+                <article class="bt__post ui-card col-md-4">
+                  <figure class="bt__post-image">
+                    {p.data.cover && (
+                      <img src={p.data.cover} alt={p.data.title} loading="lazy" />
+                    )}
+                  </figure>
+                  <div class="bt__content-wrap">
+                    <header>
+                      <h4>
+                        <a class="bt__post-link" href={`/blog/${p.id.replace(/^en\//, '')}`}>
+                          {p.data.title}
+                        </a>
+                      </h4>
+                      <span class="bt__post-subheader">
+                        {p.data.author && (
+                          <span><a href={getAuthorUrl(p.data.author)}>{p.data.author}</a></span>
+                        )}
+                        {p.data.date && (
+                          <time datetime={p.data.date}>{formatDate(p.data.date)}</time>
+                        )}
+                      </span>
+                    </header>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+    </div>
+  )}
+
+  <script is:inline>
+    window.addEventListener('load', function () {
+      if (typeof leadTracker === 'undefined') return;
+      if (!document.getElementById('lead-form_1')) return;
+      var cfg = window.__REVEAL_CONFIG__ || {};
+      leadTracker.execute({
+        macro: 'LeadTracker',
+        lang: 'en',
+        leadFormID: 'lead-form_1',
+        reaptchaKey: cfg.recaptchaSiteKey || '',
+        redirectUrl: '',
+        redirectMode: '_self',
+        thankYouMessage: '1',
+        formContainerId: '',
+        productCode: 'A8',
+        leadProductCode: '',
+        packageName: '',
+        productResourceType: '',
+        osSupport: '',
+        installerType: '',
+        eventTypeParam: 'whitepaper',
+        eventDetailParam: {JSON.stringify(title)},
+        prohibitFreeMail: true,
+        prohibitDisposableMail: true,
+        showRequestDemo: false,
+        googleEventType: 'Form Submit',
+        googleEventLabel: 'Reveal - Request More Info',
+        googleEventTypeDownload: '',
+        googleEventLabelDownload: '',
+        zoomWebinarId: '',
+        leadSourceNumber: 'A800001',
+        tier: 'tier_1',
+        formLocation: '',
+        formValue: '2000',
+        productName: 'Reveal',
+        formName: 'form submitted',
+        cookiesPrefix: 'reveal_',
+      });
+    });
+  </script>
+</BaseLayout>

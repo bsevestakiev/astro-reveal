@@ -1,0 +1,46 @@
+---
+interface Connector {
+  name: string
+  description: string
+  icon: string
+  category?: string
+}
+
+interface Props {
+  headline: string
+  subhead?: string
+  anchor?: string
+  connectors: Connector[]
+}
+
+const { headline, subhead, anchor, connectors } = Astro.props
+---
+
+<section class="container py-5">
+  <header class="row">
+    <div class="col-md-12 text-center">
+      <h2 id={anchor ?? undefined}>{headline}</h2>
+      {subhead && <p>{subhead}</p>}
+    </div>
+  </header>
+  <div class="row mx-auto filter__content">
+    {connectors.map((c) => (
+      <article class={`col-6 col-md-3 py-3 filter__item${c.category ? ` ${c.category}` : ''}`}>
+        <div class="p-3 border rounded h-100">
+          <img
+            decoding="async"
+            loading="lazy"
+            src={c.icon}
+            alt={c.name}
+            title={c.name}
+            width="75"
+            height="75"
+            style="width:75px;height:75px;object-fit:contain;"
+          />
+          <h3 class="h5 font-weight-bold">{c.name}</h3>
+          <p>{c.description}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

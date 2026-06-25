@@ -1,0 +1,103 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import Card from '../ui/Card.astro'
+import { BLOG_CATEGORIES, type PaginationLinks } from '../../lib/blog'
+
+interface Props {
+  posts: CollectionEntry<'blog'>[]
+  urlPrefix?: string
+  pagination?: PaginationLinks
+  emptyMessage?: string
+}
+
+const {
+  posts,
+  urlPrefix = '/blog',
+  pagination,
+  emptyMessage = 'No posts yet. Check back soon.',
+} = Astro.props
+---
+
+<div class="container results-page">
+  <div class="wrapper">
+    <div class="row">
+      <div class="col-md-8 content-area">
+        {posts.map((post) => {
+          const slug = post.id.replace(/^[^/]+\//, '')
+          return (
+            <Card
+              variant="blog"
+              title={post.data.title}
+              url={`${urlPrefix}/${slug}`}
+              image={post.data.cover}
+              imageAlt={post.data.title}
+              author={post.data.author}
+              date={post.data.date}
+              excerpt={post.data.description}
+            />
+          )
+        })}
+        {posts.length === 0 && <p class="text-muted">{emptyMessage}</p>}
+
+        {pagination && pagination.pages.length > 1 && (
+          <nav class="navigation pagination" aria-label="Pagination Navigation">
+            <h2 class="screen-reader-text sr-only">Pagination Navigation</h2>
+            <div class="nav-links">
+              {pagination.prev && (
+                <a class="page-numbers prev" href={pagination.prev} rel="prev">&laquo; Previous</a>
+              )}
+              {pagination.pages.map((p) =>
+                p.num === -1 ? (
+                  <span class="page-numbers dots">&hellip;</span>
+                ) : p.current ? (
+                  <span aria-current="page" class="page-numbers current">{p.num}</span>
+                ) : (
+                  <a class="page-numbers" href={p.href}>{p.num}</a>
+                )
+              )}
+              {pagination.next && (
+                <a class="page-numbers next" href={pagination.next} rel="next">Next &raquo;</a>
+              )}
+            </div>
+          </nav>
+        )}
+      </div>
+
+      <aside class="col-md-4 sidebar-right mt-3 mt-md-0" role="complementary">
+        <section class="widget_text ig-custom-html-widget sidebar-card">
+          <div class="bg-light text-center p-4">
+            <h2 class="border-bottom-0">Subscribe to Our Blog</h2>
+            <p class="text-size--md">
+              Use our RSS feed to get the latest news and developments in business analytics and Reveal.
+            </p>
+            <a href="/feed/" class="btn btn-primary" target="_blank" rel="noopener">
+              <svg viewBox="0 0 512 512" style="width:18px;height:18px;fill:currentColor;" aria-hidden="true">
+                <path d="M201.8 347.2c0 20.3-16.5 36.8-36.8 36.8 -20.3 0-36.8-16.5-36.8-36.8s16.5-36.8 36.8-36.8C185.3 310.4 201.8 326.8 201.8 347.2zM128.2 204.7v54.5c68.5 0.7 124 56.3 124.7 124.7h54.5C306.7 285.3 226.9 205.4 128.2 204.7zM128.2 166.6c57.9 0.3 112.3 22.9 153.2 63.9 41 41 63.7 95.5 63.9 153.5h54.5c-0.3-149.9-121.7-271.4-271.6-271.9V166.6L128.2 166.6z"></path>
+              </svg>
+              Blog Feed
+            </a>
+          </div>
+        </section>
+
+        <section class="categories sidebar-card">
+          <h2>Categories</h2>
+          <ul>
+            {BLOG_CATEGORIES.map((cat) => (
+              <li class={`cat-item cat-item-${cat.slug}`}>
+                <a href={`/blog/category/${cat.slug}`}>{cat.name}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="widget_text ig-custom-html-widget sidebar-card">
+          <div class="bg-wave--primary text-white p-3 sidebar-mkto-container">
+            <h2 class="h3 text-white">Request a Live Demo of Reveal</h2>
+            <p class="mb-3">See how Reveal embeds seamlessly into your application.</p>
+            <a class="btn btn-secondary ig-show-modal" href="#" data-targetid="requestDemo">Book a Demo</a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>

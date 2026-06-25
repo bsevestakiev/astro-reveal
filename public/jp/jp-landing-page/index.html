@@ -1,0 +1,2666 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="BI機能をアプリに簡単に組み込めます。ネイティブSDKによる組み込みなら、iframeではかなわない拡張性と一体感を実現。">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WXWCMQZ');</script>
+<!-- End Google Tag Manager -->
+<link rel="icon" href="https://www.revealbi.io/wp-content/themes/reveal/icons/apple-touch-icon.png" type="image/vnd.microsoft.icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Poetsen+One&display=swap" rel="stylesheet">
+<!-- twitter card -->
+<meta name="twitter:card" content="summary-large-image">
+<meta name="twitter:title" content="組み込み型BI「Reveal」｜作るより「組み込むBI」の時代へ">
+<meta name="twitter:description" content="BI機能をアプリに簡単に組み込めます。ネイティブSDKによる組み込みなら、iframeではかなわない拡張性と一体感を実現。">
+<meta name="twitter:image" content="https://www.revealbi.io/wp-content/uploads/2020/10/reveal-logo-gradient-1200x630-1.jpg">
+<!-- ogp -->
+<meta property="og:site-name" content="組み込み型BI「Reveal」｜作るより「組み込むBI」の時代へ">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.revealbi.io/wp-content/uploads/2020/10/reveal-logo-gradient-1200x630-1.jpg">
+<title>組み込み型BI"Reveal"｜作るより「組み込むBI」の時代へ</title>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WXWCMQZ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<style>
+html{-webkit-text-size-adjust:100%;box-sizing:border-box;-moz-tab-size:4;tab-size:4;word-break:normal}*,:after,:before{background-repeat:no-repeat;box-sizing:inherit}:after,:before{text-decoration:inherit;vertical-align:inherit}*{margin:0;padding:0}hr{color:inherit;height:0;overflow:visible}details,main{display:block}summary{display:list-item}small{font-size:80%}[hidden]{display:none}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}a{background-color:transparent}a:active,a:hover{outline-width:0}code,kbd,pre,samp{font-family:monospace,monospace}pre{font-size:1em}b,strong{font-weight:bolder}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{border-color:inherit;text-indent:0}iframe{border-style:none}input{border-radius:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}textarea{overflow:auto;resize:vertical}button,input,optgroup,select,textarea{font:inherit}optgroup{font-weight:700}button{overflow:visible}button,select{text-transform:none}[role=button],[type=button],[type=reset],[type=submit],button{cursor:pointer}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button:-moz-focusring{outline:1px dotted ButtonText}[type=reset],[type=submit],button,html [type=button]{-webkit-appearance:button}button,input,select,textarea{background-color:transparent;border-style:none}a:focus,button:focus,input:focus,select:focus,textarea:focus{outline-width:0}select{-moz-appearance:none;-webkit-appearance:none}select::-ms-expand{display:none}select::-ms-value{color:currentColor}legend{border:0;color:inherit;display:table;max-width:100%;white-space:normal}::-webkit-file-upload-button{-webkit-appearance:button;color:inherit;font:inherit}[disabled]{cursor:default}img{border-style:none}progress{vertical-align:baseline}[aria-busy=true]{cursor:progress}[aria-controls]{cursor:pointer}[aria-disabled=true]{cursor:default}
+@charset "UTF-8";
+/*============================================================
+common
+==============================================================*/
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Noto Sans JP", "Helvetica Neue", "Helvetica", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Arial", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1rem;
+  color: #333333;
+  letter-spacing: 0.05rem;
+  animation: fadeIn 1.5s ease 0s 1 normal;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  margin: auto;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+input, button, textarea, select {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  outline: none;
+  /*-webkit-appearance: none;
+  -moz-appearance: none;*/
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  transition: all 0.3s ease-in-out 0s;
+}
+a:hover {
+  opacity: 0.5;
+}
+a:link, a:visited, a:active {
+  color: #333333;
+}
+
+.sp {
+  display: inherit;
+}
+@media (min-width: 769px) {
+  .sp {
+    display: none;
+  }
+}
+
+.pc {
+  display: none;
+}
+@media (min-width: 769px) {
+  .pc {
+    display: inherit;
+  }
+}
+
+.indent {
+  padding-left: 1em;
+  text-indent: -1em;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.inner {
+  width: 100%;
+  margin: auto;
+  padding: 0 20px;
+}
+@media (min-width: 769px) {
+  .inner {
+    width: 90%;
+    max-width: 1040px;
+  }
+}
+
+.flex-wrap {
+  display: flex;
+  justify-content: normal;
+  align-items: normal;
+  flex-wrap: wrap;
+}
+
+.flex-wrap-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.flex {
+  display: flex;
+  justify-content: normal;
+  align-items: normal;
+}
+.en {
+  font-family: "Josefin Sans", sans-serif;
+}
+
+.sec {
+  padding: 50px 0;
+}
+
+.sec-ttl {
+  font-family: "Noto Sans JP", "Helvetica Neue", "Helvetica", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Arial", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.sec-ttl span {
+  display: block;
+  color: #EC417A;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.btn {
+  display: inline-block;
+  position: relative;
+  color: #fff;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  width: 100%;
+  border-radius: 100vh;
+  padding: 18px 50px;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 30px;
+  bottom: auto;
+  left: auto;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #fff;
+  border-right: 2px solid #fff;
+  transform: rotate(45deg);
+  margin-top: -4px;
+}
+.btn:link, .btn:visited, .btn:active {
+  color: #fff;
+}
+.btn:hover {
+  opacity: 0.5;
+}
+
+.download-btn {
+  color: #f97316;
+  background-color: #fff;
+  outline: solid 2px #f97316;
+  outline-offset: -2px;
+}
+.download-btn:link, .download-btn:visited, .download-btn:active {
+  color: #f97316;
+}
+.download-btn::after {
+  border-top: 2px solid #f97316;
+  border-right: 2px solid #f97316;
+}
+.download-btn span {
+  font-size: 0.75rem;
+  color: #fff;
+  background-color: #fa8f45;
+  padding: 1px 10px;
+  margin-right: 5px;
+  border-radius: 100vh;
+}
+
+.cta-btn {
+  background: linear-gradient(90deg,#218CE1,#2b46bb);
+}
+
+.blue-btn {
+  color: #EC417A;
+  background-color: #fff;
+  outline: solid 2px #EC417A;
+  outline-offset: -2px;
+}
+.blue-btn:link, .blue-btn:visited, .blue-btn:active {
+  color: #EC417A;
+}
+.blue-btn::after {
+  border-top: 2px solid #EC417A;
+  border-right: 2px solid #EC417A;
+}
+
+.btn-lead {
+  text-align: center;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.btn-block {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 769px) {
+  .sec {
+    padding: 80px 0;
+  }
+  .sec-ttl {
+    font-size: 2.25rem;
+    margin-bottom: 3rem;
+  }
+  .sec-ttl span {
+    font-size: 1.25rem;
+  }
+  .btn {
+    font-size: 1rem;
+    width: 320px;
+  }
+  .download-btn span {
+    font-size: 0.875rem;
+  }
+  .blue-btn {
+    width: 500px;
+  }
+  .btn-lead {
+    font-size: 0.875rem;
+  }
+  .btn-block {
+    width: auto;
+    margin-right: 10px;
+    margin-bottom: 0;
+  }
+}
+/*============================================================
+header
+==============================================================*/
+header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+}
+
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+}
+
+.header-logo {
+  width: 88px;
+  height: auto;
+}
+
+.navi .link {
+  font-weight: 900;
+}
+.navi .link a:link, .navi .link a:visited, .navi .link a:active {
+  color: #333333;
+}
+.navi .btn {
+  padding: 12px 30px 12px 30px;
+}
+.navi .btn::after {
+  display: none;
+}
+
+#pc-navi ul {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+#sp-navi {
+  position: fixed;
+  z-index: -1;
+  opacity: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #fff;
+  transition: all 0.3s;
+}
+#sp-navi ul {
+  display: none;
+  position: absolute;
+  z-index: 999;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#sp-navi li {
+  list-style: none;
+  text-align: center;
+}
+#sp-navi li a {
+  font-size: 0.9375rem;
+  text-decoration: none;
+  padding: 10px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: bold;
+}
+#sp-navi li .btn {
+  width: 280px;
+  padding: 12px 20px 12px 20px;
+  margin-top: 10px;
+}
+#sp-navi li .btn::after {
+  right: 20px;
+  margin-top: -13px;
+}
+
+#sp-navi.panelactive {
+  opacity: 1;
+  z-index: 999;
+}
+
+#sp-navi.panelactive ul {
+  display: block;
+}
+
+.openbtn {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  right: 0;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  background: #fff;
+}
+.openbtn span {
+  display: inline-block;
+  transition: all 0.4s;
+  position: absolute;
+  left: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: #EC417A;
+  width: 45%;
+}
+.openbtn span:nth-of-type(1) {
+  top: 15px;
+}
+.openbtn span:nth-of-type(2) {
+  top: 23px;
+}
+.openbtn span:nth-of-type(3) {
+  top: 31px;
+}
+
+.openbtn.active span:nth-of-type(1) {
+  top: 18px;
+  left: 18px;
+  transform: translateY(6px) rotate(-45deg);
+  width: 30%;
+}
+
+.openbtn.active span:nth-of-type(2) {
+  opacity: 0;
+}
+
+.openbtn.active span:nth-of-type(3) {
+  top: 30px;
+  left: 18px;
+  transform: translateY(-6px) rotate(45deg);
+  width: 30%;
+}
+
+@media (min-width: 769px) {
+  header {
+    position: fixed;
+    z-index: 100;
+  }
+  .header-inner {
+    height: 70px;
+    padding: 0 20px;
+  }
+  .header-logo img {
+    zoom: 1;
+  }
+  #pc-navi ul {
+    font-size: 1.300390117vw;
+  }
+  #pc-navi ul li {
+    margin: 0 5px;
+  }
+  .navi .btn {
+    width: auto;
+    font-size: 1.300390117vw;
+  }
+}
+@media (min-width: 1040px) {
+  #pc-navi ul {
+    font-size: 0.8125rem;
+  }
+  .navi .btn {
+    font-size: 0.8125rem;
+  }
+}
+/*============================================================
+footer
+==============================================================*/
+footer {
+  font-size: 0.8125rem;
+  color: #fff;
+  background-color: #6f7073;
+  padding-bottom: 50px;
+}
+
+.footer-company {
+  color: #333333;
+  background-color: #fff;
+  padding: 40px 0;
+}
+.footer-company .name {
+  margin-bottom: 5px;
+}
+
+.footer-logo {
+  width: 240px;
+  margin-bottom: 20px;
+}
+
+.footer-links {
+  text-align: center;
+  margin: 50px 0 40px;
+}
+.footer-links li {
+  width: 100%;
+  margin: 5px 0;
+}
+.footer-links a:link, .footer-links a:visited, .footer-links a:active {
+  color: #fff;
+}
+
+.footer-copy {
+  text-align: center;
+  font-size: 0.625rem;
+}
+
+/*============================================================
+section
+==============================================================*/
+.cta {
+  background: url(https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-cta-bg.png) no-repeat center/cover;
+  padding: 50px 0 30px;
+}
+.cta-wrap { 
+  display: flex;
+  flex-direction: column;
+}
+.cta-img img {
+  width: 200px;
+  margin: 0 auto 30px auto;
+}
+.cta-ttl {
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 30px;
+}
+.cta-ttl .en {
+  font-family: "Poetsen One", sans-serif;
+  font-size: 1.875rem;
+  color: #ffde00;
+}
+.cta-box {
+  flex-basis: 100%;
+  flex-shrink: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  background-color: #fff;
+  padding: 30px 20px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.2);
+}
+.cta-box .btn-wrap {
+  margin-top: 15px;
+}
+
+.cta-box-ttl {
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+.cta-box-ttl span {
+  display: block;
+  font-size: 0.875rem;
+  color: #EC417A;
+}
+
+#kv {
+  background: linear-gradient(90deg, rgba(251, 179, 101, 1) 0%, rgba(236, 65, 122, 1) 40%);
+  padding: 30px 0;
+  margin-top: 50px;
+}
+#kv .lead {
+  display: inline-block;
+  background-color: #F5C3DA;
+  color: #EC417A;
+  font-size: 0.775rem;
+  font-weight: 700;
+  padding: 4px 15px;
+}
+#kv .deck {
+  color: #fff;
+}
+#kv h1 {
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 20px;
+  margin-bottom: 30px
+}
+#kv h1 span {
+  display: inline-block;
+  font-size: 0.875rem;
+  border: solid 1px #fff;
+  padding: 2px 22px;
+  border-radius: 100vh;
+}
+
+.kv-achievement {
+  margin: 15px 0;
+}
+.kv-achievement li:nth-child(-n+2) {
+  width: 100px;
+  margin-right: 10px;
+}
+
+.kv-achievement li:last-child {
+  width: 300px;
+}
+
+.kv-img {
+  margin-bottom: 20px;
+}
+
+#user {
+  padding: 30px 0;
+}
+
+.user-ttl {
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+.user-ttl .en {
+  font-size: 1.875rem;
+  color: #EC417A;
+}
+
+.user-slider-wrap {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+.user-slider-wrap ul {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.user-slider-wrap li {
+  flex-shrink: 0;
+}
+.user-slider-wrap li img {
+  height: 70px;
+  width: auto;
+}
+
+.user-slider {
+  position: relative;
+  display: flex;
+  width: -moz-max-content;
+  width: max-content;
+}
+.user-logo-img {
+  max-width: 250px;
+  margin: 0 auto;
+}
+#case {
+  background-color: #f5f5f5;
+}
+#case .sec-ttl {
+  margin-bottom: 1rem;
+}
+#case .desc {
+  text-align: center;
+  margin-bottom: 30px;
+}
+#case .caution {
+  text-align: center;
+  font-size: 0.875rem;
+  margin-top: 80px;
+}
+
+.case-slider .case-item {
+  width: 100%;
+  display: flex;
+  justify-content: left;
+  align-items: stretch;
+  flex-direction: column-reverse;
+}
+
+.case-item {
+  padding: 20px;
+  margin: 0 10px;
+  box-sizing: border-box;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.case-slider .slick-dots {
+  bottom: -30px;
+}
+
+.case-slider .slick-dots li {
+  width: 10px;
+  height: 10px;
+  margin: 0 5px;
+}
+
+.case-slider .slick-dots li button {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+}
+
+.case-slider .slick-dots li button:before {
+  font-size: 10px;
+  color: #b2b2b2;
+  opacity: 1;
+}
+
+.case-slider .slick-dots li.slick-active button:before {
+  color: #EC417A;
+}
+
+.case-slider {
+  position: relative;
+}
+
+.case-slider .slick-prev,
+.case-slider .slick-next {
+  width: 40px;
+  height: 40px;
+  background-color: #0698f3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.case-slider .slick-prev {
+  left: 10px;
+}
+
+.case-slider .slick-next {
+  right: 10px;
+}
+
+.case-slider .slick-prev::before,
+.case-slider .slick-next::before {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #fff;
+  border-right: 2px solid #fff;
+  transform: rotate(45deg);
+  margin-left: -2px;
+  opacity: 1 !important;
+}
+
+.case-slider .slick-prev::before {
+  transform: rotate(-135deg);
+  margin-left: 0;
+  margin-right: -2px;
+}
+
+.case-img .mb-10 {
+  margin-bottom: 10px;
+}
+
+.case-txt .category {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: #0597f2;
+  padding: 1px 20px;
+  border: solid 1px #0597f2;
+  border-radius: 100vh;
+}
+.case-txt .name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 8px auto 15px;
+}
+.case-txt h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  border-left: solid 4px #0597f2;
+  padding-left: 8px;
+  margin-bottom: 10px;
+}
+.case-txt p {
+  font-size: 0.875rem;
+}
+.case-txt .tags {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.case-txt .tags span {
+  color: #fff;
+  font-size: 0.75rem;
+  background-color: #7ec6f2;
+  padding: 2px 8px;
+}
+
+#pain {
+  background-color: #F2F2F2;
+  padding: 60px 0 80px;
+}
+
+.pain-box {
+  max-width: 800px;
+  color: #fff;
+  background-color: #182F74;
+  padding: 30px;
+  margin: 0 auto;
+  border-radius: 5px;
+}
+.pain-box figure {
+  width: 180px;
+  height: auto;
+  margin: auto;
+}
+
+.pain-item {
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+.pain-item h3 {
+  color: #fff;
+  font-size: 1.25rem;
+  padding-left: 32px;
+  background: url(https://static.infragistics.com/marketing/Website/JP/Landing-page/devtool/jp-devtool-lp-pain-icon.svg) no-repeat left/24px;
+  margin-bottom: 8px;
+}
+.pain-item p {
+  font-size: 0.875rem;
+  padding-left: 32px;
+}
+
+#func {
+  position: relative;
+}
+#func .sec-ttl {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+#func .desc {
+  text-align: center;
+}
+#func .caution {
+  text-align: right;
+  font-size: 0.75rem;
+}
+#func h3 {
+  font-weight: 700;
+}
+
+.func-head {
+  display: block;
+  position: absolute;
+  top: -60px;
+  left: 0;
+  right: 0;
+  padding: 8px;
+}
+.func-head p {
+  position: relative;
+  max-width: 800px;
+  text-align: center;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  background: #EC417A;
+  border-radius: 100vh;
+  padding: 16px 0;
+  margin: 0 auto;
+}
+.func-head p::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 0;
+  right: 0;
+  bottom: -16px;
+  margin: auto;
+  border-right: 10px solid transparent;
+  border-top: 16px solid #EC417A;
+  border-left: 10px solid transparent;
+}
+.func-head p span {
+  font-size: 1.5rem;
+  color: #FFDA32;
+}
+
+.func-ex {
+  margin: 40px 0 80px;
+}
+.func-ex h3 {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.func-ex-video {
+  position: relative;
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+}
+.func-ex-video video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.func-point {
+  margin-top: 10px;
+}
+
+.func-woman {
+  width: 92px;
+  height: auto;
+  position: absolute;
+  right: -60px;
+  bottom: -28px;
+}
+
+.func-man {
+  width: 80px;
+  height: auto;
+  position: absolute;
+  left: -40px;
+  bottom: -28px;
+}
+
+h3.func-line-ttl {
+  position: relative;
+  font-size: 1.25rem;
+  text-align: center;
+  margin-bottom: 30px;
+}
+h3.func-line-ttl::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #e5e5e5;
+}
+h3.func-line-ttl .line {
+  position: relative;
+  padding: 0 1em;
+  background: #fff;
+}
+.data-source {
+  padding: 45px 0 60px 0;
+}
+.data-source-item {
+  width: 100%;
+  margin: 0 auto 40px;
+  border: 1px solid #979797;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+}
+.data-source-img {
+  flex-basis: 80px;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+.data-source-img img {
+  width: 100%;
+}
+.data-source-txt {
+  flex-basis: 100%;
+  flex-shrink: 1;
+}
+.data-source-type-num {
+  text-align: center;
+  font-size: 1.25rem;
+}
+.data-source-type-num span {
+  color: #EC417A;
+  font-weight: 700;
+}
+.chart-type {
+  margin: 40px 0 60px 0;
+}
+.chart-type-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+.chart-type-item {
+  padding: 20px 15px;
+  border: 1px solid #979797;
+  border-radius: 8px;
+}
+.chart-type-img {
+  width: 120px;
+  margin: 0 auto;
+}
+.chart-type-item h4 {
+  text-align: center;
+}
+.component-item {
+  width: 90%;
+  margin: 0 auto 40px;
+}
+.component-item h4 {
+  text-align: center;
+  font-weight: 700;
+  margin: 15px 0;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  transition: all 0.1s ease-in-out 0s;
+}
+.image-container img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.image-container:hover {
+  opacity: 0.8;
+  outline: 2px solid #0094ff;
+  outline-offset: -2px;
+  cursor: pointer;
+}
+
+.corner-plus {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 60px; /* サイズはお好みで */
+  height: 60px;
+  background: #0094ff;
+  -webkit-clip-path: polygon(100% 0, 100% 100%, 0 100%);
+          clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.corner-plus::after {
+  content: "+";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(30%, -25%);
+  color: #fff;
+  font-size: 28px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  padding-top: 60px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  position: relative;
+  margin: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0;
+  width: 90%;
+  max-width: 800px;
+}
+
+.modal-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.close {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  color: #fff;
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+.close:hover, .close:focus {
+  color: #ccc;
+}
+
+#feat {
+  background-color: #F2F2F2;
+}
+
+.feat-box {
+  background-color: #fff;
+  padding: 30px 0;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+.feat-box h3 {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background-color: #EC417A;
+  padding: 10px 20px 10px 15px;
+  margin: 0 0 25px;
+  border-radius: 0 100vh 100vh 0;
+}
+.feat-box h3 .en {
+  font-weight: 300;
+  margin-right: 10px;
+}
+.feat-box h3 .big {
+  font-size: 1.5rem;
+}
+.feat-box .txt {
+  padding: 0 20px;
+}
+.feat-box h4 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+.feat-box li {
+  padding-left: 26px;
+  background: url(https://static.infragistics.com/marketing/Website/JP/Landing-page/devtool/jp-devtool-lp-feat-icon.svg) no-repeat left/20px;
+  margin-bottom: 8px;
+}
+
+#plan .desc {
+  text-align: center;
+}
+#plan .bold {
+  font-weight: 700;
+}
+#plan h3 {
+  font-weight: 700;
+}
+.price-type {
+  margin: 60px 0;
+}
+.price-type-box {
+  background-color: #F4F4F4;
+  border-radius: 12px;
+  padding: 20px 30px;
+  flex-basis: 50%;
+  flex-shrink: 1;
+  margin-bottom: 30px;
+  position: relative;
+}
+.price-type-box:first-child span {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #EC417A;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 50%;
+  text-align: center;
+  width: 85px;
+  height: 85px;
+}
+.price-type-box h4 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.price-type-box ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin-top: 20px;
+} 
+.introduce-step {
+  padding-bottom: 60px;
+}
+.introduce-step-item {
+  background-color: #F4F4F4;
+  border-radius: 5px;
+  padding: 20px 15px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.introduce-step-item .number {
+  font-family: "Poetsen One", sans-serif;
+  font-weight: 700;
+  font-size: 2.75rem;
+  color: #EC417A;
+  background-color: #FDE3EF;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  margin: 0 auto;
+}
+.introduce-step-item h4 {
+  font-size: 1.125rem;
+  margin: 20px 0 40px 0;
+  position: relative;
+}
+.introduce-step-item h4::after {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 45px;
+  height: 3px;
+  background-color: #EC417A;
+}
+.support-requirement {
+  text-align: center;
+}
+.support-requirement h4 {
+  display: inline-block;
+  font-size: 1.125rem;
+  color: #EC417A;
+  font-weight: 700;
+  background-color: #FDE3EF;
+  border-radius: 0 100vh 100vh 0;
+  padding: 10px 30px;
+}
+.support-requirement-item {
+  background-color: #F4F4F4;
+  border-radius: 4px;
+  padding: 20px 20px 20px 0;
+  text-align: left;
+  margin: 30px 0;
+}
+.support-requirement-list {
+  padding: 10px 20px 10px 30px;
+}
+.support-requirement-list li {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  margin-bottom: 5px;
+}
+.support-requirement-list img {
+  flex-basis: 40px;
+  flex-shrink: 0;
+  margin-right: 15px;
+}
+.support-requirement-list span {
+  font-size: 1.25rem;
+  flex-basis: 100%;
+  flex-shrink: 1;
+}
+.plan-flow {
+  text-align: center;
+  background-color: #ecf7fe;
+  padding: 20px 0;
+  margin-top: 20px;
+}
+.plan-flow h3 {
+  color: #fff;
+  font-size: 2.25rem;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #41aef3;
+  line-height: 46px;
+  margin-right: 10px;
+}
+.plan-flow-list {
+  max-width: 300px;
+  margin: auto;
+}
+.plan-flow-list li {
+  position: relative;
+  display: flex;
+  justify-content: normal;
+  align-items: normal;
+  margin-bottom: 40px;
+}
+.plan-flow-list li::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  border-top: 3px solid #EC417A;
+  border-right: 3px solid #EC417A;
+  transform: rotate(135deg);
+  margin: 28px 0;
+}
+.plan-flow-list li:last-child {
+  margin-right: 0;
+  margin-bottom: 0;
+}
+.plan-flow-list li:last-child::after {
+  display: none;
+}
+.plan-flow-list p {
+  text-align: left;
+}
+
+.plan-type, .plan-price {
+  margin-top: 80px;
+}
+.plan-type h3, .plan-price h3, .introduce-step h3, .support-requirement h3 {
+  position: relative;
+  font-size: 1.25rem;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 30px;
+}
+.plan-type h3::before, .plan-price h3::before, .introduce-step h3::before, .support-requirement h3::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #e5e5e5;
+}
+.plan-type .line, .plan-price .line, .introduce-step h3 .line, .support-requirement h3 .line{
+  position: relative;
+  display: inline-block;
+  padding: 0 1em;
+  background: #fff;
+}
+
+.plan-type .btn-wrap, #plan .btn-wrap {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.type-card-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: normal;
+  flex-wrap: wrap;
+}
+
+.type-card {
+  width: 100%;
+  background-color: #f5f5f5;
+  padding: 26px 20px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+.type-card h4 {
+  text-align: center;
+  font-size: 1.125rem;
+  margin-bottom: 15px;
+}
+.type-card li {
+  position: relative;
+  padding-left: 1rem;
+  margin-bottom: 5px;
+}
+.type-card li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: #EC417A;
+  margin: auto 0;
+  border-radius: 50%;
+}
+.type-card li:last-child {
+  margin-bottom: 0;
+}
+
+.type-img {
+  width: 130px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.price-list li {
+  font-size: 0.875rem;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+.price-list h4 {
+  text-align: center;
+  border-radius: 5px 5px 0 0;
+}
+.price-list h4 .lead {
+  display: inline-block;
+  background-color: #fff;
+  color: #3e3e3e;
+  padding: 1px 10px;
+  border-radius: 100vh;
+}
+.price-list h4 .en {
+  display: block;
+  color: #fff;
+  font-size: 1.25rem;
+}
+
+.price-license {
+  text-align: center;
+  font-size: 1.125rem;
+  line-height: 1.4;
+  font-weight: 700;
+  padding: 20px 0;
+}
+.price-license .small {
+  font-size: 0.75rem;
+}
+.price-license .en {
+  font-size: 1.875rem;
+}
+
+.price-product {
+  text-align: center;
+  padding: 20px 0;
+  margin: 0 20px;
+}
+
+.product-ttl {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.price-desc {
+  padding: 20px;
+}
+
+.price-item-ignite {
+  background-color: #f2f9fe;
+}
+.price-item-ignite h4 {
+  background-color: #7fc7f2;
+  padding: 10px 0 20px;
+}
+.price-item-ignite h4 .lead {
+  margin-bottom: 20px;
+}
+.price-item-ignite .price-product {
+  border-top: solid 1px #7fc7f2;
+  border-bottom: solid 1px #7fc7f2;
+}
+
+.price-item-appbuilder {
+  background-color: #ecf7fe;
+}
+.price-item-appbuilder h4 {
+  background-color: #41aef3;
+  padding: 10px 0 20px;
+}
+.price-item-appbuilder h4 .lead {
+  margin-bottom: 20px;
+}
+.price-item-appbuilder .price-product {
+  border-top: solid 1px #41aef3;
+  border-bottom: solid 1px #41aef3;
+}
+
+.price-item-professional {
+  background-color: #e6f4fe;
+}
+.price-item-professional h4 {
+  background-color: #0698f3;
+  padding: 10px 0;
+}
+.price-item-professional h4 .lead {
+  margin-bottom: 10px;
+}
+.price-item-professional .price-product {
+  border-top: solid 1px #0698f3;
+  border-bottom: solid 1px #0698f3;
+}
+
+.price-item-ultimate {
+  background-color: #fefae7;
+}
+.price-item-ultimate h4 {
+  background-color: #facc15;
+  padding: 10px 0;
+}
+.price-item-ultimate h4 .lead {
+  margin-bottom: 10px;
+}
+.price-item-ultimate .price-product {
+  border-top: solid 1px #facc15;
+  border-bottom: solid 1px #facc15;
+}
+
+.plan-support {
+  margin-top: 40px;
+}
+.plan-support h3 {
+  margin-bottom: 10px;
+}
+.plan-support .txt {
+  margin-top: 15px;
+}
+
+#faq {
+  background-color: #f5f5f5;
+}
+
+.faq-box {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.accordion {
+  margin-bottom: 15px;
+}
+
+.toggle {
+  display: none;
+}
+
+.accordion-ttl {
+  display: block;
+  position: relative;
+  text-align: left;
+  color: #333333;
+  font-size: 1rem;
+  font-weight: 700;
+  background: #fff;
+  padding: 10px 50px 10px 10px;
+  cursor: pointer;
+  transition-duration: 0.2s;
+  border-radius: 4px;
+}
+.accordion-ttl p {
+  display: flex;
+  align-items: center;
+}
+.accordion-ttl .question {
+  display: inline-block;
+  text-align: center;
+  color: #EC417A;
+  font-size: 2.625rem;
+  line-height: 4rem;
+  font-family: "Josefin Sans", sans-serif;
+  margin-right: 20px;
+  margin-top: 10px;
+}
+.accordion-ttl::before, .accordion-ttl::after {
+  content: "";
+  width: 20px;
+  height: 2px;
+  background: #333333;
+  position: absolute;
+  top: 50%;
+  right: 3%;
+  transform: translateY(-50%);
+}
+.accordion-ttl::before {
+  transform: translateY(-50%) rotate(90deg);
+  transition: 0.5s;
+}
+
+.accordion-ttl, .accordion-txt {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  transition: all 0.3s;
+}
+
+.accordion-txt {
+  height: 0;
+  margin-bottom: 10px;
+  padding: 0 20px;
+  overflow: hidden;
+}
+.accordion-txt .answer {
+  display: inline-block;
+  text-align: center;
+  color: #f97316;
+  font-size: 2.625rem;
+  font-weight: 700;
+  font-family: "Josefin Sans", sans-serif;
+  margin-right: 20px;
+  margin-top: 10px;
+}
+.accordion-txt p {
+  display: flex;
+  align-items: center;
+}
+
+.toggle:checked + .accordion-ttl + .accordion-txt {
+  height: auto;
+  padding: 20px;
+  transition: all 0.3s;
+}
+
+.toggle:checked + .accordion-ttl::before {
+  transform: translateY(-50%) rotate(0);
+}
+
+@media (min-width: 769px) {
+  .cta { 
+    padding: 100px 00 60px;
+  }
+  .cta-img {
+    flex-basis: 50%;
+    margin-right: 30px;
+  }
+  .cta-img img {
+    width: 200px;
+    margin: 0 auto;
+  }
+  .cta-wrap {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: normal;
+  }
+  .cta-box {
+    width: 48%;
+  }
+  .cta-ttl, .user-ttl {
+    font-size: 1.5rem;
+  }
+  .cta-ttl .en, .user-ttl .en {
+    font-size: 2.5rem;
+  }
+  #kv {
+    background-image: url(https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-kv-bg.png);
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    background-size: cover;
+    padding: 50px 0;
+    margin-top: 70px;
+  }
+  #kv .inner {
+    max-width: 1200px;
+  }
+  #kv .lead {
+    font-size: 1.125rem;
+  }
+  #kv .deck {
+    max-width: 50%;
+    font-size: 1.125rem;
+  }
+  #kv h1 {
+    font-size: 4.25rem;
+    width: 50%;
+    letter-spacing: -0.01em;
+  }
+  #kv h1 span {
+    font-size: 1.25rem;
+  }
+  .kv-achievement {
+    margin: 30px 0;
+    width: 50%;
+  }
+  .user-logo {
+    display: flex;
+    justify-content: center;
+  }
+  .user-logo-img {
+    max-width: 250px;
+    flex-basis: 30%;
+    flex-shrink: 1;
+    margin: 0 15px;
+  }
+  #case .desc {
+    margin-bottom: 60px;
+  }
+  .case-slider .case-item {
+    width: 800px;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+  .case-item {
+    padding: 40px;
+  }
+  .case-slider .slick-prev,
+  .case-slider .slick-next {
+    width: 50px;
+    height: 50px;
+  }
+  .case-img {
+    width: 40%;
+  }
+  .case-txt {
+    width: 56%;
+  }
+  .case-txt .category {
+    font-size: 0.875rem;
+  }
+  .case-txt .name {
+    font-size: 1rem;
+    margin: 8px auto 25px;
+  }
+  .case-txt h3 {
+    font-size: 1.25rem;
+    padding-left: 14px;
+  }
+  .case-txt p {
+    font-size: 1rem;
+  }
+  .case-txt .tags {
+    margin-top: 25px;
+    margin-bottom: 0;
+  }
+  .case-txt .tags span {
+    font-size: 0.8125rem;
+  }
+  .case-slider .slick-prev {
+    left: calc(50% - 400px - 30px);
+  }
+  .case-slider .slick-next {
+    left: calc(50% + 400px - 20px);
+  }
+  #pain {
+    padding: 80px 0 120px;
+  }
+  .pain-box {
+    position: relative;
+    padding: 30px 0 30px 160px;
+  }
+  .pain-box figure {
+    width: 240px;
+    position: absolute;
+    bottom: -40px;
+    left: -100px;
+  }
+  .func-head p {
+    font-size: 1.5rem;
+  }
+  .func-head p span {
+    font-size: 2.25rem;
+  }
+  .func-point {
+    position: absolute;
+    top: -30px;
+    right: -160px;
+    margin-top: 0;
+    width: 210px;
+  }
+  .data-source-list {
+    display: flex;
+    justify-content: space-between;
+    align-items: normal;
+    flex-wrap: wrap;
+  }
+  .data-source-item {
+    width: 30%;
+    margin: 0 0 40px;
+  }
+  .data-source-item p {
+    font-size: 0.875rem;
+  }
+  .data-source-item h4 {
+    font-weight: 700;
+    margin-bottom: 10px;
+  } 
+  .component-list {
+    display: flex;
+    justify-content: space-between;
+    align-items: normal;
+    flex-wrap: wrap;
+  }
+  .component-item {
+    width: 30%;
+    margin: 0 0 40px;
+  }
+  .component-item p {
+    font-size: 0.875rem;
+  }
+  .feat-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+  }
+  .feat-box h3 {
+    font-size: 1.25rem;
+    padding: 10px 30px;
+  }
+  .feat-box h3 .en {
+    margin-right: 20px;
+  }
+  .feat-box .txt {
+    padding: 0 0 0 30px;
+  }
+  .feat-box figure {
+    width: 30%;
+  }
+  .price-type-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .price-type-box {
+    padding: 20px 60px;
+    flex-basis: 50%;
+    flex-shrink: 1;
+    margin: 0 15px;
+  }
+  .price-type-box:first-child span {
+    top: -40px;
+    left: -40px;
+    font-size: 1.125rem;
+    width: 120px;
+    height: 120px;
+  }
+  .introduce-step-wrap {
+    display: flex;
+    justify-content: center;
+    height: 100%;
+  }
+  .introduce-step-item {
+    flex-basis: 32%;
+  }
+  .introduce-step-item:not(:last-child) {
+    margin-right: 2%;
+  }
+  .plan-flow h3 {
+    margin-right: 0;
+  }
+  .plan-flow-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+  }
+  .plan-flow-list li {
+    position: relative;
+    display: block;
+    width: 30%;
+    max-width: 240px;
+    margin-right: 50px;
+    margin-bottom: 0;
+  }
+  .plan-flow-list li::after {
+    right: -40px;
+    left: auto;
+    transform: rotate(45deg);
+    margin: auto;
+  }
+  .plan-flow-list p {
+    text-align: center;
+  }
+  .support-requirement-wrap {
+    display: flex;
+    justify-content: center;
+  }
+  .support-requirement h4 {
+    padding: 10px 30px 10px 60px;
+  }
+  .support-requirement-item {
+    flex-basis: 50%;
+    flex-shrink: 1;
+    max-width: 450px;
+    margin: 45px 10px;
+  }
+  .support-requirement-list {
+    padding: 10px 20px 10px 60px;
+  }
+  .type-card {
+    display: flex;
+    justify-content: normal;
+    align-items: normal;
+    width: 49%;
+  }
+  .type-card h4 {
+    text-align: left;
+  }
+  .type-img {
+    margin: 0 20px 0 0;
+  }
+  .price-list {
+    display: flex;
+    justify-content: space-between;
+    align-items: normal;
+  }
+  .price-list li {
+    width: 25%;
+    max-width: 235px;
+    margin-bottom: 0;
+  }
+  .plan-support .txt {
+    margin-top: 0;
+    margin-left: 15px;
+  }
+  .accordion-ttl, .accordion-txt {
+    padding: 0 70px 0 15px;
+  }
+  .toggle:checked + .accordion-ttl + .accordion-txt {
+    padding: 20px 70px 20px 15px;
+  }
+  footer {
+    font-size: 0.875rem;
+  }
+  .footer-links li {
+    width: auto;
+    margin: 0 10px;
+  }
+  .footer-logo {
+    margin-right: 30px;
+    margin-bottom: 0;
+  }
+}
+/*============================================================
+PDFモーダル
+==============================================================*/
+
+/* モーダルの背景（黒の半透明） */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6); /* 背景を暗くする */
+}
+
+/* モーダルの中身（PDFを中央表示） */
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  margin: 5% auto; /* 上下5%で中央寄せ */
+  padding: 0;
+  width: 80%;
+  height: 800px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  border-radius: 8px;
+}
+
+/* 閉じるボタン */
+.close {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  z-index: 1;
+
+}</style>
+	<header>
+		<div class="header-inner">
+			<div class="header-logo"><img src="/images/2024/07/business-teams-reveal-logo-black-1-176x84.png" alt="Infragistics"></div>
+			<nav id="pc-navi" class="navi pc">
+				<ul>
+					<li><a href="/jp/document-request?from=jp-lp-reveal" class="btn cta-btn">資料ダウンロード</a></li>
+				</ul>
+			</nav>
+			<div class="openbtn sp"><span></span><span></span><span></span></div>
+			<nav id="sp-navi" class="navi sp">
+				<ul>
+					<li><a href="/jp/document-request?from=jp-lp-reveal" class="btn cta-btn">資料ダウンロード</a></li>
+				</ul>
+			</nav>
+		</div>
+	</header>
+	<main role="main">
+			<section id="kv">
+				<div class="inner">
+					<p class="lead">BIどうする？作る？貼る？それとも…”組み込む”？</p>
+					<h1>「作るBI」から<br>「組み込むBI」へ</h1>
+					<p class="deck">iframeでは叶わない、“ネイティブ組み込み”だからこその一体感と拡張性。「Reveal」なら、作るより圧倒的に早く、本格的なBI機能をアプリに組み込めます。</p>
+					<ul class="kv-achievement flex-wrap-center">
+						<li><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-kv-badge-01.png" alt=""></li>
+						<li><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-kv-badge-02.png" srcset="" alt=""></li>
+						<li><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-kv-badge-text.png" srcset="" alt=""></li>
+					</ul>
+					<figure class="kv-img sp"><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-kv-bg-sp.png"></figure>
+					<div class="btn-wrap flex-wrap">
+						<div class="btn-block">
+							<p class="btn-lead">＼ゼロから分かる「組み込みBI」／</p>
+							<a href="/jp/document-request?from=jp-lp-reveal" class="btn cta-btn">資料ダウンロード</a>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section id="user">
+				<div class="inner">
+					<div class="user-head">
+						<h2 class="user-ttl">導入実績</h2>
+					</div>
+					<div class="user-logo">
+						<div class="user-logo-img"><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-cits-logo.png" alt=""></div>
+						<div class="user-logo-img"><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-JEiS-logo.png" alt=""></div>
+						<div class="user-logo-img"><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-rhizome-logo.png" alt=""></div>
+					</div>
+				</div>
+			</section>
+			<section id="cta01" class="cta">
+				<div class="inner">
+					<div class="cta-head">
+						<h2 class="cta-ttl pc">＼ BI機能の開発期間を最大<span class="en">85</span>%短縮、約<span class="en">3,850</span>万円の削減が可能 ／</h2>
+						<h2 class="cta-ttl sp">BI機能の開発期間を最大<span class="en">85</span>%短縮、約<br><span class="en">3,885</span>万円の削減が可能</h2>
+					</div>
+					<div class="cta-wrap">
+						<figure class="cta-img">
+							<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-document-image.png" alt="">
+						</figure>
+						<div class="cta-box">
+							<div class="cnt">
+								<h3 class="cta-box-ttl"><span class="en">DOWNLOAD</span>ゼロから分かる<br class="sp">組み込み型BI「Reveal」</h3>
+								<p>埋め込みではない組み込み型BIの利点や機能特徴、ユースケース、導入のステップから価格体系までを、網羅した資料です。</p>
+							</div>
+							<div class="btn-wrap">
+								<a href="/jp/document-request?from=jp-lp-reveal" class="btn cta-btn">資料ダウンロード</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section id="pain" class="sec">
+				<div class="inner">
+					<h2 class="sec-ttl">「BI機能の実装」で<br class="sp">こんな課題はありませんか？</h2>
+					<div class="pain-box">
+						<div class="pain-item">
+							<h3>機能面</h3>
+							<p class="indent">・BI機能に関するユーザーの要求レベルが高くなっている</p>
+							<p class="indent">・ユーザー要求に対応するには無償やオープンソースのBIツールでは機能が足りない</p>
+						</div>
+						<div class="pain-item">
+							<h3>連携面</h3>
+							<p class="indent">・BI機能と既存システムを統一できず、ユーザー体験に一貫性がない</p>
+							<p class="indent">・データ変換や移送の手間が生じる、ユーザー管理も自社システムと二重になる</p>
+						</div>
+						<div class="pain-item">
+							<h3>運用面</h3>
+							<p class="indent">・データ分析の知識があるユーザーでないと使いこなせない</p>
+							<p class="indent">・データ量が多くなると集計や分析の処理が遅くなる</p>
+						</div>
+						<div class="pain-item">
+							<h3>実装面</h3>
+							<p class="indent">・自社では分析結果を見やすく可視化するUI要素を作れない</p>
+							<p class="indent">・ビジネスロジックの実装に手一杯でUI作成の余裕がない</p>
+						</div>
+						<figure><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-pain-img.png"></figure>
+					</div>
+				</div>
+			</section>
+			<section id="func" class="sec">
+				<div class="func-head">
+					<p>インフラジスティックスの<br><span>組み込み型BI 「Reveal」</span><br class="sp">で解決できます</p>
+				</div>
+				<div class="inner">
+					<h2 class="sec-ttl">アプリに直接組み込めて、<br>誰でも簡単にデータ分析ができる！<span class="en">FUNCTION</span></h2>
+					<p class="desc">BI機能をアプリの一部として組み込むことができるので、<br class="pc">アプリのデザインに合わせてUIをカスタマイズしたり、ユーザー管理や権限管理も一元化が可能。<br class="pc">さらに、アプリのユーザーが自身でダッシュボードやレポートを作成でき、<br class="pc">開発者やデータ分析の専門家の手を借りることなく、データを分析することができるようになります。</p>
+					<div class="func-ex">
+						<h3>＼　元々備わっていた機能のようにカスタマイズできる！　／</h3>
+						<div class="func-ex-video">
+							<video id="autoPlayVideo" src="https://static.infragistics.com/marketing/reveal/videos/reveal-simple-beautiful-user-experience-purple.mp4" muted playsinline controls></video>
+							<figure class="func-point pc"><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-func-point.png"></figure>
+							<figure class="func-point sp"><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-func-point-sp.png"></figure>
+							<figure class="func-man pc"><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-func-man.png"></figure>
+							<figure class="func-woman pc"><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-func-woman.png"></figure>
+							
+						</div>
+					</div>
+
+					<h3 class="func-line-ttl"><span class="line">豊富なデータソース</span></h3>
+
+					<div class="data-source">
+						<ul class="data-source-list">
+							<li class="data-source-item">
+								<div class="data-source-img"><img src="https://static.infragistics.com/marketing/slingshot/datasource-icons/googlesheets.svg" alt=""></div>
+								<div class="data-source-txt">
+									<h4>スプレッドシート</h4>
+									<p>XLS、CSV、Google Sheetsに直接接続</p>
+								</div>
+							</li>
+							<li class="data-source-item">
+								<div class="data-source-img"><img src="https://static.infragistics.com/marketing/slingshot/sharepoint-icon.svg" alt=""></div>
+								<div class="data-source-txt"><h4>SharePoint</h4>
+								<p>オンライン・オンプレミスのSharePointの情報を取得</p>
+								</div>
+							</li>
+							<li class="data-source-item">
+								<div class="data-source-img"><img src="https://static.infragistics.com/marketing/slingshot/google-drive-icon.svg" alt=""></div>
+								<div class="data-source-txt"><h4>Google Drive</h4>
+								<p>クラウドで管理されるファイルに簡単接続</p>
+								</div>
+							</li>
+							<li class="data-source-item">
+								<div class="data-source-img"><img src="https://static.infragistics.com/marketing/slingshot/datasource-icons/rest-api.svg" alt=""></div>
+								<div class="data-source-txt"><h4>REST API</h4>
+								<p>RESTを使用して追加ソースに接続</p>
+								</div>
+							</li>
+							<li class="data-source-item">
+								<div class="data-source-img"><img src="https://static.infragistics.com/marketing/slingshot/datasource-icons/azure-sql.svg" alt=""></div>
+								<div class="data-source-txt"><h4>Azure SQL</h4>
+								<p>エンタープライズグレードデータモデルに対応</p>
+								</div>
+							</li>
+							<li class="data-source-item">
+								<div class="data-source-img"><img src="https://static.infragistics.com/marketing/slingshot/datasource-icons/mysql.svg" alt=""></div>
+								<div class="data-source-txt"><h4>MySQL</h4>
+								<p>クエリやテーブルなどとの接続</p>
+								</div>
+							</li>
+							<li class="data-source-item">
+								<div class="data-source-img"><img src="https://static.infragistics.com/marketing/slingshot/datasource-icons/snowflake.svg" alt=""></div>
+								<div class="data-source-txt"><h4>Snowflake</h4>
+								<p>クラウドベースのあらゆるデータと接続</p>
+								</div>
+							</li>
+							<li class="data-source-item">
+								<div class="data-source-img"><img src="https://static.infragistics.com/marketing/slingshot/google-analytics-icon.svg" alt=""></div>
+								<div class="data-source-txt"><h4>Googleアナリティクス4</h4>
+								<p>ユーザーの行動に関するインサイトを得て、マーケティング戦略を最適化</p>
+								</div>
+							</li>
+							<li class="data-source-item">
+								<div class="data-source-img"><img src="https://static.infragistics.com/marketing/slingshot/datasource-icons/big-query.svg" alt=""></div>
+								<div class="data-source-txt"><h4>Google BigQuery</h4>
+								<p>サーバーレスデータウェアハウスへの接続</p>
+								</div>
+							</li>
+						</ul>
+
+						<p class="data-source-type-num">ほかにも<span>合計26種類</span>のデータソースと接続できます。</p>
+					</div>
+
+					<h3 class="func-line-ttl"><span class="line">豊富なチャート種類</span></h3>
+					<div class="chart-type">
+						<ul class="chart-type-list">
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-pivot-grid.svg" alt=""></div>
+								<h4>ピボット</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-column.svg" alt=""></div>
+								<h4>縦棒/横棒</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-stacked-bar.svg" alt=""></div>
+								<h4>積み上げ横棒/縦棒</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-line.svg" alt=""></div>
+								<h4>折れ線</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-doughnut.svg" alt=""></div>
+								<h4>ドーナツ</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-pie.svg" alt=""></div>
+								<h4>円</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-funnel.svg" alt=""></div>
+								<h4>ファネル</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-combo.svg" alt=""></div>
+								<h4>複合</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-area.svg" alt=""></div>
+								<h4>エリア</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-step.svg" alt=""></div>
+								<h4>ステップ折れ線</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-treemap.svg" alt=""></div>
+								<h4>ツリーマップ</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-linear.svg" alt=""></div>
+								<h4>リニア</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-text.svg" alt=""></div>
+								<h4>テキスト</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-kpi.svg" alt=""></div>
+								<h4>進捗率</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-scatter-map.svg" alt=""></div>
+								<h4>散布マップ</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-bubble.svg" alt=""></div>
+								<h4>バブル</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-candlestick.svg" alt=""></div>
+								<h4>ローソク足</h4>
+							</li>
+							<li class="chart-type-item">
+								<div class="chart-type-img"><img src="https://static.infragistics.com/marketing/reveal/chart-types/reveal-chart-illustration-radial.svg" alt=""></div>
+								<h4>ラジアル</h4>
+							</li>
+						</ul>
+						<p class="data-source-type-num">ほかにも<span>合計36種類</span>のチャートを基本セットとして取り揃えています。</p>
+					</div>
+			</section>
+			<section id="feat" class="sec">
+				<div class="inner">
+					<h2 class="sec-ttl">組み込み型BI「Reveal」の特徴<span class="en">FEATURES</span></h2>
+					<div class="feat-box">
+						<div>
+							<h3><span class="en">POINT <span class="big">01</span></span>高度なBI機能</h3>
+							<div class="txt">
+								<h4>高度なユーザー要求に対応する豊富なBI機能</h4>
+								<ul>
+									<li>OSSや無償ツールにはない企業向けBI機能を数週間で実現</li>
+									<li>さまざまなデータソースと簡単に連携でき、複数のデータを組み合わせて分析が可能</li>
+									<li>リアルタイムにデータを可視化することができ、高度なフィルタリングや統計分析、予測分析にも対応</li>
+								</ul>
+							</div>
+						</div>
+						<figure><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-feat-img-01.png"></figure>
+					</div>
+					<div class="feat-box">
+						<div>
+							<h3><span class="en">POINT <span class="big">02</span></span>シームレスな組み込み</h3>
+							<div class="txt">
+								<h4>BI機能もアプリの一部として一元管理</h4>
+								<ul>
+									<li>アプリのデザインに合わせてBI機能のスタイリングをカスタマイズでき、もともと備わっていた機能のような体験を実現</li>
+									<li>自社の製品にRevealを組み込み、自社製品としてリリース可能</li>
+									<li>iframeでの埋め込みBIのように外部サービスへ接続する必要がないので、ユーザーや権限も一元管理が可能</li>
+								</ul>
+							</div>
+						</div>
+						<figure><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-feat-img-02.png"></figure>
+					</div>
+					<div class="feat-box">
+						<div>
+							<h3><span class="en">POINT <span class="big">03</span></span>セルフサービスBI</h3>
+							<div class="txt">
+								<h4>管理者・専門家に頼らずデータ分析ができる</h4>
+								<ul>
+									<li>ドラッグ＆ドロップでダッシュボードを作成でき、分析画面を作るめに開発者やシステム管理者への依頼が不要</li>
+									<li>カスタマイズ可能なダッシュボードのテンプレートを用意でき、データ分析の専門家でなくても、すぐに分析を始められる</li>
+								</ul>
+							</div>
+						</div>
+						<figure><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-feat-img-03.png"></figure>
+					</div>
+					<div class="feat-box">
+						<div>
+							<h3><span class="en">POINT <span class="big">04</span></span>連携・統合</h3>
+							<div class="txt">
+								<h4>さまざまなプラットフォームとの互換性</h4>
+								<ul>
+									<li>クラウド、オンプレミス、ハイブリッド環境をサポートしており、データが保存されている場所に関係なくアクセス可能</li>
+									<li>ASP.NET Core/ Java/ Node JS、React/ Angular/ Web Components/ Vue.js/ jQuery/ ASP.NET MVCに対応</li>
+								</ul>
+							</div>
+						</div>
+						<figure><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-feat-img-04.png"></figure>
+					</div>
+					<div class="feat-box">
+						<div>
+							<h3><span class="en">POINT <span class="big">05</span></span>高度なセキュリティ</h3>
+							<div class="txt">
+								<h4>国際基準に準拠したセキュリティ</h4>
+								<ul>
+									<li>組み込み先アプリのデータコントロールに則って動作。機密データや個人データにアクセスしたり、使用することがない</li>
+									<li>ロールベースのアクセス制御で、データの表示・編集権限を柔軟に設定可能</li>
+									<li>SOC2やGDPRなどの国際基準に準拠した設計</li>
+								</ul>
+							</div>
+						</div>
+						<figure><img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-feat-img-05.png"></figure>
+					</div>
+
+				</div>
+			</section>
+			<section id="cta02" class="cta">
+				<div class="inner">
+					<div class="cta-head">
+						<h2 class="cta-ttl pc">＼ BI機能の開発期間を最大<span class="en">85</span>%短縮、約<span class="en">3,850</span>万円の削減が可能 ／</h2>
+						<h2 class="cta-ttl sp">BI機能の開発期間を最大<span class="en">85</span>%短縮、約<br><span class="en">3,885</span>万円の削減が可能</h2>
+					</div>
+					<div class="cta-wrap">
+						<figure class="cta-img">
+							<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-document-image.png" alt="">
+						</figure>
+						<div class="cta-box">
+							<div class="cnt">
+								<h3 class="cta-box-ttl"><span class="en">DOWNLOAD</span>ゼロから分かる<br class="sp">組み込み型BI「Reveal」</h3>
+								<p>埋め込みではない組み込み型BIの利点や機能特徴、ユースケース、導入のステップから価格体系までを、網羅した資料です。</p>
+							</div>
+							<div class="btn-wrap">
+								<a href="/jp/document-request?from=jp-lp-reveal" class="btn cta-btn">資料ダウンロード</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section id="plan" class="sec">
+				<div class="inner">
+					<h2 class="sec-ttl">管理者に嬉しい定額料金プラン<span class="en">PLAN & Implementation</span></h2>
+					<p class="desc">Revealはユーザー数やデータ量が増えても料金は一定。<br class="pc">隠れた追加料金はなく、わかりやすい定額料金です。</span></p>
+					<div class="price-type">
+						<div class="price-type-wrap">
+							<div class="price-type-box">
+								<span>Revealの<br>料金プラン</span>
+								<h4>定額料金制</h4>
+								<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-plan-img-01.png" alt="">
+								<ul>
+									<li>ユーザー数に料金が関係しない</li>
+									<li>見積もりがしやすい</li>
+								</ul>
+							</div>
+							<div class="price-type-box">
+								<h4>従量課金制</h4>
+								<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-plan-img-02.png" alt="">
+								<ul>
+									<li>ユーザー数よって料金が変動</li>
+									<li>将来的なコストを見積もりしづらい</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="introduce-step">
+						<h3><span class="line">導入基本ステップ</h3>
+						<div class="introduce-step-wrap">
+							<div class="introduce-step-item">
+								<span class="number">1</span>
+								<h4>対応するプラットフォーム・フ<br class="pc">レームワークを確認する</h4>
+								<p>現在のシステム構成や今後の構想にRevealが対応しているかご確認ください。</p>
+							</div>
+							<div class="introduce-step-item">
+								<span class="number">2</span>
+								<h4>PoCなどで技術要件が合うか<br class="pc">実際に検証する</h4>
+								<p>コンサルタントが伴走しながら技術実現性の検証を進めるPoC支援も実施しています。</p>
+							</div>
+							<div class="introduce-step-item">
+								<span class="number">3</span>
+								<h4>契約年数などを<br class="pc">確定する</h4>
+								<p>年単位でのご契約となります。<br>1/3/5年など、契約年数をご検討ください。</p>
+							</div>
+						</div>
+					</div>
+					<div class="support-requirement">
+						<h3><span class="line">対応要件</span></h3>
+						<p>クライアントサイド/サーバーサイドの技術要件が<br class="pc">それぞれいずれかに当てはまるかご確認ください。</p>
+						<div class="support-requirement-wrap">
+							<div class="support-requirement-item">
+								<h4>クライアントサイド</h4>
+								<ul class="support-requirement-list">
+									<li>
+										<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/icon-react.svg" alt="">
+										<span>React</span>
+									</li>
+									<li>
+										<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/icon-angular.svg" alt="">
+										<span>Angular</span>
+									</li>
+									<li>
+										<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/icon-web-components.svg" alt="">
+										<span>Web Components</span>
+									</li>
+									<li>
+										<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/icon-vue.svg" alt="">
+										<span>Vue.js</span>
+									</li>
+									<li>
+										<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/icon-jquery.svg" alt="">
+										<span>jQuery</span>
+									</li>
+								</ul>
+<p style="padding:10px 20px 10px 60px;">※代表的なフレームワーク</p>
+							</div>
+							<div class="support-requirement-item">
+								<h4>サーバーサイド</h4>
+								<ul class="support-requirement-list">
+									<li>
+										<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/icon-dotnet.svg" alt="">
+										<span>.NET</span>
+									</li>
+									<li>
+										<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/icon-java.svg" alt="">
+										<span>Java</span>
+									</li>
+									<li>
+										<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/icon-nodejs.svg" alt="">
+										<span>Node.js</span>
+									</li>
+								</ul>
+								
+							</div>
+						</div>
+					</div>
+ 
+
+					<div class="btn-wrap">
+					
+						<button onclick="openModal()" class="btn blue-btn">マッチ度をすぐに確認できるチャートはこちら</button>
+					</div>
+					<div id="pdfModal" class="modal">
+						<span class="close" onclick="closeModal()">×</span>
+						<iframe loading="eager" src="https://users.infragistics.com/IGJP/Whitepapers/Reveal-Decision-Tree.pdf" width="100%" height="100%"></iframe>
+					</div>
+				</div>
+			</section>
+			<section id="cta03" class="cta">
+				<div class="inner">
+					<div class="cta-head">
+						<h2 class="cta-ttl pc">＼ BI機能の開発期間を最大<span class="en">85</span>%短縮、約<span class="en">3,850</span>万円の削減が可能 ／</h2>
+						<h2 class="cta-ttl sp">BI機能の開発期間を最大<span class="en">85</span>%短縮、約<br><span class="en">3,885</span>万円の削減が可能</h2>
+					</div>
+					<div class="cta-wrap">
+						<figure class="cta-img">
+							<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-document-image.png" alt="">
+						</figure>
+						<div class="cta-box">
+							<div class="cnt">
+								<h3 class="cta-box-ttl"><span class="en">DOWNLOAD</span>ゼロから分かる<br class="sp">組み込み型BI「Reveal」</h3>
+								<p>埋め込みではない組み込み型BIの利点や機能特徴、ユースケース、導入のステップから価格体系までを、網羅した資料です。</p>
+							</div>
+							<div class="btn-wrap">
+								<a href="/jp/document-request?from=jp-lp-reveal" class="btn cta-btn">資料ダウンロード</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section id="faq" class="sec">
+				<div class="inner">
+					<h2 class="sec-ttl">よくある質問<span class="en">FAQ</span></h2>
+					<div class="faq-box">
+						<div class="accordion">
+							<input id="accordion-01" type="checkbox" class="toggle">
+							<label class="accordion-ttl" for="accordion-01"><p><span class="question">Q</span>組み込み型分析とは何ですか?</p></label>
+							<div class="accordion-txt">
+								<p><span class="answer">A</span>組み込み型分析とは、BI（ビジネスインテリジェンス）機能を、自社のアプリケーションや業務システムの中に直接組み込むことを指します。これにより、ユーザーは別のBIツールに切り替えることなく、その場でグラフやレポートを確認しながら意思決定ができるようになります。<br>
+									たとえば、CRM（顧客管理システム）の中に組み込み分析を導入すると、営業担当者はリアルタイムの顧客データや商談状況を、いつもの画面上で可視化・分析できるようになります。<br>
+									その結果、操作の手間が減り、よりスムーズで“流れを止めない”業務が実現できます。</p>
+							</div>
+						</div>
+						<div class="accordion">
+							<input id="accordion-02" type="checkbox" class="toggle">
+							<label class="accordion-ttl" for="accordion-02"><p><span class="question">Q</span>組み込み型アナリティクスの主なメリットは何ですか?</p></label>
+							<div class="accordion-txt">
+								<p><span class="answer">A</span>組み込み型アナリティクスを使えば、ユーザーはアプリケーション内でリアルタイムのデータを見ながら、すぐに意思決定ができるようになります。<br>
+									別のツールを立ち上げる必要がないため、業務の流れを止めずに判断・行動ができ、結果として生産性の向上につながります。<br>
+									また、社内のIT部門にレポート作成を依頼しなくても、現場の担当者が自分で必要な情報を取り出せるようになるため、IT部門への依存も軽減されます。</p>
+							</div>
+						</div>
+						<div class="accordion">
+							<input id="accordion-03" type="checkbox" class="toggle">
+							<label class="accordion-ttl" for="accordion-03"><p><span class="question">Q</span>組み込み分析と従来の BI の違いは何ですか?</p></label>
+							<div class="accordion-txt">
+								<p><span class="answer">A</span>従来のBIツールは、基本的にアプリとは別のシステムとして動くため、データを見るにはわざわざBIツールを立ち上げてログインし直す必要があります。<br>
+									そのため、業務の流れが中断されたり、データを活用するまでに手間がかかってしまいます。<br>
+									一方で、組み込み分析は日常的に使っているアプリケーションの中に、分析機能そのものを組み込む仕組みです。<br>
+									たとえばマーケティングツールの中で、そのまま顧客のエンゲージメントデータをグラフで確認したり、絞り込んだりできるようになります。<br>
+									さらにRevealなら、ネイティブSDKでUIにも完全になじむ形で組み込みができるため、ユーザーにとっては分析もアプリの自然な一部に感じられます。その結果、使いやすさや操作の快適さはもちろん、パフォーマンスや拡張性にも優れた分析環境を実現できます。</p>
+							</div>
+						</div>
+						<div class="accordion">
+							<input id="accordion-04" type="checkbox" class="toggle">
+							<label class="accordion-ttl" for="accordion-04"><p><span class="question">Q</span>Revealの分析機能を、自社ブランドのデザインに合わせてカスタマイズすることはできますか?</p></label>
+							<div class="accordion-txt">
+								<p><span class="answer">A</span>はい、可能です！ Revealは、フルカスタマイズ可能なホワイトラベル対応の分析ソリューションです。自社独自のものとしてデザインをカスタマイズでき、ブランドイメージを損ねることなく、アプリに元から備わっていた機能のように馴染ませることができます。</p>
+							</div>
+						</div>
+						<div class="accordion">
+							<input id="accordion-05" type="checkbox" class="toggle">
+							<label class="accordion-ttl" for="accordion-05"><p><span class="question">Q</span>Revealで複数のソースからのデータを組み合わせることはできますか?</p></label>
+							<div class="accordion-txt">
+								<p><span class="answer">A</span>もちろんです！Revealは、データブレンディングをサポートしており、複数のソースからのデータを簡単に組み合わせることができます。</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section id="cta04" class="cta">
+				<div class="inner">
+					<div class="cta-head">
+						<h2 class="cta-ttl pc">＼ BI機能の開発期間を最大<span class="en">85</span>%短縮、約<span class="en">3,850</span>万円の削減が可能 ／</h2>
+						<h2 class="cta-ttl sp">BI機能の開発期間を最大<span class="en">85</span>%短縮、約<br><span class="en">3,885</span>万円の削減が可能</h2>
+					</div>
+					<div class="cta-wrap">
+						<figure class="cta-img">
+							<img src="https://static.infragistics.com/marketing/Website/JP/Landing-page/reveal/jp-reveal-lp-document-image.png" alt="">
+						</figure>
+						<div class="cta-box">
+							<div class="cnt">
+								<h3 class="cta-box-ttl"><span class="en">DOWNLOAD</span>ゼロから分かる<br class="sp">組み込み型BI「Reveal」</h3>
+								<p>埋め込みではない組み込み型BIの利点や機能特徴、ユースケース、導入のステップから価格体系までを、網羅した資料です。</p>
+							</div>
+							<div class="btn-wrap">
+								<a href="/jp/document-request?from=jp-lp-reveal" class="btn cta-btn">資料ダウンロード</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section id="cta-form">
+
+			</section>
+	</main>
+	<footer>
+		<div class="footer-company">
+			<div class="inner flex-wrap-center">
+				<div class="footer-logo"><img src="https://static.infragistics.com/marketing/Website/General/Infragistics-horizontal.svg" alt="Infragistics"></div>
+				<div>
+					<p class="name">インフラジスティックス・ジャパン株式会社</p>
+					<p>東京都中央区銀座六丁目13番16号銀座Wallビル5階<br>050-1745-6258（受付時間：平日9:00-18:00）</p>
+				</div>
+			</div>
+		</div>
+		<div class="inner">
+			<ul class="footer-links flex-wrap-center">
+				<li><a href="https://jp.infragistics.com/about-us">会社概要</a></li>
+				<li><a href="https://jp.infragistics.com/legal/privacy">プライバシーポリシー</a></li>
+				<li><a href="https://jp.infragistics.com/legal/cookie-policy">クッキーポリシー</a></li>
+				<li><a href="https://jp.infragistics.com/legal/terms-of-use">利用条件</a></li>
+				<li><a href="https://jp.infragistics.com/legal/tokusyohou">特定商取引法に基づく表記</a></li>
+			</ul>
+			<p class="footer-copy en">© Copyright 2025 INFRAGISTICS. All Rights Reserved</p>
+		</div>
+	</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+$(function () {
+	// smooth scroll
+	$('a[href^="#"]').click(function () {
+	  var speed = 500;
+	  var href = $(this).attr("href");
+	  var target = $(href == "#" || href == "" ? 'html' : href);
+	  var position = target.offset().top;
+	  $("html, body").animate({
+		scrollTop: position
+	  }, speed, "swing");
+	  return false;
+	});
+  
+	// hamburger menu
+	$(".openbtn").click(function () {
+	  $(this).toggleClass('active');
+	  $("#sp-navi").toggleClass('panelactive');
+	});
+	
+	$("#sp-navi a").click(function () {
+	  $(".openbtn").removeClass('active');
+	  $("#sp-navi").removeClass('panelactive');
+	});
+  
+  
+	function adjustCaseItemHeight() {
+	  var maxHeight = 0;
+	  $('.case-slider .case-item').css('height', 'auto');
+  
+	  $('.case-slider .case-item').each(function(){
+		var thisHeight = $(this).outerHeight();
+		if (thisHeight > maxHeight) {
+		  maxHeight = thisHeight;
+		}
+	  });
+  
+	  $('.case-slider .case-item').css('height', maxHeight + 'px');
+	}
+  
+	adjustCaseItemHeight();
+  
+	$(window).on('resize', function(){
+	  adjustCaseItemHeight();
+	});
+
+    // IntersectionObserverで動画の自動再生
+	const videoEl = document.getElementById('autoPlayVideo');
+
+	if (videoEl) {
+	  const observer = new IntersectionObserver((entries) => {
+		entries.forEach(entry => {
+		  if (entry.isIntersecting) {
+			videoEl.play();
+		  } else {
+			videoEl.pause();
+		  }
+		});
+	  }, {
+		threshold: 0.5
+	  });
+  
+	  observer.observe(videoEl);
+	}
+  });
+  // logos
+$(function () {
+	const $sliderWrap = $('.user-slider-wrap');
+	const $slider = $('.user-slider ul');
+  
+	const $clone = $slider.clone();
+	$('.user-slider').append($clone);
+  
+	let currentX = 0;
+	const speed = .5; // スクロール速度（px/frame）
+	const totalWidth = $slider.outerWidth();
+  
+	function animate() {
+	  currentX -= speed;
+	  if (Math.abs(currentX) >= totalWidth) {
+		currentX = 0;
+	  }
+	  $('.user-slider').css('transform', `translateX(${currentX}px)`);
+	  requestAnimationFrame(animate);
+	}
+  
+	animate();
+  });
+  
+function openModal() {
+  document.getElementById("pdfModal").style.display = "block";
+  document.getElementById("pdfIframe").src = "https://example.com/sample.pdf";
+}
+
+function closeModal() {
+  document.getElementById("pdfModal").style.display = "none";
+  document.getElementById("pdfIframe").src = ""; // リセット
+}
+</script>
+<script>
+(function run(){ 
+  var ready = document.readyState;
+  if (ready === 'complete' || ready === 'interactive') {
+    fix();
+  } else {
+    document.addEventListener('DOMContentLoaded', fix);
+    window.addEventListener('load', fix);
+  }
+  function fix(){
+    document.querySelectorAll('img[data-lazy-src]').forEach(function(img){
+      var u = img.getAttribute('data-lazy-src'); if(!u) return;
+      if (!img.getAttribute('src') || img.src.indexOf('data:image')===0) img.setAttribute('src', u);
+      if (img.hasAttribute('data-lazy-srcset')) img.setAttribute('srcset', img.getAttribute('data-lazy-srcset'));
+      if (img.hasAttribute('data-lazy-sizes'))  img.setAttribute('sizes',   img.getAttribute('data-lazy-sizes'));
+    });
+    document.querySelectorAll('source[data-lazy-srcset]').forEach(function(s){
+      s.setAttribute('srcset', s.getAttribute('data-lazy-srcset'));
+    });
+  }
+})();
+</script>
+</body>
+</html>

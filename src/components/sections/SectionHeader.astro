@@ -1,0 +1,23 @@
+---
+interface Props {
+  headline: string
+  body?: string
+  anchor?: string
+  variant?: 'default' | 'compact'
+  headlineSize?: string
+  wrapperClass?: string
+}
+
+const { headline, body, anchor, variant = 'default', headlineSize, wrapperClass } = Astro.props
+const sectionClass = wrapperClass ?? (variant === 'compact' ? 'container pb-3' : 'container pb-5')
+const h2Class = ['pb-4', headlineSize].filter(Boolean).join(' ')
+---
+
+<section class={sectionClass}>
+  <header class="row">
+    <div class="col text-center">
+      <h2 class={h2Class} id={anchor} set:html={headline} />
+      {body && <p set:html={body} />}
+    </div>
+  </header>
+</section>

@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import BlogHero from '../../../components/blog/BlogHero.astro'
+import Card from '../../../components/ui/Card.astro'
+import { getLocalePosts } from '../../../lib/blog'
+import localeBlogPosts from '../../../data/locale-blog-posts.json'
+
+export async function getStaticPaths() {
+  return ['es', 'ja', 'ko', 'pt-BR'].map((lang) => ({ params: { lang } }))
+}
+
+const { lang } = Astro.params
+
+// Two sources for the cards. The content collection is the future-clean path:
+// when the translation pipeline starts emitting .md stubs into
+// src/content/blog/<lang>/, those will show up via getLocalePosts. Until then
+// the collection is empty for non-en locales and we fall back to the JSON
+// manifest produced by scripts/extract-locale-blog-posts.mjs, which scrapes
+// title/date/cover/etc from the per-post static HTML in
+// public/<lang>/blog/<slug>/index.html.
+const collectionPosts = await getLocalePosts(lang)
+
+type StaticPost = { slug: string; title: string; date: string; description?: string | null; cover?: string | null; author?: string | null }
+const staticPosts = ((localeBlogPosts as Record<string, StaticPost[]>)[lang] ?? [])
+
+type IndexCard = { slug: string; title: string; date?: string; cover?: string; description?: string; author?: string }
+const cards: IndexCard[] = collectionPosts.length > 0
+  ? collectionPosts.map((p) => ({
+      slug: p.id.replace(new RegExp(`^${lang}/`), ''),
+      title: p.data.title,
+      date: p.data.date,
+      cover: p.data.cover,
+      description: p.data.description,
+      author: p.data.author,
+    }))
+  : staticPosts.map((p) => ({
+      slug: p.slug,
+      title: p.title,
+      date: p.date,
+      cover: p.cover ?? undefined,
+      description: p.description ?? undefined,
+      author: p.author ?? undefined,
+    }))
+---
+
+<BaseLayout
+  title="Business Intelligence Blog By Reveal BI"
+  description="Read our business intelligence blog to find out the latest about embedded analytics, data visualization, BI trends and more. Great practical tips delivered by our analytics experts."
+  lang={lang}
+>
+  <BlogHero
+    title="Stay up to date with Reveal"
+    subhead="Reveal business intelligence blog gives you the latest embedded analytics trends, how-tos, best practices, and product news."
+  />
+
+  <div class="container results-page">
+    <div class="wrapper">
+      <div class="row">
+        <div class="col-md-8 content-area">
+          {cards.map((card) => (
+            <Card
+              variant="blog"
+              title={card.title}
+              url={`/${lang}/blog/${card.slug}`}
+              image={card.cover}
+              imageAlt={card.title}
+              author={card.author}
+              date={card.date}
+              excerpt={card.description}
+            />
+          ))}
+          {cards.length === 0 && <p class="text-muted">No posts yet. Check back soon.</p>}
+        </div>
+
+        <aside class="col-md-4 sidebar-right mt-3 mt-md-0" role="complementary">
+          <section class="widget_text ig-custom-html-widget sidebar-card">
+            <div class="bg-light text-center p-4">
+              <h2 class="border-bottom-0">Subscribe to Our Blog</h2>
+              <p class="text-size--md">
+                Use our RSS feed to get the latest news and developments in business analytics and Reveal.
+              </p>
+              <a href="/feed/" class="btn btn-primary" target="_blank" rel="noopener">Blog Feed</a>
+            </div>
+          </section>
+
+          <section class="widget_text ig-custom-html-widget sidebar-card">
+            <div class="bg-wave--primary text-white p-3 sidebar-mkto-container">
+              <h2 class="h3 text-white">Request a Live Demo of Reveal</h2>
+              <p class="mb-3">See how Reveal embeds seamlessly into your application.</p>
+              <a class="btn btn-secondary ig-show-modal" href="#" data-targetid="requestDemo">Book a Demo</a>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

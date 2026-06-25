@@ -1,0 +1,122 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import JsonLd from '../../components/seo/JsonLd.astro'
+import { glossaryTerms } from '../../data/glossary-terms'
+import '../../styles/glossary.css'
+
+// Drop a link only if its target EN entry is missing, so a term never links to
+// a 404 (it falls back to plain text, like the slug-less definitions). All 24
+// linked terms currently map 1:1 to src/content/glossary/en/.
+const published = new Set(
+  (await getCollection('glossary'))
+    .filter(e => e.id.startsWith('en/'))
+    .map(e => e.id.replace(/^en\//, ''))
+)
+const terms = glossaryTerms.map(t => ({
+  ...t,
+  href: t.slug !== undefined && published.has(t.slug) ? `/glossary/${t.slug}` : undefined,
+}))
+
+// Group terms by first letter, preserving the curated old-prod order within
+// each letter. Letter groups are rendered alphabetically.
+const groups = new Map<string, typeof terms>()
+for (const term of terms) {
+  const letter = term.name[0].toUpperCase()
+  if (!groups.has(letter)) groups.set(letter, [])
+  groups.get(letter)!.push(term)
+}
+const letterGroups = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))
+
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+const usable = new Set(groups.keys())
+
+// DefinedTermSet structured data — parity with old.revealbi.io/glossary.
+const site = Astro.site?.toString().replace(/\/$/, '') ?? ''
+const glossaryUrl = `${site}/glossary`
+const definedTermSetLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': ['DefinedTermSet', 'Book'],
+      '@id': glossaryUrl,
+      name: 'Reveal Analytics Glossary',
+    },
+    ...terms.map(t => ({
+      '@type': 'DefinedTerm',
+      ...(t.href ? { '@id': `${site}${t.href}` } : {}),
+      name: t.name,
+      description: t.summary,
+      inDefinedTermSet: glossaryUrl,
+    })),
+  ],
+}
+---
+
+<BaseLayout
+  title="Embedded Analytics Glossary | Reveal BI"
+  description="Find detailed definitions, information, and examples for various key data analytics and business intelligent terms."
+>
+  <JsonLd slot="jsonld" data={definedTermSetLd} />
+
+  <section class="glossary glossary--reveal container">
+    <header class="glossary__header">
+      <h1>Reveal Analytics Glossary</h1>
+      <p class="text-center">Want to know more about Reveal, data analytics, and business intelligence? We have you covered. Use this glossary to quickly find definitions for various business intelligence and data analytics terms.</p>
+    </header>
+
+    <div id="glossary-filter" class="glossary__tabs clearfix" role="menubar" aria-controls="glossary-listing" aria-label="Glossary Navigation">
+      {ALPHABET.map(letter => (
+        usable.has(letter) ? (
+          <span
+            id={`tab-${letter}`}
+            class="glossary__tab glossary__tab--usable"
+            role="menuitem"
+            tabindex="0"
+            data-target={`target-${letter}`}
+          >{letter}</span>
+        ) : (
+          <span id={`tab-${letter}`} class="glossary__tab" role="menuitem" tabindex="-1">{letter}</span>
+        )
+      ))}
+    </div>
+
+    <div id="glossary-listing" class="glossary__section-wrap">
+      <h2 class="sr-only">List of Business Intelligence Terms</h2>
+      <dl class="clearfix">
+        {letterGroups.map(([letter, group]) => (
+          <div id={`target-${letter}`}>
+            {group.map(term => (
+              <div class="glossary__item">
+                <dt class="glossary__items-title">
+                  <h3>{term.href ? <a href={term.href}>{term.name}</a> : term.name}</h3>
+                </dt>
+                <dd class="glossary__item-summary">
+                  <p>{term.summary}</p>
+                </dd>
+              </div>
+            ))}
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  // Click / keyboard-activate an alphabet tab to jump to that letter's group.
+  document.querySelectorAll('.glossary__tab--usable').forEach(tab => {
+    const go = () => {
+      const id = tab.getAttribute('data-target')
+      const target = id && document.getElementById(id)
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    tab.addEventListener('click', go)
+    tab.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        go()
+      }
+    })
+  })
+</script>

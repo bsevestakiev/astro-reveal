@@ -1,0 +1,106 @@
+---
+interface Props {
+  headline: string
+  headlineClass?: string
+  eyebrow?: string
+  variant?: 'default' | 'tech'
+  subheadlines?: string[]
+  ctaLabel?: string
+  ctaUrl?: string
+  secondaryCtaLabel?: string
+  secondaryCtaUrl?: string
+  image?: string
+  imageSrcset?: { media: string; srcset: string }[]
+  imageAlt?: string
+  demoModal?: boolean
+}
+
+const {
+  headline,
+  headlineClass,
+  eyebrow,
+  variant = 'default',
+  subheadlines = [],
+  ctaLabel = 'Book a Personalized Demo',
+  ctaUrl = '#',
+  secondaryCtaLabel,
+  secondaryCtaUrl,
+  image,
+  imageSrcset = [],
+  imageAlt = '',
+  demoModal = true,
+} = Astro.props
+
+const isTech = variant === 'tech'
+---
+
+<div class={isTech ? 'py-5 bg-tech-light' : 'py-5'}>
+  <div class="mb-0 position-relative py-0 pt-4 pb-3">
+    {/* Decorative gradient circles */}
+    {!isTech && <div class="circle-hero-orange d-none d-lg-block" aria-hidden="true"></div>}
+    {/* Tech hero: pink circle sits below both columns, centered and subtle */}
+    {isTech && <div class="circle-hero-pink circle-hero-pink--below d-none d-lg-block" aria-hidden="true"></div>}
+
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-12 col-lg-6">
+          {eyebrow && (
+            <p class="hero-eyebrow text-uppercase text-french-rose font-weight-bold mb-3">{eyebrow}</p>
+          )}
+          <h1 class={headlineClass} set:html={headline} />
+
+          {subheadlines.map((para) => (
+            <p class="mb-4">{para}</p>
+          ))}
+
+          <slot name="subheadlines" />
+
+          <p class="text-center text-lg-left mb-4">
+            {demoModal ? (
+              <a class="btn btn-primary mb-2 mr-0 mr-sm-3 trackCTA ig-show-modal"
+                href={ctaUrl}
+                data-targetid="requestDemo"
+                data-xd-ga-action="Book a Personalized Demo"
+                data-xd-ga-label="Reveal">
+                {ctaLabel}
+              </a>
+            ) : (
+              <a class="btn btn-primary mb-2 mr-0 mr-sm-3 trackCTA" href={ctaUrl}>
+                {ctaLabel}
+              </a>
+            )}
+
+            {secondaryCtaLabel && secondaryCtaUrl && (
+              <a class="btn btn-white-play mb-2 trackCTA" href={secondaryCtaUrl}>
+                {secondaryCtaLabel}
+              </a>
+            )}
+          </p>
+
+          <slot />
+        </div>
+
+        {image && (
+          <div class="col-md-12 col-lg-6">
+            <div class="hero-image-wrap position-relative">
+              {!isTech && <div class="circle-hero-pink d-none d-lg-block" aria-hidden="true"></div>}
+              <picture>
+                {imageSrcset.map((s) => (
+                  <source media={s.media} srcset={s.srcset} />
+                ))}
+                <img
+                  fetchpriority="high"
+                  loading="eager"
+                  decoding="async"
+                  class="img-fluid img--lg-oversize img--lg-oversize-right"
+                  src={image}
+                  alt={imageAlt}
+                />
+              </picture>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</div>

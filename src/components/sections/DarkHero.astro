@@ -1,0 +1,340 @@
+---
+interface Breadcrumb {
+  label: string
+  url?: string
+}
+
+interface Logo {
+  src: string
+  alt: string
+}
+
+interface Props {
+  title: string
+  mobileTitle?: string
+  subhead?: string
+  breadcrumbs?: Breadcrumb[]
+  image?: string
+  imageAlt?: string
+  imageSrcset?: { media: string; srcset: string }[]
+  accentColor?: string
+  variant?: 'centered' | 'split-image' | 'gradient-split' | 'split-form' | 'dark-navy' | 'flat-split' | 'tech-centered'
+  ctaLabel?: string
+  ctaHref?: string
+  ctaModal?: boolean
+  secondaryCtaLabel?: string
+  secondaryCtaHref?: string
+  secondaryCtaModal?: boolean
+  secondaryCtaClass?: string
+  trustBadgeImage?: string
+  trustBadgeAlt?: string
+  trustBadgeLine?: string
+  logos?: Logo[]
+  navmenuContainer?: boolean
+  gradientSplitStyle?: string
+  hideBottomWave?: boolean
+}
+
+const {
+  title,
+  mobileTitle,
+  subhead,
+  breadcrumbs = [],
+  image,
+  imageAlt = '',
+  imageSrcset = [],
+  accentColor,
+  variant = 'centered',
+  ctaLabel,
+  ctaHref = '#',
+  ctaModal,
+  secondaryCtaLabel,
+  secondaryCtaHref = '/request-demo',
+  secondaryCtaModal,
+  secondaryCtaClass,
+  trustBadgeImage,
+  trustBadgeAlt = '',
+  trustBadgeLine,
+  logos = [],
+  navmenuContainer = false,
+  gradientSplitStyle,
+  hideBottomWave = false,
+} = Astro.props
+
+const isSplitImage = variant === 'split-image'
+const isGradientSplit = variant === 'gradient-split'
+const isFlatSplit = variant === 'flat-split'
+const isTechCentered = variant === 'tech-centered'
+const ctaIsAnchor = ctaHref.startsWith('#')
+const primaryUsesModal = ctaModal ?? !ctaIsAnchor
+const secondaryUsesModal = secondaryCtaModal ?? (secondaryCtaHref === '#' || Boolean(secondaryCtaClass?.includes('ig-show-modal')))
+
+
+let wrapperClass: string
+let wrapperStyle: string | undefined
+if (variant === 'dark-navy') {
+  wrapperClass = 'bg-dark-navy position-relative overflow-hidden'
+  wrapperStyle = undefined
+} else if (isSplitImage || isGradientSplit) {
+  wrapperClass = isGradientSplit ? 'bg-gradient--primary pt-5' : 'bg-header-teardrop pt-5'
+  wrapperStyle = isGradientSplit && gradientSplitStyle ? `z-index:1;${gradientSplitStyle}` : 'z-index:1;'
+} else if (isFlatSplit) {
+  // bg--french-rose (solid pink) when accentColor set, otherwise gradient.
+  wrapperClass = accentColor ? '' : 'bg-gradient--primary py-5 mb-5'
+  wrapperStyle = accentColor ? `background:${accentColor};` : undefined
+} else if (isTechCentered) {
+  wrapperClass = 'bg-tech py-3 py-md-5 mb-3 mb-md-5'
+  wrapperStyle = undefined
+} else {
+  wrapperClass = 'header__main mb-0 mb-lg-5 py-5'
+  wrapperStyle = `z-index:1;background:${accentColor ?? '#ec417a'}`
+}
+---
+
+<div class={wrapperClass} style={wrapperStyle}>
+  {variant === 'dark-navy' && (
+    <Fragment>
+    <div class="circle-hero-pink" aria-hidden="true"></div>
+    <div class="circle-hero-orange" aria-hidden="true"></div>
+    <div class="container py-5 py-lg-6">
+      <div class="row justify-content-center">
+        <div class={`col-12 ${image ? 'col-lg-6' : 'col-lg-10 text-center'}`}>
+          <h1 class={`text-white mb-3${mobileTitle ? ' d-none d-md-block' : ''}`} set:html={title} />
+          {mobileTitle && <h1 class="d-block d-md-none h2 text-white">{mobileTitle}</h1>}
+          {subhead && <p class="mb-5 text-white mx-auto" set:html={subhead} />}
+          {(ctaLabel || secondaryCtaLabel) && (
+            <p class="mb-5">
+              {ctaLabel && (
+                <a href={ctaHref} class={`btn btn-secondary mb-2 mr-0 mr-sm-3 trackCTA${primaryUsesModal ? ' ig-show-modal' : ''}`} {...(primaryUsesModal ? {'data-targetid': 'requestDemo'} : {})}>{ctaLabel}</a>
+              )}
+              {secondaryCtaLabel && (
+                <a href={secondaryCtaHref} class={`btn btn-tertiary mb-2 trackCTA${secondaryUsesModal && !(secondaryCtaClass ?? '').includes('ig-show-modal') ? ' ig-show-modal' : ''}${secondaryCtaClass ? ' ' + secondaryCtaClass : ''}`} {...(secondaryUsesModal ? {'data-targetid': 'requestDemo'} : {})}>
+                  <span aria-hidden="true" style="display:inline-block;width:0;height:0;border-top:0.4em solid transparent;border-bottom:0.4em solid transparent;border-left:0.62em solid currentColor;margin-right:0.5em;vertical-align:middle;"></span>
+                  {secondaryCtaLabel}
+                </a>
+              )}
+            </p>
+          )}
+          <slot />
+        </div>
+        {image && (
+          <div class="col-12 col-lg-6 d-none d-lg-block">
+            <picture>
+              {imageSrcset.map((s: any) => <source media={s.media} srcset={s.srcset} />)}
+              <img fetchpriority="high" class="img-fluid w-100" src={image} alt={imageAlt} />
+            </picture>
+          </div>
+        )}
+        {(trustBadgeImage || trustBadgeLine) && (
+          <div class="col-12 text-center">
+            <div class="d-flex align-items-center justify-content-between flex-wrap">
+              {trustBadgeImage && (
+                <div class="d-flex align-items-center mb-2 mb-sm-0">
+                  <img decoding="async" fetchpriority="high" loading="eager" alt={trustBadgeAlt}
+                    src={trustBadgeImage} style="height:85px;" title={trustBadgeAlt} />
+                </div>
+              )}
+              {trustBadgeLine && (
+                <ul class="list-unstyled mb-0">
+                  <li class="d-flex align-items-center text-light-blue">
+                    <img decoding="async" src="https://static.infragistics.com/marketing/reveal/icons/checkmark-green.svg" alt="" width="16" height="16" class="mr-2" aria-hidden="true" />
+                    {trustBadgeLine}
+                  </li>
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+    </Fragment>
+  )}
+
+  {isFlatSplit && (
+    <div class="jumbotron mb-0 position-relative bg-transparent py-0">
+      <div class="container text-white py-5">
+        <div class="row align-items-center">
+          <div class="col-md-12 col-lg-6">
+            <h1 class={`text-white${mobileTitle ? ' d-none d-md-block' : ''}`} set:html={title} />
+            {mobileTitle && <h1 class="d-block d-md-none h2 text-white">{mobileTitle}</h1>}
+            {subhead && <p class="mb-4 text-white" set:html={subhead} />}
+            {(ctaLabel || secondaryCtaLabel) && (
+              <p class="text-center text-lg-left">
+                {ctaLabel && (
+                  <a href={ctaHref} class={`btn btn-secondary mb-2 mr-0 mr-sm-3${primaryUsesModal ? ' ig-show-modal' : ''}`} {...(primaryUsesModal ? {'data-targetid': 'requestDemo'} : {})}>{ctaLabel}</a>
+                )}
+                {secondaryCtaLabel && (
+                  <a href={secondaryCtaHref} class={`btn btn-primary mb-2${secondaryUsesModal ? ' ig-show-modal' : ''}`} {...(secondaryUsesModal ? {'data-targetid': 'requestDemo'} : {})}>{secondaryCtaLabel}</a>
+                )}
+              </p>
+            )}
+            {trustBadgeImage && (
+              <div class="mb-4">
+                <img src={trustBadgeImage} alt={trustBadgeAlt} class="img-fluid" width="400" height="100" />
+              </div>
+            )}
+            <slot />
+          </div>
+          {image && (
+            <div class="col-md-12 col-lg-6">
+              <picture>
+                {imageSrcset.map((s: any) => <source media={s.media} srcset={s.srcset} />)}
+                <img fetchpriority="high" class="img-fluid" alt={imageAlt} src={image} />
+              </picture>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+
+  {isTechCentered && (
+    <div class="jumbotron-1 mb-0 position-relative bg-transparent py-0 pt-4 pb-3 text-left text-lg-center">
+      <div class="container text-white py-3 py-md-5">
+        <div class="row align-items-center justify-content-start justify-content-lg-around">
+          <div class="col-12 col-lg-9">
+            <h1 class={`text-white${mobileTitle ? ' d-none d-md-block' : ''}`} set:html={title} />
+            {mobileTitle && <h1 class="d-block d-md-none h2 text-white">{mobileTitle}</h1>}
+            {subhead && <p class="mb-4 text-white" set:html={subhead} />}
+            {(ctaLabel || secondaryCtaLabel) && (
+              <p class="text-left text-lg-center">
+                {ctaLabel && (
+                  <a href={ctaHref} class={`btn btn-secondary mb-2 mr-0 mr-sm-3${primaryUsesModal ? ' ig-show-modal' : ''}`} {...(primaryUsesModal ? {'data-targetid': 'requestDemo'} : {})}>{ctaLabel}</a>
+                )}
+                {secondaryCtaLabel && (
+                  <a href={secondaryCtaHref} class={`btn btn-primary mb-2${secondaryUsesModal ? ' ig-show-modal' : ''}`} {...(secondaryUsesModal ? {'data-targetid': 'requestDemo'} : {})}>{secondaryCtaLabel}</a>
+                )}
+              </p>
+            )}
+            <slot />
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {variant !== 'dark-navy' && !isFlatSplit && !isTechCentered && (
+    <div class={(isSplitImage || isGradientSplit) ? `jumbotron mb-0 position-relative bg-transparent py-0${navmenuContainer ? ' navmenu-size--container rounded-xl' : ''}` : 'container'}>
+      <div class={(isSplitImage || isGradientSplit) ? 'container text-white' : ''}>
+        <div class="row align-items-center">
+
+          <div class={`col-12 ${(variant === 'split-image' || variant === 'gradient-split' || variant === 'split-form') && image ? 'col-md-12 col-lg-6' : ''}`}>
+            {breadcrumbs.length > 0 && (
+              <nav aria-label="breadcrumbs" class="rank-math-breadcrumb">
+                <p>
+                  {breadcrumbs.map((crumb: Breadcrumb, i: number) => (
+                    <>
+                      {crumb.url ? (
+                        <a href={crumb.url} class="text-white">{crumb.label}</a>
+                      ) : (
+                        <span class="last text-white">{crumb.label}</span>
+                      )}
+                      {i < breadcrumbs.length - 1 && (
+                        <span class="separator text-white"> / </span>
+                      )}
+                    </>
+                  ))}
+                </p>
+              </nav>
+            )}
+
+            <h1 class={`text-white${mobileTitle ? ' d-none d-md-block' : ''}`} set:html={title} />
+            {mobileTitle && <h1 class="d-block d-md-none h2 text-white">{mobileTitle}</h1>}
+            {subhead && <p class="mb-4 text-white" set:html={subhead} />}
+            {(ctaLabel || secondaryCtaLabel) && (
+              <div class="mt-3">
+                {ctaLabel && (
+                  <a href={ctaHref} class={`btn btn-primary mb-2 mr-sm-3 trackCTA${primaryUsesModal ? ' ig-show-modal' : ''}`} {...(primaryUsesModal ? {'data-targetid': 'requestDemo'} : {})}>{ctaLabel}</a>
+                )}
+                {secondaryCtaLabel && (
+                  <a href={secondaryCtaHref} class={`btn btn-tertiary mb-2${secondaryUsesModal && !(secondaryCtaClass ?? '').includes('ig-show-modal') ? ' ig-show-modal' : ''}${secondaryCtaClass ? ` ${secondaryCtaClass}` : ''}`} {...(secondaryUsesModal ? {'data-targetid': 'requestDemo'} : {})}>{secondaryCtaLabel}</a>
+                )}
+              </div>
+            )}
+            <slot />
+          </div>
+
+          {(variant === 'split-image' || variant === 'gradient-split') && image && (
+            <div class="col-md-12 col-lg-6 mb-3 mb-lg-0 text-sm-left text-md-center">
+              <picture>
+                {imageSrcset.map((s: any) => <source media={s.media} srcset={s.srcset} />)}
+                <img fetchpriority="high" class="img-fluid" alt={imageAlt} src={image} />
+              </picture>
+            </div>
+          )}
+
+          {variant === 'split-form' && (
+            <div class="col-12 col-lg-4">
+              <slot name="form" />
+            </div>
+          )}
+
+          {logos.length > 0 && (
+            <div class="col-12 mt-5">
+              <div class="row justify-content-between align-items-center">
+                {logos.map(l => (
+                  <div class="col-auto mb-4 mb-md-0">
+                    <img loading="lazy" decoding="async" src={l.src} alt={l.alt} title={l.alt} style="height:34px" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  )}
+
+  {(isSplitImage || (isGradientSplit && !hideBottomWave)) && (
+    <div class="border-wave-bottom ie-hide" style="line-height:0;">
+      <svg id="dark-hero-wave" version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 1920 180.3" preserveAspectRatio="none" style="width:100%;height:auto;display:block;">
+        <path id="dark-hero-wave-path" style="fill:#f5f5f5;stroke:#f5f5f5;" d="M-2,145.7C211.7,78.1,435,37.9,659.4,35.2c113-1.4,226.1,6.8,337.4,26.1c108.4,18.7,209.2,58.9,315.4,83c67.7,15.3,135.9,24.7,205.5,24.1c152.4-1.3,302.6-50.2,405-166.9v182.7H-1.4L-2,145.7z" />
+      </svg>
+    </div>
+  )}
+</div>
+
+<style>
+.bg-tech {
+    background-image: url(https://static.infragistics.com/marketing/reveal/tech-background-1920.svg), linear-gradient(90deg, #fbb365 0%, #ec417a 40%);
+    background-position: center center, center center;
+    background-size: cover, cover;
+    background-repeat: no-repeat, no-repeat;
+    background-attachment: fixed, fixed;
+    background-blend-mode: normal;
+    will-change: transform;
+}
+</style>
+
+<script is:inline>
+  (function () {
+    function effectiveBg(el) {
+      while (el && el !== document.documentElement) {
+        var bg = window.getComputedStyle(el).backgroundColor;
+        if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg;
+        el = el.parentElement;
+      }
+      return 'rgb(255, 255, 255)';
+    }
+    function paintHeroWave() {
+      var svg = document.getElementById('dark-hero-wave');
+      var path = document.getElementById('dark-hero-wave-path');
+      if (!svg || !path) return;
+      var rect = svg.getBoundingClientRect();
+      var y = rect.bottom + 2;
+      var x = rect.left + rect.width / 2;
+      svg.style.visibility = 'hidden';
+      var el = document.elementFromPoint(x, y);
+      svg.style.visibility = '';
+      var bg = el ? effectiveBg(el) : 'rgb(255, 255, 255)';
+      path.style.fill = bg;
+      path.style.stroke = bg;
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', paintHeroWave);
+    } else {
+      paintHeroWave();
+    }
+  })();
+</script>

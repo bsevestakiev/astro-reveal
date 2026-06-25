@@ -1,0 +1,111 @@
+---
+// Inline story teaser grid: 3 story cards with cover image, industry label,
+// blockquote, author, logo, and Read Story link — all data inline (no collection lookup).
+// Mirrors WP's SUCCESS STORIES section from white-label-analytics.
+
+interface StoryCard {
+  cover: string
+  coverAlt: string
+  industryLabel: string
+  industryUrl?: string
+  quote: string
+  authorName: string
+  logo: string
+  logoAlt: string
+  storyUrl: string
+}
+
+interface Props {
+  eyebrow?: string
+  headline: string
+  viewAllLabel?: string
+  viewAllUrl?: string
+  cards: StoryCard[]
+  anchor?: string
+}
+
+const {
+  eyebrow,
+  headline,
+  viewAllLabel,
+  viewAllUrl,
+  cards,
+  anchor = 'stories',
+} = Astro.props
+
+const arrowSrc = 'https://static.infragistics.com/marketing/reveal/arrow-blue.svg'
+---
+
+<section id={anchor} class="container mt-4 py-5 convo">
+  <header class="row">
+    <div class="col-md-12 text-center">
+      {eyebrow && (
+        <p class="h5 text-uppercase text-french-rose font-weight-bold">{eyebrow}</p>
+      )}
+      <h2 class="mb-4" set:html={headline} />
+      {viewAllLabel && viewAllUrl && (
+        <a class="font-weight-bold anchor-blue" href={viewAllUrl}>
+          {viewAllLabel}
+          <span class="mb-3 align-middle">
+            <img decoding="async" src={arrowSrc} class="card-arrow pb-1" alt="" />
+          </span>
+        </a>
+      )}
+    </div>
+  </header>
+
+  <div class="bt__posts bt__post--tags" data-blog-type="blog-card" data-blog-columns="3">
+    {cards.map((card) => (
+      <article class="bt__post ui-card">
+        <figure class="bt__post-image">
+          <img
+            loading="lazy"
+            decoding="async"
+            src={card.cover}
+            alt={card.coverAlt}
+            title={card.coverAlt}
+            class="attachment-post-thumbnail size-post-thumbnail wp-post-image"
+          />
+        </figure>
+        <div class="bt__content-wrap">
+          <header>
+            <h4>
+              {card.industryUrl ? (
+                <a class="bt__post-link text-secondary text-size--sm text-uppercase"
+                   target="_blank" href={card.industryUrl}>
+                  {card.industryLabel}
+                </a>
+              ) : (
+                <span class="bt__post-link text-secondary text-size--sm text-uppercase">
+                  {card.industryLabel}
+                </span>
+              )}
+            </h4>
+          </header>
+          <div class="bt__content">
+            <blockquote style="font-size: 95%;" set:html={card.quote} />
+            <p class="author">
+              <strong set:html={card.authorName} />
+            </p>
+            <div class="customer-stories__logo mb-3 d-flex align-items-center">
+              <img
+                decoding="async"
+                src={card.logo}
+                alt={card.logoAlt}
+                class="h-auto"
+                title={card.logoAlt}
+                style="max-width: 120px;"
+              />
+            </div>
+            <footer class="mt-auto text-right">
+              <a class="card-link font-weight-bold" target="_blank" href={card.storyUrl} rel="noopener">
+                Read Story
+                <img decoding="async" src={arrowSrc} style="width:18px;" alt="Read Story" title="Read Story" />
+              </a>
+            </footer>
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

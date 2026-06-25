@@ -1,0 +1,39 @@
+---
+interface Card {
+  href: string
+  icon: string
+  iconAlt: string
+  title: string
+}
+interface Props {
+  headline: string
+  body?: string
+  cards: Card[]
+}
+
+const { headline, body, cards } = Astro.props
+---
+
+<main id="content" role="main">
+  <div class="container">
+    <div class="row justify-content-center align-items-start pt-5">
+      <div class="col-12 col-md-9 text-center">
+        <h1 class="h2 mb-3" set:html={headline} />
+        {body && <p set:html={body} />}
+      </div>
+    </div>
+    <div class="row justify-content-center align-items-start pb-5 pt-0 pt-md-5">
+      {cards.map((card: Card) => (
+        <div class="col-12 col-md-3 mb-4 text-center">
+          <div class="shadow rounded-xl py-4 px-1">
+            <a href={card.href} class="text-cerulean-blue">
+              <img src={card.icon} alt={card.iconAlt} style="height: 75px;" class="mb-3">
+              <p><strong set:html={card.title} /> <img decoding="async" src="https://static.infragistics.com/marketing/reveal/arrow-blue.svg" class="card-arrow" alt="Home" title="Home" style="height: 15px;">
+              </p>
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</main>

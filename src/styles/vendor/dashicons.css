@@ -1,0 +1,27 @@
+@font-face {
+  font-family: dashicons;
+  font-display: block;
+  src: url(/fonts/dashicons/dashicons.ttf) format('truetype');
+}
+
+.dashicons,
+.dashicons-before:before {
+  display: inline-block;
+  font-family: dashicons;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  line-height: 1;
+  speak: never;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dashicons-search:before {
+  content: "\f179";
+}
+
+.dashicons-admin-site-alt3:before {
+  content: "\f319";
+}

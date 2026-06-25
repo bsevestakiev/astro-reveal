@@ -1,0 +1,114 @@
+---
+interface Badge { src: string; alt: string }
+interface ReviewCard { text: string; reviewer: string; href?: string }
+interface Props {
+  headline: string
+  subhead?: string
+  quote?: string
+  badges?: Badge[]
+  cards?: ReviewCard[]
+  variant?: 'default' | 'pink-wave'
+}
+
+const { headline, subhead, quote, badges = [], cards, variant = 'default' } = Astro.props
+const isPinkWave = variant === 'pink-wave'
+---
+
+<section id="reviews" class={isPinkWave ? 'bg-primary' : 'bg-light-gray-to-white'}>
+  {isPinkWave && (
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 5 1920 184" style="enable-background:new 0 5 1920 184; -webkit-transform: scaleX(-1);transform: scaleX(-1);" xml:space="preserve" class="ie-hide">
+      <path class="sta" style="fill:#f5f5f5; stroke:#f5f5f5; stroke-width: 2px;" d="M1920,17.9c-213.4,67.7-435.3,108-659.4,110.8c-163.5,2-326.4-22-488.2-43.1c-46.7-6.1-93.3-12.4-139.9-18.9 C529,52.2,424.8,37.8,320.1,39.3c-50.8,0.7-101.4,6.3-151.2,16.2C121.2,65,0,106.5,0,116.5C0,116.5,0,0,0,0h1920V17.9z"></path>
+    </svg>
+  )}
+  {isPinkWave && <div class="ie-visible pt-0 pt-lg-5 mt-0 mt-lg-5"></div>}
+  <div class={`container pt-4 mt-0${isPinkWave ? '' : ' pt-lg-5 reviews-pt-lg'}`}>
+    <header class="row">
+      <div class="col-md-12 text-center mb-0">
+        <h2 class={isPinkWave ? 'h1 text-white' : undefined}>{headline}</h2>
+        {!isPinkWave && <span class="accent-bar mt-3 mb-3"></span>}
+        {subhead && <p class="mt-4">{subhead}</p>}
+      </div>
+    </header>
+
+    {quote && (
+      <div class="row justify-content-center mt-5 mb-5">
+        <div class="col-12 col-lg-9 text-center">
+          <blockquote class="mb-0 border-0 p-0">
+            <p class="testimonial-quote">
+              <span class="quote-mark open">&ldquo;</span>{quote}<span class="quote-mark quote-close">&rdquo;</span>
+            </p>
+          </blockquote>
+        </div>
+      </div>
+    )}
+
+    {badges.length > 0 && (
+      <div class="container">
+        <div class="row mr-auto ml-auto mt-4 text-center">
+          <div class="col-12">
+            <div class="d-flex d-flex-container justify-content-center align-items-center flex-column flex-md-row flex-wrap">
+              {badges.map((b: Badge) => (
+                <img decoding="async" class="px-2 mb-3" loading="lazy"
+                  src={b.src} alt={b.alt} title={b.alt}
+                  width="115" height="130" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {cards && cards.length > 0 && (
+      <div class="col-12 text-center tns-slider--white mt-4">
+        <div class="tns-slider--quotes" style="display:flex;">
+          {cards.map((card: ReviewCard) => (
+            <div class="mb-4 px-2">
+              <div class="card bg-light h-100">
+                <div class="card-body">
+                  <img decoding="async"
+                    src="https://static.infragistics.com/marketing/reveal/G2-Logo-Red.svg"
+                    alt="G2 Logo" title="G2 Logo" class="pl-2" width="50" height="50" />
+                  <p class="card-text pt-3">{card.text}</p>
+                  <div class="row">
+                    <div class="col-6">
+                      <strong>{card.reviewer}</strong>
+                    </div>
+                    {card.href && (
+                      <div class="col-6 d-flex align-items-end">
+                        <a href={card.href} class="d-inline-block anchor-blue font-weight-bold"
+                          target="_blank" rel="noopener">
+                          Full Review <span class="mb-3 align-middle">
+                            <img decoding="async"
+                              src="https://static.infragistics.com/marketing/reveal/arrow-blue.svg"
+                              class="card-arrow pb-1" alt="Right Arrow Icon" title="Right Arrow Icon" />
+                          </span>
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+
+  {isPinkWave && (
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 135.3" style="enable-background:new 0 0 1920 135.3; -webkit-transform: scaleX(-1);transform: scaleX(-1);position: relative;top: 2px;" xml:space="preserve" class="ie-hide">
+      <path class="sts" style="fill:#fff;stroke:#fff;" d="M0,119.2C213.4,51.5,435.3,11.2,659.4,8.4c163.5-2,326.4,22,488.2,43.1c46.7,6.1,93.3,12.4,139.9,18.9 c103.5,14.6,207.6,28.9,312.4,27.4c50.8-0.7,101.4-6.3,151.2-16.2c47.7-9.5,168.9-51,168.9-61c0,0,0,116.5,0,116.5H0V119.2z"></path>
+    </svg>
+  )}
+  {isPinkWave && <div class="ie-visible pb-0 pb-lg-5"></div>}
+
+</section>
+
+<style is:global>
+  .tns-slider--quotes .card-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

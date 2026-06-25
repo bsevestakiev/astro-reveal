@@ -1,0 +1,33 @@
+---
+interface Stat { value: string; label: string; description: string }
+interface Props {
+  headline: string
+  subhead?: string
+  stats: Stat[]
+}
+
+const { headline, subhead, stats } = Astro.props
+---
+
+<section id="quotes" class="py-5 text-white bg-blue-primary">
+  <div class="container my-lg-5 px-4 py-4">
+    <div class="row animate-me" data-animation="fadeInRight">
+      <div class="col-12 mw-950px mx-auto text-center mb-5">
+        <h2 class="h2">{headline}</h2>
+        {subhead && <p>{subhead}</p>}
+      </div>
+    </div>
+
+    {stats.map((stat, i) => (
+      <div class={`row align-items-center${i < stats.length - 1 ? ' mb-5' : ''} justify-content-center justify-content-md-between text-center text-md-left`}>
+        <div class="col-auto animate-me" data-animation="fadeInLeft">
+          <p class="font-weight-bold mb-0 font-size-stat text-pink-stat">{stat.value}</p>
+          <p class="h2 stat-label-white">{stat.label}</p>
+        </div>
+        <div class="col-md-7 animate-me pl-lg-4 animated fadeInRight" data-animation="fadeInRight">
+          <p>{stat.description}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

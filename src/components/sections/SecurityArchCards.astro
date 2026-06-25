@@ -1,0 +1,228 @@
+---
+interface ArchCardItem {
+  text: string
+  class?: string
+}
+
+interface ArchCard {
+  icon?: string
+  iconAlt?: string
+  title?: string
+  titleClass?: string
+  intro?: string
+  introClass?: string
+  cardClass?: string
+  listClass?: string
+  listVariant?: 'check' | 'cross' | 'blue-tick' | 'mark-x-tick'
+  items: Array<string | ArchCardItem>
+}
+
+interface ComparisonRow {
+  left: string
+  right: string
+}
+
+interface Props {
+  variant?: 'cards' | 'comparison'
+  cardVariant?: string
+  eyebrow?: string
+  headline: string
+  subhead?: string
+  cards?: ArchCard[]
+  comparisonLeft?: string
+  comparisonRight?: string
+  comparisonRows?: ComparisonRow[]
+  linkText?: string
+  linkUrl?: string
+  ctaLink?: string
+  ctaText?: string
+}
+
+const {
+  variant = 'cards',
+  cardVariant,
+  eyebrow,
+  headline,
+  subhead,
+  cards,
+  comparisonLeft,
+  comparisonRight,
+  comparisonRows,
+  linkText,
+  linkUrl,
+  ctaLink,
+  ctaText,
+} = Astro.props
+
+console.log('ctaLink value:', ctaLink)
+console.log('ctaText value:', ctaText)
+
+const isBlueNoIcon = cardVariant === 'blue-no-icon'
+
+// Function to determine list class
+const getListClass = (card: ArchCard) => {
+  // Use explicit listClass if provided, otherwise use variant or default to blue-tick
+  return card.listClass || (card.listVariant === 'mark-x-tick' ? 'list-checkmark mark-x-tick' : 'list-checkmark blue-tick')
+}
+---
+
+<section class={`py-5 architecture-section ${isBlueNoIcon ? 'bg-color-free-speech-blue' : ''}`}>
+  <div class="container">
+    <header class="row justify-content-center">
+      <div class="col-lg-12 text-center mb-5">
+        {eyebrow && <p class={`text-uppercase text-french-rose font-weight-bold mb-3 ${isBlueNoIcon ? 'architecture-eyebrow--blue-compare' : ''}`}>{eyebrow}</p>}
+        <h2 class={`architecture-heading ${isBlueNoIcon ? 'architecture-heading--blue-compare' : ''}`} set:html={headline} />
+        {subhead && <p class={isBlueNoIcon ? 'architecture-subhead--blue-compare' : undefined} set:html={subhead} />}
+      </div>
+    </header>
+
+    {variant === 'comparison' && comparisonRows ? (
+      <div class="comparison-table-wrapper">
+        <div class="row mb-4">
+          <div class="col-6">
+            <h3 class="h5 font-weight-bold text-center text-danger pb-2 border-bottom border-2 border-danger">{comparisonLeft}</h3>
+          </div>
+          <div class="col-6">
+            <h3 class="h5 font-weight-bold text-center text-success pb-2 border-bottom border-2 border-success">{comparisonRight}</h3>
+          </div>
+        </div>
+        {comparisonRows.map((row: ComparisonRow) => (
+          <div class="row border-bottom py-3 align-items-center">
+            <div class="col-6">
+              <p class="mb-0 pr-2 text-muted">{row.left}</p>
+            </div>
+            <div class="col-6">
+              <p class="mb-0 pl-2 font-weight-medium">{row.right}</p>
+            </div>
+          </div>
+        ))}
+        {linkText && linkUrl && (
+          <div class="text-center mt-4">
+            <a href={linkUrl} class="btn btn-primary">{linkText}</a>
+          </div>
+        )}
+      </div>
+    ) : (
+      <div class="row">
+        {cards?.map((card: ArchCard) => (
+          <div class="col-lg-6 mb-4 d-flex">
+            <article class={`card h-100 border rounded-xl p-4 ${isBlueNoIcon ? 'security-card--blue-compare' : ''} ${card.cardClass ?? ''}`} style={isBlueNoIcon ? undefined : 'background-color:#F6F7FA;'}>
+              {/* Icon - only show if not blue-no-icon variant */}
+              {!isBlueNoIcon && card.icon && (
+                <img alt={card.iconAlt ?? ''} class="security-icon mb-3" decoding="async" height="56" src={card.icon} title={card.iconAlt ?? ''} width="56" />
+              )}
+              
+              {/* Title */}
+              {card.title && (
+                <h3 class={`${isBlueNoIcon ? 'security-card__title-lg' : 'h5 font-weight-bold'} mb-3 ${card.titleClass ?? ''}`} set:html={card.title} />
+              )}
+              
+              {/* Intro */}
+              {card.intro && <p class={`mb-3 ${card.introClass ?? ''}`} set:html={card.intro} />}
+              
+              {/* List with dynamic classes */}
+              <ul class={getListClass(card)}>
+                {card.items.map((item: string | ArchCardItem) => (
+                  <li class={typeof item === 'string' ? undefined : item.class} set:html={typeof item === 'string' ? item : item.text} />
+                ))}
+              </ul>
+            </article>
+          </div>
+        ))}
+      </div>
+    )}
+
+{/* Global CTA - with fallback for testing */}
+{(ctaLink || linkUrl) && (
+  <div class="row mt-5">
+    <div class="col text-center">
+      <a href={ctaLink || linkUrl} class="text-white">
+        {ctaText || linkText || 'Learn More'} →
+      </a>
+    </div>
+  </div>
+)}
+  </div>
+</section>
+
+<style is:global>
+  .border-danger { border-color: #dc3545 !important; }
+  .border-success { border-color: #28a745 !important; }
+</style>
+
+<style>
+
+  .architecture-eyebrow--blue-compare {
+    color: #f472a3;
+    letter-spacing: 0.08em;
+  }
+
+  .architecture-heading--blue-compare {
+    color: #fff;
+    font-size: clamp(2rem, 1.45rem + 2vw, 3.2rem);
+    line-height: 1.12;
+  }
+
+  .architecture-subhead--blue-compare {
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 1.3rem;
+  }
+
+  .security-card--blue-compare {
+    background: #f0f1f4;
+    border-color: #d9dce4 !important;
+    color: #262c3a;
+  }
+
+  .security-card--blue-compare p {
+    color: #3b4252;
+  }
+
+  .security-card__title-lg {
+    font-size: clamp(1.4rem, 1.7rem, 2rem);
+    line-height: 1.15;
+    font-weight: 700;
+    color: #242937;
+  }
+
+  .security-card__list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+  }
+
+  .security-card__list li {
+    position: relative;
+    padding-left: 1.45rem;
+    margin-bottom: 0.6rem;
+    color: #2f3445;
+  }
+
+  .security-card__list li:last-child {
+    margin-bottom: 0;
+  }
+
+  .security-card__list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #5e7bef;
+    font-weight: 700;
+  }
+
+  .security-card__list--check li::before {
+    content: '●';
+    color: #5e7bef;
+    font-size: 0.72rem;
+    top: 0.45rem;
+  }
+
+  .security-card__list--cross li::before {
+    content: '✕';
+    color: #ec4d86;
+    font-size: 0.88rem;
+    top: 0.22rem;
+  }
+</style>
+

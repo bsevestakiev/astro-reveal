@@ -1,0 +1,21 @@
+---
+interface Props {
+  title: string
+  description: string
+  ctaLabel: string
+}
+const { title, description, ctaLabel } = Astro.props
+---
+<li class="mega-menu-item mega-menu-item-type-widget">
+  <div class="textwidget custom-html-widget">
+    <div class="container rounded-1rem bg-color-whisper">
+      <header style="background:#ebebf5;margin-bottom:0">
+        <p class="px-2 pt-3 pb-0 mb-0 font-weight-bold">{title}</p>
+        <p class="px-2 pt-2 pb-3 text-085">{description}</p>
+        <div class="pb-3 px-2">
+          <a href="#" class="btn btn-primary btn-sm ig-show-modal" data-targetid="requestDemo">{ctaLabel}</a>
+        </div>
+      </header>
+    </div>
+  </div>
+</li>

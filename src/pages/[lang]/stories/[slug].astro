@@ -1,0 +1,92 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import DarkHero from '../../../components/sections/DarkHero.astro'
+import CTABlock from '../../../components/sections/CTABlock.astro'
+
+export async function getStaticPaths() {
+  const locales = ['es', 'ja', 'ko', 'pt-BR']
+  const stories = await getCollection('stories')
+  // Case-insensitive: Astro lowercases collection ids (pt-BR/... -> pt-br/...).
+  const localeOf = (id: string) => locales.find(l => id.toLowerCase().startsWith(`${l.toLowerCase()}/`))
+  return stories
+    .filter(s => localeOf(s.id))
+    .map(story => {
+      const lang = localeOf(story.id)!
+      return {
+        params: { lang, slug: story.id.slice(story.id.indexOf('/') + 1) },
+        props: { story },
+      }
+    })
+}
+
+const { lang } = Astro.params
+const { story } = Astro.props
+const { Content } = await render(story)
+---
+
+<BaseLayout
+  title={`${story.data.title} | Reveal Customer Story`}
+  description={story.data.description}
+  image={story.data.cover}
+  lang={lang}
+>
+  <DarkHero
+    title={story.data.title}
+    breadcrumbs={[
+      { label: 'Home', url: `/${lang}` },
+      { label: 'Customer Stories', url: `/${lang}/stories` },
+      { label: story.data.title },
+    ]}
+    image={story.data.logo ?? story.data.cover}
+    imageAlt={story.data.title}
+    variant={(story.data.logo || story.data.cover) ? 'split-image' : 'centered'}
+  />
+
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-12 col-lg-8">
+        {story.data.cover && (
+          <img
+            src={story.data.cover}
+            alt={story.data.title}
+            class="img-fluid rounded mb-4"
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+        <article class="entry-content">
+          <Content />
+        </article>
+      </div>
+
+      <aside class="col-12 col-lg-4">
+        <div class="card">
+          <div class="list-group list-group-flush rounded">
+            {story.data.industry && (
+              <div class="list-group-item">
+                <strong>Industry</strong>
+                <p class="mb-0 text-muted">{story.data.industry}</p>
+              </div>
+            )}
+            {story.data.markets && (
+              <div class="list-group-item">
+                <strong>Markets</strong>
+                <p class="mb-0 text-muted">{story.data.markets}</p>
+              </div>
+            )}
+            <div class="list-group-item text-center">
+              <a
+                class="btn btn-primary btn-sm mt-1 ig-show-modal"
+                href="#"
+                data-targetid="requestDemo"
+              >Book a Demo</a>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <CTABlock variant="dark" />
+</BaseLayout>

@@ -1,0 +1,63 @@
+---
+interface Props {
+  headline: string
+  subhead?: string
+  ctaLabel?: string
+  ctaHref?: string
+  image?: string
+  imageAlt?: string
+  videoSrc?: string
+}
+
+const {
+  headline,
+  subhead,
+  ctaLabel = 'Request a Demo',
+  ctaHref = '/request-demo',
+  image,
+  imageAlt = '',
+  videoSrc,
+} = Astro.props
+---
+
+<div class="bg-gradient--primary pt-5">
+  <div class="jumbotron position-relative bg-transparent">
+    <div class="container text-white">
+      <div class="row align-items-center">
+        <div class="col-12 text-center">
+          <h1>{headline}</h1>
+          {subhead && <p class="mb-4">{subhead}</p>}
+          <p class="p-0">
+            <a class="btn btn-secondary mb-2 mr-3" href={ctaHref}>{ctaLabel}</a>
+          </p>
+          {(image || videoSrc) && (
+            <div id="reveal-hero">
+              {videoSrc ? (
+                <video
+                  autoplay
+                  loop
+                  muted
+                  playsinline
+                  poster={image}
+                  style="max-width: 80%;"
+                >
+                  <source src={videoSrc} type="video/mp4" />
+                </video>
+              ) : (
+                <img
+                  alt={imageAlt}
+                  class="video-poster"
+                  decoding="async"
+                  fetchpriority="high"
+                  src={image}
+                  style="max-width: 80%;"
+                  title={imageAlt}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,200 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+
+const pressLogos = [
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/enterprise-viewpoint-logo-300x300.png', alt: 'enterprise', title: 'enterprise' },
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/martech-color-logo-300x300.png', alt: 'Martech', title: 'martech' },
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/nj-tech-weekly-logo-300x300.png', alt: 'nj tech weekly', title: 'nj tech weekly' },
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/sdt-logo-300x300.png', alt: 'sdt', title: 'sdt' },
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/cio-logo-300x300.png', alt: 'cio', title: 'cio' },
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/entrepreneur-logo-300x300.png', alt: 'entrepreneur', title: 'entrepreneur' },
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/forbes-logo-300x300.png', alt: 'forbes', title: 'forbes' },
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/reworked-logo-300x300.png', alt: 'reworked', title: 'In the News' },
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/aithority-logo-300x300.png', alt: 'aithority', title: 'In the News' },
+  { src: 'https://static.infragistics.com/marketing/slingshot/press/techtarget-logo-300x300.png', alt: 'techtarget', title: 'In the News' },
+]
+
+const pressArticles = [
+  {
+    logo: 'https://static.infragistics.com/marketing/reveal/press/logos-cards/app-developer-magazine-logo-300px.png',
+    logoAlt: 'App Developer Magazine',
+    title: 'AI integration challenges software developers',
+    excerpt: 'The promise and perils of Artificial Intelligence (AI) has been dominating the headlines with everyone from software developers to students working on ways to integrate it into their daily processes. This burgeoning interest in AI is borne out by the fifth annual Reveal 2024 Top Software Development Challenges survey, which found that the biggest software development challenge in 2024 will be incorporating AI into the development process (40.7%).',
+    href: 'https://appdevelopermagazine.com/ai-integration-challenges-software-developers/',
+  },
+  {
+    logo: 'https://static.infragistics.com/marketing/reveal/press/logos-cards/forbes-logo-300px.png',
+    logoAlt: 'Forbes',
+    title: 'Revolutionizing Software Development With Large Language Models',
+    excerpt: 'According to a Reveal survey, 26.2% of developers struggle to manage their workload, while 26% of them consider client\'s expectations to be too high. Still, the software engineering landscape is being improved and reshaped dramatically thanks to AI technologies, especially large language models (LLMs). Rather than wasting time on the manual process, AI tools help [&hellip;]',
+    href: 'https://www.forbes.com/sites/forbestechcouncil/2024/03/20/revolutionizing-software-development-with-large-language-models/?sh=1ed6f0acd37c',
+  },
+  {
+    logo: 'https://static.infragistics.com/marketing/reveal/press/logos-cards/workforce-ai-logo-300px.png',
+    logoAlt: 'Workforce AI',
+    title: 'Software Leaders Say Incorporating AI is Their Biggest Challenge',
+    excerpt: 'Along with the rise in AI comes a wave of details that must be addressed in order to properly implement solutions. While there\'s no formula to estimate the ratio of sexiness to necessity, it\'s safe to assume many business leaders spend more time thinking about the possibilities of AI than they do the nuts and [&hellip;]',
+    href: 'https://workforceai.substack.com/p/software-leaders-say-incorporating?utm_source=post-email-title&publication_id=2248296&post_id=142307173&utm_campaign=email-post-title&isFreemail=true&r=slnl&triedRedirect=true&utm_medium=email',
+  },
+  {
+    logo: 'https://static.infragistics.com/marketing/reveal/press/logos-cards/ai-finance-logo-300px.png',
+    logoAlt: 'AI Finance Today',
+    title: 'New Survey: Merging AI Into the Company Is a Big Challenge',
+    excerpt: 'As artificial intelligence gets more ubiquitous, integration vexes the C-Suite. One big reason why CFOs aren\'t seeing the payoffs they expected is an operational problem - the AI integration process has stalled many new AI implementations. That\'s the takeaway from a new study.',
+    href: 'https://aifinancetoday.com/new-survey-merging-ai-into-the-company-is-a-big-challenge/',
+  },
+  {
+    logo: 'https://static.infragistics.com/marketing/reveal/press/logos-cards/ai-news-era-logo-300px.png',
+    logoAlt: 'AI News Era',
+    title: 'AI Integration Tops 2024 Software Challenges, Tech Talent No Longer Key Business Challenge',
+    excerpt: 'The year 2024 is shaping up to be a challenging one for software development. The annual Reveal 2024 survey report by Infragistics has revealed the top software development challenges that professionals in the industry will face this year. The report provides valuable insights into the trends and issues that are shaping the software development landscape in 2024.',
+    href: 'https://ainewsera.com/ai-integration-tops-2024-software-challenges-tech-talent-no-longer-key-business-challenge/ai-in-finance/',
+  },
+  {
+    logo: 'https://static.infragistics.com/marketing/reveal/press/logos-cards/betanews-logo-300px.png',
+    logoAlt: 'BetaNews',
+    title: 'AI integration is among top developer challenges',
+    excerpt: 'The biggest software development challenge in 2024 will be incorporating AI into the development process, according to a new report. The Reveal survey of 585 software developers and IT professionals from Infragistics shows 40.7 percent name this as the top challenge followed by high workload (29.6 percent) and increased customer demands (29.2 percent).',
+    href: 'https://betanews.com/2024/03/04/ai-integration-is-among-top-developer-challenges/',
+  },
+  {
+    logo: 'https://static.infragistics.com/marketing/reveal/press/logos-cards/datanami-logo-300px.png',
+    logoAlt: 'Datanami',
+    title: 'Reveal Survey Report: AI Integration is Biggest Software Challenge of 2024',
+    excerpt: 'The promise and perils of Artificial Intelligence (AI) has been dominating the headlines with everyone from software developers to students working on ways to integrate it into their daily processes. This burgeoning interest in AI is borne out by the fifth annual Reveal 2024 Top Software Development Challenges survey from Infragistics, which found that the [&hellip;]',
+    href: 'https://www.datanami.com/this-just-in/reveal-survey-report-ai-integration-is-biggest-software-challenge-of-2024/',
+  },
+  {
+    logo: 'https://static.infragistics.com/marketing/reveal/press/logos-cards/dc-velocity-logo-300px.png',
+    logoAlt: 'DC Velocity',
+    title: 'AI Integration is Biggest 2024 Software Challenge, Says Reveal Survey',
+    excerpt: 'AI is expected to have widespread integration this year as it becomes a ubiquitous presence among consumers, businesses, and global markets. Nearly half of the Reveal survey respondents (49.2%) plan to implement AI tools in 2024 compared to 27% in 2023.',
+    href: 'https://www.dcvelocity.com/articles/60039-ai-integration-is-biggest-2024-software-challenge-says-reveal-survey',
+  },
+  {
+    logo: 'https://static.infragistics.com/marketing/reveal/press/logos-cards/digital-it-news-logo-300px.png',
+    logoAlt: 'Digital IT News',
+    title: 'Top Software Development Challenges in 2024 Will be AI Integration',
+    excerpt: 'The spotlight on both the promises and risks of Artificial Intelligence (AI) has been prevalent in recent headlines, capturing the attention of a wide range of individuals, from software developers to students, who are exploring methods to seamlessly integrate it into their routines. This growing interest in AI is underscored by the results of the [&hellip;]',
+    href: 'https://www.datanami.com/this-just-in/reveal-survey-report-ai-integration-is-biggest-software-challenge-of-2024/',
+  },
+]
+---
+
+<BaseLayout
+  title="In The News | Reveal Embedded Analytics"
+  description="Reveal Embedded Analytics in the press - read the latest articles, coverage, and press mentions from leading publications."
+>
+
+  <style is:global>
+    .bg-newsroom {
+      background:
+        url('https://static.infragistics.com/marketing/reveal/business-teams-reveal-hero-teardrop-new.svg'),
+        linear-gradient(90deg, rgba(251,179,101,1) 0%, rgba(236,65,122,1) 40%);
+      background-repeat: no-repeat;
+      background-position: top center, top;
+      background-size: 1750px 540px, auto;
+    }
+
+    .bg-newsroom-bot {
+      overflow: visible;
+      padding-bottom: 5rem;
+    }
+
+    .newsroom-logo-band {
+      z-index: 2;
+      bottom: -25%;
+    }
+
+    .newsroom-press-card .card-text p {
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    .newsroom-press-card a.mt-auto {
+      font-weight: 700;
+      color: #2b46bb;
+      text-decoration: none;
+    }
+  </style>
+
+  <div class="bg-gradient--primary position-relative bg-newsroom bg-newsroom-bot mb-5">
+    <div class="position-relative bg-transparent pt-4 pb-3" style="z-index:3;">
+      <div class="container">
+        <div class="row pb-3 pb-md-4">
+          <div class="col-12 col-sm-8 mt-md-2 text-center text-white pb-0 pb-md-3 mx-auto">
+            <h1 class="text-h2 text-white">Newsroom</h1>
+            <p class="mb-4 mw-950px mx-auto">Stay updated with the latest press releases, press coverage, product news, and interviews from around the web, including insights on the benefits of embedded analytics.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid clearfix px-0 position-absolute overflow-hidden newsroom-logo-band">
+      <div class="loader__container spinner__container" style="min-height: 200px;">
+        <div class="spinner spinner--border"></div>
+      </div>
+      <div id="main-tns-container" class="float-left" style="display:none;">
+        <div class="row align-items-center">
+          <div class="col-12 py-3 text-center tns-slider--regular tns-slider--transition-timing__linear"
+               data-items="6" data-autoplaydirection="backward" data-loop="true" data-autoplay="true"
+               data-autoplayhoverpause="false" data-autoplaybuttonoutput="false" data-controls="false"
+               data-nav="false" data-speed="3300" data-autoplaytimeout="0" data-preventactionwhenrunning="true"
+               data-mousedrag="false" data-fixedwidth="120" data-gutter="0" data-nested="inner">
+            {pressLogos.map((logo) => (
+              <div class="slide shadow rounded-circle p-3 mx-3 bg-white">
+                <img loading="lazy" decoding="async" width="150" height="150" src={logo.src} alt={logo.alt} title={logo.title} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="in-the-news" class="container pt-5 pb-3">
+    <div class="row text-center pt-3">
+      <div class="col-12">
+        <h2>Reveal in the Press</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mb-5">
+    <div class="wrapper">
+      <div class="row row-eq-height">
+        {pressArticles.map((article) => (
+          <div class="col-12 col-md-4 mb-4 px-3">
+            <article class="card h-100 d-flex flex-column p-4-5 newsroom-press-card">
+              <header>
+                <div class="p-0 h-40px">
+                  <img loading="lazy" decoding="async" class="h-100 w-auto" src={article.logo} alt={article.logoAlt} />
+                </div>
+                <h3 class="card-title h4 pt-4 text-dark font-weight-bold">{article.title}</h3>
+              </header>
+              <div class="card-text">
+                <p>{article.excerpt}</p>
+              </div>
+              <a target="_blank" class="mt-auto" rel="noopener" href={article.href}>Read Article</a>
+            </article>
+          </div>
+        ))}
+      </div>
+      <nav class="navigation pagination" role="navigation" aria-label="Pagination Navigation Aria Label">
+        <div class="nav-links"></div>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row text-center my-5 py-5">
+      <div class="col-12">
+        <h2>Press Inquiries</h2>
+      </div>
+      <div class="col-12 mt-2 mb-3">
+        <p class="mx-auto mw-950px">For media inquiries, press releases, or interview requests, please <a href="/about-us#request-demo">contact us</a>.</p>
+      </div>
+    </div>
+  </div>
+
+</BaseLayout>

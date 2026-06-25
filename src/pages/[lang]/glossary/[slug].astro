@@ -1,0 +1,52 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import { getStrings } from '../../../i18n'
+
+export async function getStaticPaths() {
+  const locales = ['es', 'ja', 'ko', 'pt-BR']
+  const entries = await getCollection('glossary')
+  // Case-insensitive: Astro lowercases collection ids (pt-BR/... -> pt-br/...).
+  const localeOf = (id: string) => locales.find(l => id.toLowerCase().startsWith(`${l.toLowerCase()}/`))
+  return entries
+    .filter(e => localeOf(e.id))
+    .map(entry => {
+      const lang = localeOf(entry.id)!
+      return {
+        params: { lang, slug: entry.id.slice(entry.id.indexOf('/') + 1) },
+        props: { entry },
+      }
+    })
+}
+
+const { lang } = Astro.params
+const { entry } = Astro.props
+const { Content } = await render(entry)
+const heading = entry.data.heading ?? entry.data.title
+const s = (getStrings(lang) as any).glossaryPage ?? {}
+---
+
+<BaseLayout title={entry.data.title} description={entry.data.description} lang={lang}>
+  <header class="container">
+    <div class="row pt-5 pb-3">
+      <div class="col">
+        <nav aria-label="breadcrumbs" class="rank-math-breadcrumb">
+          <p>
+            <a href={`/${lang}`}>{s.breadcrumbHome ?? 'Home'}</a>
+            <span class="separator"> / </span>
+            <a href={`/${lang}/glossary`}>{s.breadcrumbGlossary ?? 'Glossary'}</a>
+            <span class="separator"> / </span>
+            <span class="last">{heading}</span>
+          </p>
+        </nav>
+        <h1>{heading}</h1>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <article class="entry-content">
+      <Content />
+    </article>
+  </div>
+</BaseLayout>

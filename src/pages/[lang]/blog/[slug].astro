@@ -1,0 +1,71 @@
+---
+import { getCollection, render } from 'astro:content'
+import BlogLayout from '../../../layouts/BlogLayout.astro'
+
+export async function getStaticPaths() {
+  const locales = ['es', 'ja', 'ko', 'pt-BR']
+  const posts = await getCollection('blog')
+
+  // Match locale case-insensitively: Astro lowercases collection ids, so a
+  // `pt-BR/...` file has id `pt-br/...`. Resolve back to the canonical casing
+  // for the URL param so `/pt-BR/blog/...` builds (mirrors [lang]/[slug].astro).
+  const localeOf = (id: string) => locales.find(l => id.toLowerCase().startsWith(`${l.toLowerCase()}/`))
+
+  return posts
+    .filter(p => localeOf(p.id) && !p.id.endsWith('/index'))
+    .map(post => {
+      const lang = localeOf(post.id)!
+      const slug = post.id.slice(post.id.indexOf('/') + 1)
+
+      const related = posts
+        .filter(p => p.id !== post.id && localeOf(p.id) === lang && !p.id.endsWith('/index'))
+        .sort((a, b) => (b.data.date ?? '').localeCompare(a.data.date ?? ''))
+        .slice(0, 3)
+        .map(p => ({
+          slug: p.id.slice(p.id.indexOf('/') + 1),
+          title: p.data.title,
+          cover: p.data.cover,
+          date: p.data.date,
+          author: p.data.author,
+          category: p.data.categories?.[0] ?? p.data.category,
+        }))
+
+      return {
+        params: { lang, slug },
+        props: { post, related },
+      }
+    })
+}
+
+const { lang } = Astro.params
+const { post, related } = Astro.props
+const { Content, headings } = await render(post)
+const readingTime = Math.max(1, Math.ceil((post.body ?? '').split(/\s+/).filter(Boolean).length / 200))
+---
+
+<BlogLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={post.data.cover}
+  heroImage={post.data.heroImage}
+  publishDate={post.data.date}
+  author={post.data.author}
+  category={post.data.categories?.[0] ?? post.data.category}
+  summary={post.data.summary}
+  takeaways={post.data.takeaways}
+  headings={headings}
+  ctaDemo={post.data.ctaDemo}
+  ctaDemoHeadline={post.data.ctaDemoHeadline}
+  ctaDemoBody={post.data.ctaDemoBody}
+  content={post.data.content}
+  relatedPosts={related}
+  readingTime={readingTime}
+  lang={lang}
+  breadcrumbs={[
+    { label: 'Home', url: `/${lang}` },
+    { label: 'Blog', url: `/${lang}/blog` },
+    { label: post.data.title },
+  ]}
+>
+  <Content />
+</BlogLayout>

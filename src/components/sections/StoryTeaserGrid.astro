@@ -1,0 +1,99 @@
+---
+import { getCollection } from 'astro:content'
+import { cdn } from '../../lib/env'
+
+interface StoryEntry {
+  slug: string
+  industry?: string
+  quote?: string
+  author?: string
+  ctaLabel?: string
+}
+
+interface Props {
+  headline: string
+  subhead?: string
+  eyebrow?: string
+  srOnly?: string
+  viewAllLabel?: string
+  viewAllUrl?: string
+  stories: StoryEntry[]
+  anchor?: string
+  sectionClass?: string
+}
+
+const { headline, subhead, eyebrow, srOnly, viewAllLabel, viewAllUrl, stories, anchor = 'stories', sectionClass = '' } = Astro.props
+
+const allStories = await getCollection('stories')
+const resolved = stories
+  .map((entry) => {
+    const found = allStories.find((s) => s.id === `en/${entry.slug}` || s.id === entry.slug)
+    return found ? { story: found, industry: entry.industry, quote: entry.quote, author: entry.author, ctaLabel: entry.ctaLabel } : null
+  })
+  .filter((s) => s)
+
+const arrowSrc = cdn('/marketing/reveal/arrow-blue.svg')
+---
+
+<section id={anchor} class={`container mt-4${sectionClass ? ' ' + sectionClass : ' py-0 py-md-5'}`}>
+  <header class="row">
+    {srOnly && <h3 class="sr-only">{srOnly}</h3>}
+    <div class="col-md-12 text-center">
+      {eyebrow && <p class="text-uppercase text-french-rose font-weight-bold h5">{eyebrow}</p>}
+      <h2 class="mb-4" set:html={headline} />
+      {subhead && <p>{subhead}</p>}
+      {viewAllLabel && viewAllUrl && (
+        <a class="font-weight-bold anchor-blue" href={viewAllUrl}>
+          {viewAllLabel}
+          <span class="mb-3 align-middle">
+            <img decoding="async" src={arrowSrc} class="card-arrow pb-1" alt="" />
+          </span>
+        </a>
+      )}
+    </div>
+  </header>
+  <section class="bt__posts bt__post--tags" data-blog-type="blog-card" data-blog-columns="3">
+    <div class="row">
+      {resolved.map(({ story, industry, quote, author, ctaLabel: entryCta }) => {
+        const slug = story.id.replace(/^en\//, '')
+        const url = `/stories/${slug}`
+        const linkLabel = entryCta ?? 'Read Story'
+        return (
+          <article class="bt__post ui-card col-12 col-md-4">
+            <figure class="bt__post-image">
+              {story.data.cover && (
+                <a href={url}>
+                  <img loading="lazy" decoding="async" src={story.data.cover}
+                       alt={`${industry ?? story.data.title} Testimonial`}
+                       title={story.data.title} class="img-fluid" />
+                </a>
+              )}
+            </figure>
+            <div class="bt__content-wrap">
+              <header>
+                <h4>
+                  <a class="bt__post-link text-secondary text-size--sm text-uppercase" href={url}>
+                    {industry ?? story.data.title}
+                  </a>
+                </h4>
+              </header>
+              {story.data.logo && (
+                <div class="bt__content py-2">
+                  <img loading="lazy" decoding="async" src={story.data.logo}
+                       alt={`${story.data.title} logo`} style="max-height:40px" class="img-fluid" />
+                </div>
+              )}
+              {quote && <blockquote class="bt__quote"><p>{quote}</p></blockquote>}
+              {author && <p class="author"><strong>{author}</strong></p>}
+              <a class="card-link font-weight-bold" href={url}>
+                {linkLabel}
+                <img decoding="async" src={arrowSrc} style="width:18px"
+                     alt={linkLabel} title={linkLabel} />
+              </a>
+            </div>
+          </article>
+        )
+      })}
+    </div>
+  </section>
+</section>

@@ -1,0 +1,588 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import SectionRenderer from '../components/SectionRenderer.astro'
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages')
+  const ids = new Set(pages.map(p => p.id.toLowerCase()))
+  const NON_EN = ['es', 'ja', 'ko', 'pt-BR']
+  return pages
+    .filter(p => p.id.startsWith('en/') && p.id !== 'en/homepage')
+    .map(page => {
+      const slug = page.id.replace(/^en\//, '')
+      const availableLocales = ['en', ...NON_EN.filter(l => ids.has(`${l}/${slug}`.toLowerCase()))]
+      return {
+        params: { slug },
+        props: { page, availableLocales },
+      }
+    })
+}
+
+const { page, availableLocales } = Astro.props
+const sections: any[] = page.data.sections ?? []
+const hasSections = sections.length > 0
+const hasBody = Boolean(page.body?.trim())
+const toc: { label: string; anchor: string }[] = page.data.toc ?? []
+const hasToc = toc.length > 0
+const useBodyArticleLayout = hasBody && (hasSections || hasToc)
+const articleVariant = page.data.articleVariant ?? 'default'
+const isGuideArticle = articleVariant === 'guide'
+const tocTitle = page.data.articleTocTitle ?? (isGuideArticle ? 'ON THIS PAGE' : 'Table of Contents')
+const breadcrumbLabel = page.data.breadcrumbLabel ?? page.data.title
+
+// When both sections and body exist, lead-form sections go after the body
+const sectionsBeforeBody = sections.filter((s: any) => s.type !== 'lead-form')
+const sectionsAfterBody = sections.filter((s: any) => s.type === 'lead-form')
+
+const rendered = await render(page)
+const Content = rendered.Content
+
+const seo = page.data.seo
+const pageSlugClass = page.id.replace(/^[^/]+\//, '').replace(/[^a-zA-Z0-9-]+/g, '-')
+const hasEmbeddedAnalyticsGuideScript = page.id === 'en/embedded-analytics'
+---
+
+<BaseLayout
+  title={seo?.title ?? (page.data.title.trimEnd().endsWith('Reveal') ? page.data.title : `${page.data.title} | Reveal`)}
+  description={seo?.description ?? page.data.description}
+  image={seo?.ogImage ?? page.data.cover}
+  imageAlt={seo?.ogImageAlt}
+  ogType={seo?.ogType}
+  noindex={seo?.noindex}
+  canonicalUrl={seo?.canonical}
+  minimalFooter={page.data.minimalFooter}
+  minimalNav={page.data.minimalNav}
+  noSearch={page.data.noSearch}
+  availableLocales={availableLocales}
+>
+  <style is:global>
+    .guide-layout {
+      padding-top: 0;
+      padding-bottom: 4rem;
+    }
+
+    .guide-layout .guide-sidebar {
+      margin-top: 4.5rem;
+    }
+
+    .guide-layout .guide-sidebar__sticky {
+      top: 7rem;
+    }
+
+    .guide-layout .guide-toc-card {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      border-radius: 0;
+      margin-bottom: 0;
+    }
+
+    .guide-layout .guide-toc-card .toc-heading {
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #151515;
+    }
+
+    .guide-layout .guide-toc-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .guide-layout .guide-toc-list li {
+      border-top: 1px solid rgba(0, 0, 0, 0.125);
+      margin: 0;
+    }
+
+    .guide-layout .guide-toc-list a {
+      display: block;
+      padding: 0.85rem 0;
+      color: #212529;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      text-decoration: none;
+    }
+
+    .guide-layout .guide-toc-list a:hover,
+    .guide-layout .guide-toc-list a:focus {
+      color: #2d5aaa;
+    }
+
+    .guide-layout .guide-toc-list a.is-active {
+      color: #2d5aaa;
+      font-weight: 700;
+    }
+
+    .guide-layout .guide-main {
+      color: #212529;
+    }
+
+    .guide-layout .guide-main__header {
+      padding: 3rem 0 1rem;
+    }
+
+    .guide-layout .guide-main .rank-math-breadcrumb {
+      margin-bottom: 1.5rem;
+      color: #6c757d;
+    }
+
+    .guide-layout .guide-main .rank-math-breadcrumb p {
+      margin: 0;
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+
+    .guide-layout .guide-main .rank-math-breadcrumb a,
+    .guide-layout .guide-main .rank-math-breadcrumb .last,
+    .guide-layout .guide-main .rank-math-breadcrumb .separator {
+      color: inherit;
+    }
+
+    .guide-layout .guide-main h1 {
+      font-size: clamp(2.3rem, 4vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.1rem;
+    }
+
+    .guide-layout .guide-main .sub {
+      max-width: 48rem;
+      margin-bottom: 2rem;
+      color: #495057;
+      font-size: 1.1875rem;
+      line-height: 1.65;
+    }
+
+    .guide-layout .guide-main .author-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .guide-layout .guide-main .author-row img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    .guide-layout .guide-main .author-row .meta {
+      color: #6c757d;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .guide-layout .guide-main .author-row .meta strong,
+    .guide-layout .guide-main .author-row .meta a {
+      color: #212529;
+    }
+
+    .guide-layout .guide-main .author-row .meta a {
+      text-decoration: none;
+    }
+
+    .guide-layout .guide-main .author-row .meta a:hover,
+    .guide-layout .guide-main .author-row .meta a:focus {
+      color: #2d5aaa;
+      text-decoration: underline;
+    }
+
+    .guide-layout .guide-main .card-intro {
+      background: #f3f4f6;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 0 0 3rem;
+    }
+
+    .guide-layout .guide-main h2 {
+      font-size: clamp(2rem, 3vw, 2.75rem);
+      line-height: 1.12;
+      margin-bottom: 1.25rem;
+    }
+
+    .guide-layout .guide-main h3 {
+      font-size: 1.35rem;
+      line-height: 1.3;
+      margin-bottom: 0.85rem;
+    }
+
+    .guide-layout .guide-main p,
+    .guide-layout .guide-main li {
+      font-size: 1.0625rem;
+      line-height: 1.8;
+    }
+
+    .guide-layout .guide-main ul,
+    .guide-layout .guide-main ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .guide-layout .guide-main .guide-cta {
+      padding: 1rem 0 3rem;
+      text-align: center;
+    }
+
+    .guide-layout .guide-main .guide-cta img {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 1rem;
+    }
+
+    .guide-layout .guide-main .guide-cta p {
+      max-width: 42rem;
+      margin: 0 auto 1.5rem;
+    }
+
+    .page--embedded-analytics .guide-section {
+      margin: 0 0 3rem;
+    }
+
+    .page--embedded-analytics .guide-section--tight {
+      margin-bottom: 2.25rem;
+    }
+
+    .page--embedded-analytics .guide-figure {
+      margin: 0;
+    }
+
+    .page--embedded-analytics .guide-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 1rem;
+      box-shadow: 0 24px 60px rgba(17, 24, 39, 0.12);
+    }
+
+    .page--embedded-analytics .guide-card-grid {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .page--embedded-analytics .guide-card-grid--two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .page--embedded-analytics .guide-card-grid--three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .page--embedded-analytics .guide-card {
+      background: #f8fafc;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+    }
+
+    .page--embedded-analytics .guide-card p:last-child,
+    .page--embedded-analytics .guide-faq__body p:last-child,
+    .page--embedded-analytics .guide-story-card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .page--embedded-analytics .guide-card__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(45, 90, 170, 0.1);
+      color: #2d5aaa;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .page--embedded-analytics .guide-table-wrap {
+      margin-top: 1.5rem;
+      overflow-x: auto;
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+    }
+
+    .page--embedded-analytics .guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    .page--embedded-analytics .guide-table th,
+    .page--embedded-analytics .guide-table td {
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .page--embedded-analytics .guide-table thead th {
+      background: #0f172a;
+      color: #fff;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .page--embedded-analytics .guide-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .page--embedded-analytics .guide-story-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
+      gap: 1.5rem;
+      align-items: center;
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 100%);
+      border: 1px solid rgba(45, 90, 170, 0.14);
+    }
+
+    .page--embedded-analytics .guide-story-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 1rem;
+    }
+
+    .page--embedded-analytics .guide-story-card .btn {
+      margin-top: 0.75rem;
+    }
+
+    .page--embedded-analytics .guide-criteria {
+      list-style: none;
+      padding: 0;
+      margin: 1.5rem 0 0;
+    }
+
+    .page--embedded-analytics .guide-criteria li + li {
+      margin-top: 1rem;
+    }
+
+    .page--embedded-analytics .guide-criteria li {
+      padding: 1.25rem;
+      border-radius: 1rem;
+      background: #fff;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.05);
+    }
+
+    .page--embedded-analytics .guide-faq-list {
+      margin-top: 1.5rem;
+    }
+
+    .page--embedded-analytics .guide-faq {
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 1rem;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.05);
+    }
+
+    .page--embedded-analytics .guide-faq + .guide-faq {
+      margin-top: 0.9rem;
+    }
+
+    .page--embedded-analytics .guide-faq summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 1.1rem 1.25rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.45;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .page--embedded-analytics .guide-faq summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .page--embedded-analytics .guide-faq summary::after {
+      content: '+';
+      color: #2d5aaa;
+      font-size: 1.5rem;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .page--embedded-analytics .guide-faq[open] summary::after {
+      content: '\2212';
+    }
+
+    .page--embedded-analytics .guide-faq__body {
+      padding: 0 1.25rem 1.25rem;
+    }
+
+    .guide-layout .guide-main .guide-cta .btn {
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .page--healthcare-analytics .healthcare-dashboard-title h2 {
+      color: #ec417a !important;
+      font-size: 1.5rem;
+      font-weight: normal;
+    }
+
+    @media only screen and (max-width: 991.98px) {
+      .guide-layout {
+        padding-top: 2rem;
+      }
+
+      .guide-layout .guide-sidebar {
+        margin-top: 0;
+        margin-bottom: 2rem;
+      }
+
+      .guide-layout .guide-main__header {
+        padding-top: 0;
+      }
+
+      .guide-layout .guide-main .card-intro {
+        padding: 1.5rem;
+      }
+
+      .page--embedded-analytics .guide-card-grid--two,
+      .page--embedded-analytics .guide-card-grid--three,
+      .page--embedded-analytics .guide-story-card {
+        grid-template-columns: 1fr;
+      }
+
+      .page--embedded-analytics .guide-table th,
+      .page--embedded-analytics .guide-table td,
+      .page--embedded-analytics .guide-faq summary,
+      .page--embedded-analytics .guide-faq__body,
+      .page--embedded-analytics .guide-criteria li,
+      .page--embedded-analytics .guide-card,
+      .page--embedded-analytics .guide-story-card {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+    }
+  </style>
+  <div class={`page page--${pageSlugClass}`}>
+    {hasSections && !hasBody && <SectionRenderer sections={sections} />}
+    {hasSections && hasBody && sectionsBeforeBody.length > 0 && <SectionRenderer sections={sectionsBeforeBody} />}
+    {useBodyArticleLayout && (
+      <div class={isGuideArticle ? 'guide-layout container' : 'container py-5'}>
+        <div class="row justify-content-between position-relative">
+          {hasToc && (
+            <aside class={isGuideArticle ? 'guide-sidebar col-12 col-lg-3 mb-4 mb-lg-0' : 'col-12 col-lg-3 mb-4 mb-lg-0'} role="complementary">
+              <div class={isGuideArticle ? 'position-sticky guide-sidebar__sticky' : 'position-sticky'} style={isGuideArticle ? undefined : 'top: 8rem;'}>
+                <div class={isGuideArticle ? 'sidebar-card guide-toc-card' : 'border rounded p-3 mb-4'}>
+                  {isGuideArticle ? (
+                    <p class="toc-heading">{tocTitle}</p>
+                  ) : (
+                    <h4 class="h6 font-weight-bold mb-3">{tocTitle}</h4>
+                  )}
+                  <ul class={isGuideArticle ? 'guide-toc-list' : 'list-unstyled mb-0'} id={isGuideArticle ? 'guideToc' : undefined}>
+                    {toc.map((item) => (
+                      <li class={isGuideArticle ? undefined : 'border-top py-2'}>
+                        <a href={`#${item.anchor}`} class={isGuideArticle ? undefined : 'text-dark text-decoration-none small'}>{item.label}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {!isGuideArticle && <div class="rounded text-white" style="background:#2b46bb;border-radius:0.5rem;padding:1em .8em .3em;margin-bottom:2rem;">
+                  <h4 style="font-size:1.5em;font-weight:bold;color:white;margin-bottom:0.5rem;">See Reveal in Action</h4>
+                  <p style="color:white;font-size:.95em;margin-bottom:0.75rem;">Watch a pre-recorded demo to discover the ease of embedding Reveal instantly.</p>
+                  <div class="row align-items-center">
+                    <div class="col-6">
+                      <a href="/request-demo" class="btn btn-secondary" style="font-size:10px;padding:5px 9px;">Watch a Demo</a>
+                    </div>
+                    <div class="col-6">
+                      <img src="https://static.infragistics.com/marketing/reveal/blogs/reveal-CTA-banner-illustration-new-2.svg" alt="" loading="lazy" class="img-fluid" />
+                    </div>
+                  </div>
+                </div>}
+              </div>
+            </aside>
+          )}
+          <article class={`${isGuideArticle ? 'guide-main' : 'entry-content stats-article'} ${hasToc ? 'col-12 col-lg-9' : 'col-12'}`}>
+            {isGuideArticle && (
+              <header class="guide-main__header">
+                <nav aria-label="breadcrumbs" class="rank-math-breadcrumb">
+                  <p>
+                    <a href="/">Home</a>
+                    <span class="separator"> / </span>
+                    <span class="last">{breadcrumbLabel}</span>
+                  </p>
+                </nav>
+              </header>
+            )}
+            <Content />
+          </article>
+        </div>
+      </div>
+    )}
+    {hasSections && hasBody && sectionsAfterBody.length > 0 && <SectionRenderer sections={sectionsAfterBody} />}
+    {!useBodyArticleLayout && !hasSections && Content && <Content />}
+  </div>
+  {hasEmbeddedAnalyticsGuideScript && <script is:inline>
+    (function () {
+      const tocLinks = Array.from(document.querySelectorAll('#guideToc a'));
+
+      function getHash(href) {
+        if (!href || !href.includes('#')) return null;
+        return '#' + href.split('#')[1];
+      }
+
+      const sections = tocLinks
+        .map(function (link) {
+          const hash = getHash(link.getAttribute('href'));
+          return hash ? document.querySelector(hash) : null;
+        })
+        .filter(Boolean);
+
+      function setActiveLink(id) {
+        tocLinks.forEach(function (link) {
+          const hash = getHash(link.getAttribute('href'));
+          const active = hash === '#' + id;
+          link.classList.toggle('is-active', active);
+        });
+      }
+
+      if ('IntersectionObserver' in window && sections.length) {
+        const observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              setActiveLink(entry.target.id);
+            }
+          });
+        }, { rootMargin: '-30% 0px -55% 0px', threshold: 0.01 });
+
+        sections.forEach(function (section) { observer.observe(section); });
+      }
+
+      tocLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          let href = link.getAttribute('href');
+          if (href && href.includes('#')) {
+            href = '#' + href.split('#')[1];
+          }
+          const target = href ? document.querySelector(href) : null;
+          if (!target) return;
+          e.preventDefault();
+          const stickyHeader = document.querySelector('.mega-sticky-wrapper, #mega-menu-wrap-max_mega_menu_1');
+          const headerH = stickyHeader ? stickyHeader.getBoundingClientRect().height : 88;
+          const top = target.getBoundingClientRect().top + window.pageYOffset - headerH - 50;
+          window.scrollTo({ top: top, behavior: 'smooth' });
+        });
+      });
+    })();
+  </script>}
+</BaseLayout>

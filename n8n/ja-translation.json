@@ -1,0 +1,403 @@
+{
+  "name": "Astro Reveal — JA Translation (pages + i18n)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1a000000-0000-0000-0000-000000000001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-200, 300]
+    },
+
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/Infragistics-IS/Marketing-Reveal/git/trees/main?recursive=1",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000010",
+      "name": "Get Tree",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [0, 100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "532C8TxzIvLkFBqK",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const tree = $('Get Tree').first().json.tree;\n\nconst PAGES_EN = 'src/content/pages/en/';\nconst PAGES_JA = 'src/content/pages/ja/';\n\nconst jaPaths = new Set(\n  tree\n    .filter(f => f.type === 'blob' && f.path.startsWith(PAGES_JA) && f.path.endsWith('.md'))\n    .map(f => f.path)\n);\n\nconst missing = tree\n  .filter(f =>\n    f.type === 'blob' &&\n    f.path.startsWith(PAGES_EN) &&\n    f.path.endsWith('.md')\n  )\n  .filter(f => {\n    const jaPath = f.path.replace(PAGES_EN, PAGES_JA);\n    return !jaPaths.has(jaPath);\n  })\n  .map(f => ({\n    json: {\n      en_path: f.path,\n      ja_path: f.path.replace(PAGES_EN, PAGES_JA)\n    }\n  }));\n\nif (missing.length === 0) {\n  return [{ json: { status: 'nothing to translate' } }];\n}\n\nreturn missing;"
+      },
+      "id": "1a000000-0000-0000-0000-000000000011",
+      "name": "Find Missing Pages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [200, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "cond-pages",
+              "leftValue": "={{ $json.en_path }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000012",
+      "name": "Has Files",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [400, 100]
+    },
+    {
+      "parameters": { "options": {} },
+      "id": "1a000000-0000-0000-0000-000000000013",
+      "name": "Loop Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [600, 100]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/Infragistics-IS/Marketing-Reveal/contents/{{$json[\"en_path\"]}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000014",
+      "name": "Get EN Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [800, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "532C8TxzIvLkFBqK",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const rawContent = Buffer.from($json.content, 'base64').toString('utf-8');\nconst enPath = $json.path;\nconst jaPath = enPath.replace('src/content/pages/en/', 'src/content/pages/ja/');\n\nconst systemPrompt = [\n  'あなたはInfragistics Revealの公式Webサイト翻訳を担当する、プロの翻訳者兼テクニカルライターです。Astroコンテンツコレクション用の Markdown（YAML frontmatter ＋ HTML body）ファイルを、英語から日本のビジネスユーザーが自然に読める日本語へ翻訳してください。',\n  '',\n  '## 出力形式',\n  '- 出力は翻訳後の完全なファイル本文のみ。説明・補足・コードフェンス（```）は一切付けない。',\n  '- frontmatter の区切り `---` を保持する（必ず冒頭と末尾、もしくは frontmatter と body の境界に残す）。',\n  '- フィールドの順序、インデント、配列構造、空行、改行コードを変更しない。',\n  '- YAML のキー名（左辺）は絶対に変更しない。値（右辺）だけを必要に応じて翻訳する。',\n  '',\n  '## 文体ルール',\n  '- 文体は「です・ます調」で統一する。',\n  '- 英語の構文をそのまま直訳せず、日本語として自然で読みやすい文章にする。',\n  '- 原文の意味・情報量・ニュアンスを変えず、要約や省略をしない。',\n  '- 一文が長くなりすぎる場合は、意味を変えずに自然な長さへ分割する。',\n  '- 主語と述語の対応が曖昧な長文を作らない。',\n  '- キャッチコピーのような短文の連続は、不自然な体言止めを避け、日本語として意味が自然につながるように再構成する。',\n  '- 例: \"Fixed Pricing. No iFrames. True SDK. Built to Scale.\" → 「明確な価格体系を採用し、iFrame不要の真のSDKとして、スケーラブルな開発を実現します。」',\n  '- 原文にない情報は追加しない。',\n  '',\n  '## frontmatter — 翻訳対象のキー（値の文字列を翻訳する）',\n  'トップレベル: title, description',\n  'セクション内（type に依存して任意で出現）:',\n  '  headline, subhead, subhead2, subheadline, body, slotContent, quote, title,',\n  '  eyebrow, topEyebrow, middleEyebrow, preHeadline, middleHeadline, middleSubhead, intro,',\n  '  footnote, ctaLabel, secondaryCtaLabel, viewAllLabel, imageAlt, videoTitle, iconAlt,',\n  '  subheadlines（配列の各要素）, benefits（配列の各要素）, columns（配列の各要素）,',\n  '  logos[].alt, items[].question, items[].answer, cta.label,',\n  '  tabs[].label, tabs[].title, tabs[].body, tabs[].imageAlt',\n  '',\n  '## frontmatter — 翻訳しない（値を一字一句そのまま保持する）',\n  '- スキーマ識別子・レイアウト指定: type, variant, zone, cols, bgClass, formId, anchor, accentColor, open, reversed, demoModal',\n  '- 識別子・属性: id, slug, class, imageClass, textColClass',\n  '- アセットパス（画像・動画・アイコン・ロゴ・カバー）: image, imageSrcset, imageSrcset[].srcset, imageSrcset[].media, videoSrc, videoPoster, cover, icon, logo, ratingsImage, src, logos[].src, tabs[].image, tabs[].video, tabs[].videoPoster',\n  '- リンクURL: href, ctaHref, ctaUrl, secondaryCtaUrl, secondaryCtaHref, viewAllUrl',\n  '- youtubeId, formId, slugs（配列）',\n  '- 真偽値（true / false）、数値、日付（YYYY-MM-DD）, ISO 文字列',\n  '- 上記「翻訳対象のキー」に列挙されていない未知のキーは触らない（保守的に保持）',\n  '',\n  '## frontmatter 内の HTML（translatable-html フィールド）の制約',\n  '対象キー: headline, subhead, subhead2, subheadline, body, slotContent, quote, title, preHeadline, middleHeadline, middleSubhead, footnote, items[].answer, tabs[].title, tabs[].body',\n  '',\n  'これらに HTML が含まれる場合、出力 HTML は以下の許可リストを厳守する。範囲外のタグや属性を出力するとビルドが失敗する。',\n  '- 許可タグ: p, strong, em, a, ul, ol, li, br, h3, h4, h5, span, code',\n  '- 許可属性: href, class, target, rel',\n  '- href の値は `/`, `https://`, `http://`, `mailto:`, `#` のいずれかで始まること',\n  '- 禁止: style, onclick などのイベントハンドラ, srcset, data-*',\n  '- class 属性の値（例: `title-violet-gradient`, `d-none d-lg-block`）は CSS クラス名であり翻訳しない。値はそのまま維持する。',\n  '- 入力に上記許可リスト外のタグ・属性が含まれていた場合でも、勝手に追加・削除・改変はしない。原文の構造をそのまま保ち、テキストノードだけを翻訳する。',\n  '',\n  '## Markdown 本文（frontmatter の閉じ `---` の後）',\n  '- HTML body が続く場合、許可リストは適用されない（body のタグはそのまま保持）。',\n  '- すべての HTML タグ・属性・構造を一字一句保持する（`<main>`, `<div>`, `<img>`, `<h1>` 等を含む）。',\n  '- 翻訳するもの: 可視テキストノード、`alt`, `title`, `aria-label`, `placeholder`, `value`（ボタン等の表示テキスト）。',\n  '- 翻訳しないもの: `src`, `href`, `id`, `class`, `style`, `data-*`, `srcset`, スクリプト・CSS・コードブロック内のコード。',\n  '- インライン Markdown 記法（見出し `#`, 強調 `**`, リスト `- `, リンク `[text](url)`, 画像 `![alt](src)` 等）の構造は保持。リンクの URL は変更せず、表示テキストと alt のみ翻訳する。',\n  '',\n  '## 翻訳しない固有名詞',\n  '日付、真偽値、数値、URL、ファイルパス、製品名、ブランド名、人名、会社名、サービス名、技術略語（SDK, API, UI, UX, iFrame, SaaS, BI, AI, ML, KPI 等）。',\n  '',\n  '特に翻訳しない代表例:',\n  'Infragistics, Reveal, App Builder, Ignite UI, Ultimate, Indigo.Design, Blazor, WPF, WinUI, Angular, React, Vue, Web Components, .NET, Java, Node.js, JavaScript, TypeScript, GitHub, AWS, Azure, GCP'\n].join('\\n');\n\nconst userPrompt = 'Translate this Astro page Markdown file from English to Japanese, following all rules in the system prompt:\\n\\n' + rawContent;\n\nreturn {\n  json: {\n    en_path: enPath,\n    ja_path: jaPath,\n    system_prompt: systemPrompt,\n    user_prompt: userPrompt\n  }\n};"
+      },
+      "id": "1a000000-0000-0000-0000-000000000015",
+      "name": "Build Pages Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.20.14.98:11434/api/generate",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'gemma4:31b', system: $json.system_prompt, prompt: $json.user_prompt, stream: false }) }}",
+        "options": { "timeout": 900000 }
+      },
+      "id": "1a000000-0000-0000-0000-000000000016",
+      "name": "Call Ollama (pages)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let translated = $json.response;\nconst jaPath = $('Build Pages Prompt').item.json.ja_path;\n\n// Sanity-fix the frontmatter delimiters before committing.\n// Strip any markdown/yaml code-fence wrapper the model may add.\ntranslated = translated.replace(/^\\s*```(?:markdown|md|yaml)?\\s*\\n/i, '');\ntranslated = translated.replace(/\\n```\\s*$/i, '\\n');\n// Drop leading blank lines so the startsWith check isn't fooled.\ntranslated = translated.replace(/^[\\r\\n]+/, '');\n// Restore the opening --- if the model dropped it (~5% of files in early runs).\nif (!translated.startsWith('---')) {\n  translated = '---\\n' + translated;\n}\n// Ensure a closing --- exists somewhere after the opening.\n// If the file has an HTML body (line starting with '<' at col 0), insert --- before it.\n// Otherwise (pure section-driven page), append --- at the end of file.\n{\n  const lines = translated.split('\\n');\n  let hasClose = false;\n  for (let i = 1; i < lines.length; i++) {\n    if (lines[i] === '---') { hasClose = true; break; }\n  }\n  if (!hasClose) {\n    let inserted = false;\n    for (let i = 1; i < lines.length; i++) {\n      if (/^</.test(lines[i])) {\n        lines.splice(i, 0, '---');\n        inserted = true;\n        break;\n      }\n    }\n    if (!inserted) {\n      if (lines[lines.length - 1] !== '') lines.push('');\n      lines.push('---');\n    }\n    translated = lines.join('\\n');\n  }\n}\n\n// Repair YAML quote-mismatch issues in frontmatter scalars (LLM\n// occasionally emits unparseable YAML when values contain inline HTML).\n{\n  const fmEnd = translated.indexOf('\\n---', 3);\n  if (fmEnd !== -1) {\n    const fm = translated.slice(0, fmEnd);\n    const rest = translated.slice(fmEnd);\n    const reQuote = (v) => {\n      if (v.includes('\"') && !v.includes(\"'\")) {\n        return \"'\" + v.replace(/'/g, \"''\") + \"'\";\n      }\n      return JSON.stringify(v);\n    };\n    const repaired = fm.split('\\n').map((line) => {\n      const m = line.match(/^(\\s*(?:-\\s+)?[\\w-]+:\\s*)(['\"])(.*)(['\"])(\\s*(?:#.*)?)$/);\n      if (!m) return line;\n      const [, prefix, openQ, value, closeQ, suffix] = m;\n      if (openQ !== closeQ) return prefix + reQuote(value) + suffix;\n      if (openQ === '\"' && /(?:^|[^\\\\])\"/.test(value)) return prefix + reQuote(value) + suffix;\n      if (openQ === \"'\" && /(?:^|[^'])'(?:[^']|$)/.test(value)) return prefix + reQuote(value) + suffix;\n      return line;\n    }).join('\\n');\n    translated = repaired + rest;\n  }\n}\n\nconst encoded = Buffer.from(translated, 'utf-8').toString('base64');\n\nreturn {\n  json: {\n    ja_path: jaPath,\n    encoded_content: encoded,\n    commit_message: 'translate(pages): ' + jaPath + ' [skip ci]'\n  }\n};"
+      },
+      "id": "1a000000-0000-0000-0000-000000000017",
+      "name": "Encode Page Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1400, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/Infragistics-IS/Marketing-Reveal/contents/{{ $('Encode Page Output').item.json.ja_path }}?ref=main",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000019",
+      "name": "Check Existing JA Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1500, 0],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "532C8TxzIvLkFBqK",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/Infragistics-IS/Marketing-Reveal/contents/{{ $('Encode Page Output').item.json.ja_path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify(Object.assign({ message: $('Encode Page Output').item.json.commit_message, content: $('Encode Page Output').item.json.encoded_content, branch: 'main' }, ($json && typeof $json.sha === 'string') ? { sha: $json.sha } : {})) }}",
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000018",
+      "name": "Create JA Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1700, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "532C8TxzIvLkFBqK",
+          "name": "Header Auth account"
+        }
+      }
+    },
+
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/Infragistics-IS/Marketing-Reveal/contents/src/i18n/en.yml",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000020",
+      "name": "Get EN i18n",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [0, 500],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "532C8TxzIvLkFBqK",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/Infragistics-IS/Marketing-Reveal/contents/src/i18n/ja.yml",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000021",
+      "name": "Get JA i18n",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [200, 500],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "532C8TxzIvLkFBqK",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const enYaml = Buffer.from($('Get EN i18n').first().json.content, 'base64').toString('utf-8');\nconst jaResp = $('Get JA i18n').first().json;\nconst jaYaml = Buffer.from(jaResp.content, 'base64').toString('utf-8');\nconst jaSha = jaResp.sha;\n\nfunction extractStrings(text) {\n  const out = {};\n  const stack = [];\n  for (const rawLine of text.split('\\n')) {\n    const line = rawLine.replace(/\\r$/, '');\n    if (!line.trim() || line.trim().startsWith('#')) continue;\n    const indent = (line.match(/^(\\s*)/) || ['',''])[1].length;\n    while (stack.length && stack[stack.length-1].indent >= indent) stack.pop();\n\n    const objMatch = line.match(/^\\s*([\\w-]+):\\s*(?:#.*)?$/);\n    if (objMatch) {\n      stack.push({ indent, key: objMatch[1] });\n      continue;\n    }\n    const dqMatch = line.match(/^\\s*([\\w-]+):\\s*\"((?:[^\"\\\\]|\\\\.)*)\"\\s*(?:#.*)?$/);\n    if (dqMatch) {\n      const fullPath = [...stack.map(s => s.key), dqMatch[1]].join('.');\n      try { out[fullPath] = JSON.parse('\"' + dqMatch[2] + '\"'); } catch (e) { out[fullPath] = dqMatch[2]; }\n      continue;\n    }\n    const sqMatch = line.match(/^\\s*([\\w-]+):\\s*'((?:[^']|'')*)'\\s*(?:#.*)?$/);\n    if (sqMatch) {\n      const fullPath = [...stack.map(s => s.key), sqMatch[1]].join('.');\n      out[fullPath] = sqMatch[2].replace(/''/g, \"'\");\n      continue;\n    }\n  }\n  return out;\n}\n\nconst enStrings = extractStrings(enYaml);\nconst jaStrings = extractStrings(jaYaml);\n\nconst missing = {};\nfor (const [path, val] of Object.entries(enStrings)) {\n  if (!(path in jaStrings)) missing[path] = val;\n}\n\nconst requested_keys = Object.keys(missing);\n\nreturn {\n  json: {\n    en_yaml: enYaml,\n    ja_yaml: jaYaml,\n    ja_sha: jaSha,\n    missing,\n    requested_keys,\n    has_missing: requested_keys.length > 0,\n    missing_count: requested_keys.length\n  }\n};"
+      },
+      "id": "1a000000-0000-0000-0000-000000000022",
+      "name": "Diff i18n Keys",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 500]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "cond-i18n",
+              "leftValue": "={{ $json.has_missing }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000023",
+      "name": "Has Missing Keys",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [600, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "const missing = $json.missing;\n\nconst systemPrompt = [\n  'You are a professional translator localizing UI strings for the Reveal Embedded Analytics website from English to Japanese.',\n  '',\n  'INPUT: a flat JSON object whose keys are dot-notation paths and whose values are English UI strings.',\n  'OUTPUT: a JSON object with the SAME keys, where each value is the natural Japanese translation of the source.',\n  '',\n  'CRITICAL OUTPUT RULES:',\n  '- Output MUST be valid JSON. No prose. No code fences. No commentary.',\n  '- The output JSON must contain EXACTLY the keys present in the input — no additions, no omissions, no renames.',\n  '- Each value must be a string (the Japanese translation).',\n  '',\n  'TRANSLATION RULES:',\n  '- Use natural です・ます調 Japanese suitable for a B2B SaaS website.',\n  '- Do NOT translate brand / product / service / company names: Reveal, Infragistics, Ignite UI, App Builder, Ultimate, Blazor, WPF, WinUI, Angular, React, Vue, .NET, Java, Node.js, JavaScript, TypeScript, GitHub, AWS, Azure, GCP, SOC2, GDPR, reCAPTCHA, Google, Facebook, X, LinkedIn, YouTube, G2, Logi Analytics, Qrvey, Luzmo, Sisense, PowerBI, Tableau, Looker, Domo, GoodData, Bold BI, Panintelligence, ThoughtSpot, Toucan Toco, Metabase.',\n  '- Do NOT translate technical acronyms: SDK, API, UI, UX, BI, AI, ML, ISV, IT, CRM, FAQ, iFrame.',\n  '- Preserve placeholder tokens inside curly braces verbatim, e.g. {year}.',\n  '- For HTML-bearing strings: preserve every HTML tag, every attribute (href, onclick, style, class, target, rel, etc.), and every URL verbatim. Translate only the visible text nodes between the tags.',\n  '- For competitor comparison labels (\"vs Tableau\", \"vs Sisense\" etc.), prefer the natural Japanese form \"Tableau との比較\" rather than retaining the literal English \"vs\".',\n  '- Email addresses, phone numbers, and URLs are never translated.',\n  '',\n  'TONE:',\n  '- Concise, professional, customer-facing. No literal awkward translations.',\n  '- All-caps source phrases (\"BOOK A PERSONALIZED DEMO\") become normal Japanese case (Japanese has no case).',\n  '',\n  'Return only the JSON object.'\n].join('\\n');\n\nconst userPrompt = 'Translate these UI strings to Japanese. Return a JSON object with the same keys:\\n\\n' + JSON.stringify(missing, null, 2);\n\nreturn {\n  json: {\n    en_yaml: $json.en_yaml,\n    ja_yaml: $json.ja_yaml,\n    ja_sha: $json.ja_sha,\n    requested_keys: $json.requested_keys,\n    missing_count: $json.missing_count,\n    system_prompt: systemPrompt,\n    user_prompt: userPrompt\n  }\n};"
+      },
+      "id": "1a000000-0000-0000-0000-000000000024",
+      "name": "Build i18n Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.20.14.98:11434/api/generate",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'gemma4:31b', system: $json.system_prompt, prompt: $json.user_prompt, stream: false, options: { temperature: 0.2, num_ctx: 16384, num_predict: 16384 } }) }}",
+        "options": { "timeout": 900000 }
+      },
+      "id": "1a000000-0000-0000-0000-000000000025",
+      "name": "Call Ollama (i18n)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ollamaItem = $('Call Ollama (i18n)').first().json;\nconst ollamaResp = ollamaItem.response;\nconst doneReason = ollamaItem.done_reason;\nconst en_yaml = $('Build i18n Prompt').first().json.en_yaml;\nconst ja_yaml = $('Build i18n Prompt').first().json.ja_yaml;\nconst ja_sha  = $('Build i18n Prompt').first().json.ja_sha;\nconst requested = $('Build i18n Prompt').first().json.requested_keys;\n\nfunction extractJsonObject(text) {\n  if (typeof text !== 'string' || text.trim() === '') {\n    throw new Error('Ollama returned an empty response. If you are using a reasoning model (gpt-oss, deepseek-r1, qwq), it likely consumed the output budget on internal reasoning. Try a non-reasoning model (gemma3:27b, qwen2.5:32b, mistral-small:24b) or raise num_predict.');\n  }\n  if (doneReason === 'length') {\n    throw new Error('Ollama output was truncated (done_reason=length, ' + text.length + ' chars emitted). The current num_predict (16384) was too low for ' + requested.length + ' keys. Bump options.num_predict in Call Ollama (i18n), or split into smaller batches.');\n  }\n  try { return JSON.parse(text); } catch (_) {}\n  const stripped = text.replace(/^[\\s\\S]*?```(?:json)?\\s*/i, '').replace(/```[\\s\\S]*$/i, '').trim();\n  if (stripped) {\n    try { return JSON.parse(stripped); } catch (_) {}\n  }\n  const first = text.indexOf('{');\n  const last = text.lastIndexOf('}');\n  if (first !== -1 && last > first) {\n    try { return JSON.parse(text.slice(first, last + 1)); } catch (_) {}\n  }\n  throw new Error('Could not parse JSON from Ollama response. done_reason=' + doneReason + '. First 500 chars: ' + text.slice(0, 500));\n}\n\nlet translations;\ntry {\n  translations = extractJsonObject(ollamaResp);\n} catch (e) {\n  throw e;\n}\nif (!translations || typeof translations !== 'object' || Array.isArray(translations)) {\n  throw new Error('Ollama response did not parse to a JSON object');\n}\nconst missing = [];\nfor (const k of requested) {\n  if (typeof translations[k] !== 'string') missing.push(k);\n}\nif (missing.length) {\n  throw new Error('Ollama omitted ' + missing.length + ' of ' + requested.length + ' keys: ' + missing.slice(0, 10).join(', ') + (missing.length > 10 ? ` (+${missing.length-10} more)` : ''));\n}\n\nfunction extractStrings(text) {\n  const out = {};\n  const stack = [];\n  for (const rawLine of text.split('\\n')) {\n    const line = rawLine.replace(/\\r$/, '');\n    if (!line.trim() || line.trim().startsWith('#')) continue;\n    const indent = (line.match(/^(\\s*)/) || ['',''])[1].length;\n    while (stack.length && stack[stack.length-1].indent >= indent) stack.pop();\n    const objMatch = line.match(/^\\s*([\\w-]+):\\s*(?:#.*)?$/);\n    if (objMatch) { stack.push({ indent, key: objMatch[1] }); continue; }\n    const dqMatch = line.match(/^\\s*([\\w-]+):\\s*\"((?:[^\"\\\\]|\\\\.)*)\"\\s*(?:#.*)?$/);\n    if (dqMatch) {\n      const fullPath = [...stack.map(s => s.key), dqMatch[1]].join('.');\n      try { out[fullPath] = JSON.parse('\"' + dqMatch[2] + '\"'); } catch (e) { out[fullPath] = dqMatch[2]; }\n      continue;\n    }\n    const sqMatch = line.match(/^\\s*([\\w-]+):\\s*'((?:[^']|'')*)'\\s*(?:#.*)?$/);\n    if (sqMatch) {\n      const fullPath = [...stack.map(s => s.key), sqMatch[1]].join('.');\n      out[fullPath] = sqMatch[2].replace(/''/g, \"'\");\n      continue;\n    }\n  }\n  return out;\n}\n\nconst existingJa = extractStrings(ja_yaml);\n\nfunction emitDouble(value) {\n  return JSON.stringify(value);\n}\nfunction emitSingle(value) {\n  return \"'\" + value.replace(/'/g, \"''\") + \"'\";\n}\n\nfunction rebuildYaml(enText, getValue) {\n  const lines = enText.split('\\n');\n  const stack = [];\n  const out = [];\n  for (const rawLine of lines) {\n    const line = rawLine.replace(/\\r$/, '');\n    if (!line.trim() || line.trim().startsWith('#')) {\n      out.push(line);\n      continue;\n    }\n    const indent = (line.match(/^(\\s*)/) || ['',''])[1].length;\n    while (stack.length && stack[stack.length-1].indent >= indent) stack.pop();\n    const objMatch = line.match(/^(\\s*)([\\w-]+):\\s*(?:#.*)?$/);\n    if (objMatch) {\n      stack.push({ indent, key: objMatch[2] });\n      out.push(line);\n      continue;\n    }\n    const dqMatch = line.match(/^(\\s*)([\\w-]+):\\s*\"((?:[^\"\\\\]|\\\\.)*)\"(\\s*(?:#.*)?)$/);\n    if (dqMatch) {\n      const fullPath = [...stack.map(s => s.key), dqMatch[2]].join('.');\n      const v = getValue(fullPath);\n      out.push(`${dqMatch[1]}${dqMatch[2]}: ${emitDouble(v)}${dqMatch[4]}`);\n      continue;\n    }\n    const sqMatch = line.match(/^(\\s*)([\\w-]+):\\s*'((?:[^']|'')*)'(\\s*(?:#.*)?)$/);\n    if (sqMatch) {\n      const fullPath = [...stack.map(s => s.key), sqMatch[2]].join('.');\n      const v = getValue(fullPath);\n      const useSingle = v.includes('\"') && !v.includes(\"'\");\n      out.push(`${sqMatch[1]}${sqMatch[2]}: ${useSingle ? emitSingle(v) : emitDouble(v)}${sqMatch[4]}`);\n      continue;\n    }\n    out.push(line);\n  }\n  return out.join('\\n');\n}\n\nconst newJa = rebuildYaml(en_yaml, (p) => {\n  if (typeof translations[p] === 'string') return translations[p];\n  if (typeof existingJa[p] === 'string') return existingJa[p];\n  // Fallback: should not happen because en strings are either in existing or were requested.\n  // Use empty so deepMerge falls back to en at runtime.\n  return '';\n});\n\nconst encoded = Buffer.from(newJa, 'utf-8').toString('base64');\n\nreturn {\n  json: {\n    encoded_content: encoded,\n    ja_sha,\n    commit_message: 'translate(i18n): ja.yml [skip ci]'\n  }\n};"
+      },
+      "id": "1a000000-0000-0000-0000-000000000026",
+      "name": "Validate & Build YAML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 500]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.github.com/repos/Infragistics-IS/Marketing-Reveal/contents/src/i18n/ja.yml",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ message: $json.commit_message, content: $json.encoded_content, sha: $json.ja_sha, branch: 'main' }) }}",
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000027",
+      "name": "PUT JA i18n",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1400, 500],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "532C8TxzIvLkFBqK",
+          "name": "Header Auth account"
+        }
+      }
+    },
+
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000030",
+      "name": "Wait for Both",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1800, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.github.com/repos/Infragistics-IS/Marketing-Reveal/dispatches",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "{\"event_type\": \"translation-complete\"}",
+        "options": {}
+      },
+      "id": "1a000000-0000-0000-0000-000000000031",
+      "name": "Trigger Build",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2000, 300],
+      "executeOnce": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "532C8TxzIvLkFBqK",
+          "name": "Header Auth account"
+        }
+      }
+    }
+  ],
+
+  "pinData": {},
+
+  "connections": {
+    "Manual Trigger": {
+      "main": [[
+        { "node": "Get Tree", "type": "main", "index": 0 },
+        { "node": "Get EN i18n", "type": "main", "index": 0 }
+      ]]
+    },
+
+    "Get Tree":           { "main": [[ { "node": "Find Missing Pages", "type": "main", "index": 0 } ]] },
+    "Find Missing Pages": { "main": [[ { "node": "Has Files",          "type": "main", "index": 0 } ]] },
+    "Has Files": {
+      "main": [
+        [ { "node": "Loop Items",     "type": "main", "index": 0 } ],
+        [ { "node": "Wait for Both",  "type": "main", "index": 0 } ]
+      ]
+    },
+    "Loop Items": {
+      "main": [
+        [ { "node": "Wait for Both",   "type": "main", "index": 0 } ],
+        [ { "node": "Get EN Content",  "type": "main", "index": 0 } ]
+      ]
+    },
+    "Get EN Content":     { "main": [[ { "node": "Build Pages Prompt", "type": "main", "index": 0 } ]] },
+    "Build Pages Prompt": { "main": [[ { "node": "Call Ollama (pages)", "type": "main", "index": 0 } ]] },
+    "Call Ollama (pages)":{ "main": [[ { "node": "Encode Page Output",  "type": "main", "index": 0 } ]] },
+    "Encode Page Output": { "main": [[ { "node": "Check Existing JA Page", "type": "main", "index": 0 } ]] },
+    "Check Existing JA Page": { "main": [[ { "node": "Create JA Page",  "type": "main", "index": 0 } ]] },
+    "Create JA Page":     { "main": [[ { "node": "Loop Items",          "type": "main", "index": 0 } ]] },
+
+    "Get EN i18n":  { "main": [[ { "node": "Get JA i18n",      "type": "main", "index": 0 } ]] },
+    "Get JA i18n":  { "main": [[ { "node": "Diff i18n Keys",   "type": "main", "index": 0 } ]] },
+    "Diff i18n Keys": { "main": [[ { "node": "Has Missing Keys", "type": "main", "index": 0 } ]] },
+    "Has Missing Keys": {
+      "main": [
+        [ { "node": "Build i18n Prompt", "type": "main", "index": 0 } ],
+        [ { "node": "Wait for Both",     "type": "main", "index": 1 } ]
+      ]
+    },
+    "Build i18n Prompt":     { "main": [[ { "node": "Call Ollama (i18n)",      "type": "main", "index": 0 } ]] },
+    "Call Ollama (i18n)":    { "main": [[ { "node": "Validate & Build YAML",   "type": "main", "index": 0 } ]] },
+    "Validate & Build YAML": { "main": [[ { "node": "PUT JA i18n",             "type": "main", "index": 0 } ]] },
+    "PUT JA i18n":           { "main": [[ { "node": "Wait for Both",           "type": "main", "index": 1 } ]] },
+
+    "Wait for Both": { "main": [[ { "node": "Trigger Build", "type": "main", "index": 0 } ]] }
+  },
+
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "00000000-0000-0000-0000-000000000002",
+  "meta": {
+    "instanceId": "marketing-reveal-ja-translation"
+  },
+  "id": "AstroRevealJaTranslation01",
+  "tags": []
+}

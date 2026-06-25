@@ -1,0 +1,82 @@
+---
+// Two-column checklist on a coloured background band.
+// Left column: blue-tick list (checkmarks). Right column: mark-x-tick list (X marks).
+// Mirrors WP's pink dual-column section from white-label-analytics.
+
+interface ListItem {
+  title: string
+  body: string
+}
+
+interface Column {
+  headline: string
+  intro: string
+  items: ListItem[]
+}
+
+interface Props {
+  bgColor?: string
+  leftColumn: Column
+  rightColumn: Column
+}
+
+const { bgColor = '#ec417a', leftColumn, rightColumn } = Astro.props
+---
+
+<section class="p-md-5" style={`background: ${bgColor};`}>
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <div class="h-100 bg-white rounded-xl p-4 px-md-5">
+          <h2 class="text-dark my-2" set:html={leftColumn.headline} />
+          <p class="text-dark small1 mb-4" set:html={leftColumn.intro} />
+          <ul class="list-checkmark blue-tick">
+            {leftColumn.items.map((item) => (
+              <li>
+                <h4 class="h5 mb-1"><strong class="text-dark" set:html={item.title} /></h4>
+                <span class="text-dark small1" set:html={item.body} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="h-100 bg-white rounded-xl p-4 px-md-5">
+          <h2 class="text-dark my-2" set:html={rightColumn.headline} />
+          <p class="text-dark small1 mb-4" set:html={rightColumn.intro} />
+          <ul class="list-checkmark mark-x-tick">
+            {rightColumn.items.map((item) => (
+              <li>
+                <h4 class="h5 mb-1"><strong class="text-dark" set:html={item.title} /></h4>
+                <span class="text-dark small1" set:html={item.body} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+/* mark-x-tick list bullet — page-scoped from original WP page inline CSS */
+ul.list-checkmark.mark-x-tick {
+  padding: 0;
+}
+.list-checkmark.mark-x-tick li {
+  position: relative;
+  text-indent: 0;
+  padding-left: 2.2em;
+  line-height: 1.25;
+}
+[class*="list-checkmark"].mark-x-tick li::before {
+  height: 1.25em;
+  width: 1.25em;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0em;
+  background: url(https://static.infragistics.com/marketing/reveal/white-label/reveal-x-mark-icon.svg) no-repeat;
+}
+</style>

@@ -1,0 +1,392 @@
+---
+interface Props {
+  headline?: string
+  body?: string
+  anchor?: string
+  formId?: string
+  eventType?: string
+  eventDetail?: string
+  leadSourceNumber?: string
+  submitLabel?: string
+  redirectUrl?: string
+  variant?: 'default' | 'split-card' | 'form-card'
+  contentHeadline?: string
+  contentHtml?: string
+  showTitle?: boolean
+  cardTitle?: string
+  cardHeaderClass?: string
+  cardSubtext?: string
+  thankYouHtml?: string
+  googleEventLabel?: string
+  eventDetailParam?: string
+}
+
+const {
+  headline = 'Request a 30-Min Demo!',
+  body = 'Fill out the form and we will contact you to schedule your 30-minute demo.',
+  anchor = 'request-demo',
+  formId = 'lead-form_request-demo',
+  eventType = 'demo request',
+  eventDetail = 'form submitted',
+  leadSourceNumber = 'A800001',
+  submitLabel = 'Submit',
+  redirectUrl = '',
+  variant = 'default',
+  contentHeadline,
+  contentHtml,
+  showTitle = false,
+  cardTitle,
+  cardHeaderClass,
+  cardSubtext,
+  thankYouHtml = 'Your information has been submitted. Our team will be contacting you shortly via email.',
+  googleEventLabel = 'Reveal - Request More Info',
+  eventDetailParam,
+} = Astro.props
+
+const errorId = (slug: string) => `${slug}_${formId}`
+const isSplitCard = variant === 'split-card'
+const isFormCard = variant === 'form-card'
+// eventDetailParam takes precedence over the legacy eventDetail prop name.
+const resolvedEventDetail = eventDetailParam ?? eventDetail
+---
+
+{isFormCard ? (
+  <Fragment>
+    {cardHeaderClass && (
+      <header class={`text-white ${cardHeaderClass}`}>
+        {cardTitle && <p class="title mb-1" set:html={`<strong>${cardTitle}</strong>`} />}
+        {cardSubtext && <p class="text-0875 mb-0" set:html={cardSubtext} />}
+      </header>
+    )}
+    <div class={`text-left sidebar-card bg-white${cardHeaderClass ? '' : ' p-4'}`} id={anchor}>
+      {!cardHeaderClass && cardTitle && <p class="title mb-2" set:html={`<strong>${cardTitle}</strong>`} />}
+      <div id={`${formId}-loader`} class="loader__container spinner__container" style="min-height: 200px;"><div class="spinner spinner--border"></div></div>
+    <form id={formId} class="lead-tracker-form ui-form" data-form-theme="" style="display: none;">
+      <div id={errorId('apiError')} class="apiError field-validation-error-msg" style="display:none;">
+        Sorry, it seems that we have run into an issue with the form.
+        <a href="#" onclick="location.reload();return false;" style="color:red;text-decoration:underline;font-weight:bold;">Please try again</a>
+        in a few minutes. If you still experience issues, please contact us at
+        <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold;">support@revealbi.io</a>.
+      </div>
+      <div class="form-row">
+        <div class="col-12"><span class="ui-form__required-note">Required</span></div>
+        <div id={errorId('recaptchaError')} class="recaptchaError field-validation-error-msg" style="display:none;">
+          Unfortunately, Google has considered you a bot. Please contact
+          <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold;">support@revealbi.io</a>.
+        </div>
+        <div id={errorId('formInvalidConditionForm')} class="formInvalidConditionForm field-validation-error-msg" style="display:none;">Please accept the form terms to submit successfully.</div>
+        <div id={errorId('formInvalidEmail')} class="formInvalidEmail field-validation-error-msg" style="display:none;">This email address doesn't appear valid. Please update and try again.</div>
+        <div id={errorId('formInvalidFreeEmail')} class="formInvalidFreeEmail field-validation-error-msg" style="display:none;">Please use a business email address.</div>
+      </div>
+      <div class="form-row">
+        <div class="col-12">
+          <div class="form-row d-none">
+            <div class="form-group col">
+              <input id={`Country_${formId}`} name="Country" class="sfInput form-control" type="text" value="" tabindex="-1" autocomplete="false" />
+              <label for={`Country_${formId}`}>Country</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col">
+              <input id={`Email_${formId}`} name="Email" type="email" class="form-control sfInput required" data-val-length-max="60" data-val-length="Email cannot exceed 60 characters." value="" />
+              <label for={`Email_${formId}`}>Business Email</label>
+            </div>
+          </div>
+          <div class="form-row name">
+            <div class="form-group col-12">
+              <input id={`FirstName_${formId}`} name="FirstName" type="text" class="form-control sfInput" data-val-length-max="100" data-val-length="First Name cannot exceed 100 characters." value="" />
+              <label for={`FirstName_${formId}`}>First Name</label>
+            </div>
+            <div class="form-group col-12">
+              <input id={`LastName_${formId}`} name="LastName" type="text" class="form-control sfInput" data-val-length-max="100" data-val-length="Last Name cannot exceed 100 characters." value="" />
+              <label for={`LastName_${formId}`}>Last Name</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-12">
+              <input id={`Company_${formId}`} name="Company" type="text" class="form-control sfInput" data-val-length-min="2" data-val-length-max="50" data-val-length="Company name must be between 2 and 50 characters." value="" />
+              <label for={`Company_${formId}`}>Company</label>
+            </div>
+            {showTitle && (
+              <div class="form-group col-12">
+                <input id={`Title_${formId}`} name="Title" type="text" class="form-control sfInput" data-val-length-min="2" data-val-length-max="50" data-val-length="Job title must be between 2 and 50 characters." value="" />
+                <label for={`Title_${formId}`}>Job Title</label>
+              </div>
+            )}
+            <div class="form-group col-12">
+              <input id={`Phone_${formId}`} name="Phone" type="tel" class="form-control sfInput" data-val-length-max="25" data-val-length="Phone cannot exceed 25 characters." value="" />
+              <label for={`Phone_${formId}`}>Phone</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col">
+              <div class="custom-control custom-checkbox custom-control-inline">
+                <input name="acceptGDPRFormSubmission" id={`acceptGDPRFormSubmission_${formId}`} type="checkbox" class="accept-gdpr custom-control-input" value="yes" aria-required="true" />
+                <label for={`acceptGDPRFormSubmission_${formId}`} class="custom-control-label">
+                  I understand and agree to the terms of Infragistics&apos;
+                  <a class="text-decoration-none font-weight-bolder" href="/terms-of-use/">Terms of Use</a>
+                  and
+                  <a class="text-decoration-none font-weight-bolder" href="/privacy-policy/">Privacy Policy</a>
+                  <p class="mt-2 mb-0 label">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Use apply.</p>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-row justify-content-center">
+            <div class="col col-lg text-center">
+              <button id={`submit_${formId}`} type="submit" class="submit btn rounded-pill btn-primary" disabled>{submitLabel}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class={`thankyou__container thankyou__${formId}`} style="display:none;">
+      <div class="features-hero__form-message text-center" style="width:100%;">
+        <h2 class="pb-4" id={`thank-you_${formId}`}>Thank you!</h2>
+        <p set:html={thankYouHtml} />
+      </div>
+    </div>
+    </div>
+  </Fragment>
+) : isSplitCard ? (
+  <section id={anchor} class="container py-5">
+    <div class="row align-items-start">
+      <div class="col-md-12 col-lg-7 animate-me" data-animation="fadeInLeft">
+        {contentHeadline && <h2 class="mb-4" set:html={contentHeadline} />}
+        {contentHtml && <Fragment set:html={contentHtml} />}
+      </div>
+      <div class="col-md-12 col-lg-5 animate-me mt-4 mt-lg-0" data-animation="fadeInRight">
+        <div class="card bg-wave--primary text-white">
+          <div class="card-body">
+            <h3 class="h3 mb-3" set:html={headline} />
+            <form id={formId} class="lead-tracker-form ui-form" data-form-theme="">
+              <div id={errorId('apiError')} class="apiError field-validation-error-msg" style="display:none;">
+                Sorry, it seems that we have run into an issue with the form.
+                <a href="#" onclick="location.reload();return false;" style="color:red;text-decoration:underline;font-weight:bold;">Please try again</a>
+                in a few minutes. If you still experience issues, please contact us at
+                <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold;">support@revealbi.io</a>.
+              </div>
+              <div class="form-row">
+                <div class="col-12"><span class="ui-form__required-note">Required</span></div>
+                <div id={errorId('recaptchaError')} class="recaptchaError field-validation-error-msg" style="display:none;">
+                  Unfortunately, Google has considered you a bot. Please contact
+                  <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold;">support@revealbi.io</a>.
+                </div>
+                <div id={errorId('formInvalidConditionForm')} class="formInvalidConditionForm field-validation-error-msg" style="display:none;">Please accept the form terms to submit successfully.</div>
+                <div id={errorId('formInvalidEmail')} class="formInvalidEmail field-validation-error-msg" style="display:none;">This email address doesn't appear valid. Please update and try again.</div>
+                <div id={errorId('formInvalidFreeEmail')} class="formInvalidFreeEmail field-validation-error-msg" style="display:none;">Please use a business email address.</div>
+              </div>
+              <div class="form-row">
+                <div class="col-12">
+                  <div class="form-row d-none">
+                    <div class="form-group col">
+                      <input id={`Country_${formId}`} name="Country" class="sfInput form-control" type="text" value="" tabindex="-1" autocomplete="false" />
+                      <label for={`Country_${formId}`}>Country</label>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col">
+                      <input id={`Email_${formId}`} name="Email" type="email" class="form-control sfInput required" data-val-length-max="60" data-val-length="Email cannot exceed 60 characters." value="" />
+                      <label for={`Email_${formId}`}>Business Email</label>
+                    </div>
+                  </div>
+                  <div class="form-row name">
+                    <div class="form-group col-12">
+                      <input id={`FirstName_${formId}`} name="FirstName" type="text" class="form-control sfInput" data-val-length-max="100" data-val-length="First Name cannot exceed 100 characters." value="" />
+                      <label for={`FirstName_${formId}`}>First Name</label>
+                    </div>
+                    <div class="form-group col-12">
+                      <input id={`LastName_${formId}`} name="LastName" type="text" class="form-control sfInput" data-val-length-max="100" data-val-length="Last Name cannot exceed 100 characters." value="" />
+                      <label for={`LastName_${formId}`}>Last Name</label>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-12">
+                      <input id={`Company_${formId}`} name="Company" type="text" class="form-control sfInput" data-val-length-min="2" data-val-length-max="50" data-val-length="Company name must be between 2 and 50 characters." value="" />
+                      <label for={`Company_${formId}`}>Company</label>
+                    </div>
+                    {showTitle && (
+                      <div class="form-group col-12">
+                        <input id={`Title_${formId}`} name="Title" type="text" class="form-control sfInput" data-val-length-min="2" data-val-length-max="50" data-val-length="Job title must be between 2 and 50 characters." value="" />
+                        <label for={`Title_${formId}`}>Job Title</label>
+                      </div>
+                    )}
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-12">
+                      <input id={`Phone_${formId}`} name="Phone" type="tel" class="form-control sfInput" data-val-length-max="25" data-val-length="Phone cannot exceed 25 characters." value="" />
+                      <label for={`Phone_${formId}`}>Phone</label>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col">
+                      <div class="custom-control custom-checkbox custom-control-inline">
+                        <input name="acceptGDPRFormSubmission" id={`acceptGDPRFormSubmission_${formId}`} type="checkbox" class="accept-gdpr custom-control-input" value="yes" aria-required="true" />
+                        <label for={`acceptGDPRFormSubmission_${formId}`} class="custom-control-label">
+                          I understand and agree to the terms of Infragistics&apos;
+                          <a class="text-decoration-none font-weight-bolder" href="/terms-of-use/">Terms of Use</a>
+                          and
+                          <a class="text-decoration-none font-weight-bolder" href="/privacy-policy/">Privacy Policy</a>
+                          <p class="mt-2 mb-0 label">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Use apply.</p>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-row justify-content-center">
+                    <div class="col col-lg text-center">
+                      <button id={`submit_${formId}`} type="submit" class="submit btn rounded-pill btn-light" disabled>{submitLabel}</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <div class={`thankyou__container thankyou__${formId}`} style="display:none;">
+              <div class="features-hero__form-message text-center" style="width:100%;">
+                <h2 class="pb-4 text-white" id={`thank-you_${formId}`}>Thank you!</h2>
+                <p>Your information has been submitted. Our team will be contacting you shortly via email.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+) : (
+  <section id={anchor} class="container py-5">
+    <header class="row">
+      <div class="col-md-12 text-center reveal-embedded-request-container" style="max-width: 900px; margin: 0 auto;">
+        <h2 class="pb-4" set:html={headline} />
+        <p class="mb-0" set:html={body} />
+      </div>
+    </header>
+    <div style="max-width: 750px; margin: 0 auto;">
+      <form id={formId} class="lead-tracker-form ui-form" data-form-theme="">
+        <div id={errorId('apiError')} class="apiError field-validation-error-msg" style="display:none;">
+          Sorry, it seems that we have run into an issue with the form.
+          <a href="#" onclick="location.reload();return false;" style="color:red;text-decoration:underline;font-weight:bold;">Please try again</a>
+          in a few minutes. If you still experience issues, please contact us at
+          <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold;">support@revealbi.io</a>.
+        </div>
+        <div class="form-row">
+          <div class="col-12"><span class="ui-form__required-note">Required</span></div>
+          <div id={errorId('recaptchaError')} class="recaptchaError field-validation-error-msg" style="display:none;">
+            Unfortunately, Google has considered you a bot. Please contact
+            <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold;">support@revealbi.io</a>.
+          </div>
+          <div id={errorId('formInvalidConditionForm')} class="formInvalidConditionForm field-validation-error-msg" style="display:none;">Please accept the form terms to submit successfully.</div>
+          <div id={errorId('formInvalidEmail')} class="formInvalidEmail field-validation-error-msg" style="display:none;">This email address doesn't appear valid. Please update and try again.</div>
+          <div id={errorId('formInvalidFreeEmail')} class="formInvalidFreeEmail field-validation-error-msg" style="display:none;">Please use a business email address.</div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-12">
+            <div class="form-row d-none">
+              <div class="form-group col">
+                <input id={`Country_${formId}`} name="Country" class="sfInput form-control" type="text" value="" tabindex="-1" autocomplete="false" />
+                <label for={`Country_${formId}`}>Country</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col">
+                <input id={`Email_${formId}`} name="Email" type="email" class="form-control sfInput required" data-val-length-max="60" data-val-length="Email cannot exceed 60 characters." value="" />
+                <label for={`Email_${formId}`}>Business Email</label>
+              </div>
+            </div>
+            <div class="form-row name">
+              <div class="form-group col-12 col-sm-6">
+                <input id={`FirstName_${formId}`} name="FirstName" type="text" class="form-control sfInput" data-val-length-max="100" data-val-length="First Name cannot exceed 100 characters." value="" />
+                <label for={`FirstName_${formId}`}>First Name</label>
+              </div>
+              <div class="form-group col-12 col-sm-6">
+                <input id={`LastName_${formId}`} name="LastName" type="text" class="form-control sfInput" data-val-length-max="100" data-val-length="Last Name cannot exceed 100 characters." value="" />
+                <label for={`LastName_${formId}`}>Last Name</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-12 col-sm-6">
+                <input id={`Company_${formId}`} name="Company" type="text" class="form-control sfInput" data-val-length-min="2" data-val-length-max="50" data-val-length="Company name must be between 2 and 50 characters." value="" />
+                <label for={`Company_${formId}`}>Company</label>
+              </div>
+              <div class="form-group col-12 col-sm-6">
+                <input id={`Phone_${formId}`} name="Phone" type="tel" class="form-control sfInput" data-val-length-max="25" data-val-length="Phone cannot exceed 25 characters." value="" />
+                <label for={`Phone_${formId}`}>Phone</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col">
+                <div class="custom-control custom-checkbox custom-control-inline">
+                  <input name="acceptGDPRFormSubmission" id={`acceptGDPRFormSubmission_${formId}`} type="checkbox" class="accept-gdpr custom-control-input" value="yes" aria-required="true" />
+                  <label for={`acceptGDPRFormSubmission_${formId}`} class="custom-control-label">
+                    I understand and agree to the terms of Infragistics&apos;
+                    <a class="text-decoration-none font-weight-bolder" href="/terms-of-use/">Terms of Use</a>
+                    and
+                    <a class="text-decoration-none font-weight-bolder" href="/privacy-policy/">Privacy Policy</a>
+                    <p class="mt-2 mb-0 label">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Use apply.</p>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-row justify-content-center">
+              <div class="col col-lg text-center">
+                <button id={`submit_${formId}`} type="submit" class="submit btn rounded-pill btn-primary" disabled>{submitLabel}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      <div class={`thankyou__container thankyou__${formId}`} style="display:none;">
+        <div class="features-hero__form-message text-center" style="width:100%;">
+          <h2 class="pb-4" id={`thank-you_${formId}`}>Thank you!</h2>
+          <p>Your information has been submitted. Our team will be contacting you shortly via email.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<script is:inline define:vars={{ formId, eventType, resolvedEventDetail, leadSourceNumber, redirectUrl, googleEventLabel }}>
+  window.addEventListener('load', function () {
+    if (typeof leadTracker === 'undefined') return;
+    if (!document.getElementById(formId)) return;
+    var cfg = window.__REVEAL_CONFIG__ || {};
+    leadTracker.execute({
+      macro: 'LeadTracker',
+      lang: 'en',
+      leadFormID: formId,
+      reaptchaKey: cfg.recaptchaSiteKey || '',
+      redirectUrl: redirectUrl,
+      redirectMode: '_self',
+      thankYouMessage: '1',
+      formContainerId: '',
+      productCode: 'A8',
+      leadProductCode: '',
+      packageName: '',
+      productResourceType: '',
+      osSupport: '',
+      installerType: '',
+      eventTypeParam: eventType,
+      eventDetailParam: resolvedEventDetail,
+      prohibitFreeMail: true,
+      prohibitDisposableMail: true,
+      showRequestDemo: false,
+      googleEventType: 'Form Submit',
+      googleEventLabel: googleEventLabel,
+      googleEventTypeDownload: '',
+      googleEventLabelDownload: '',
+      zoomWebinarId: '',
+      leadSourceNumber: leadSourceNumber,
+      tier: 'tier_1',
+      formLocation: '',
+      formValue: '2000',
+      productName: 'Reveal',
+      formName: 'form submitted',
+      cookiesPrefix: 'reveal_',
+    });
+  });
+</script>

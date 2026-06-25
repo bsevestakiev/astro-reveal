@@ -1,0 +1,119 @@
+---
+interface SrcsetEntry { media: string; srcset: string }
+
+interface Props {
+  headline?: string
+  subheadline?: string
+  body2?: string
+  ctaLabel?: string
+  ctaUrl?: string
+  secondaryCtaLabel?: string
+  secondaryCtaUrl?: string
+  demoModal?: boolean
+  variant?: 'dark' | 'gradient' | 'light' | 'wave-lines'
+  image?: string
+  imageSrcset?: SrcsetEntry[]
+  imageAlt?: string
+  bgColor?: string
+  navmenuContainer?: boolean
+  textColWidth?: string
+  imageColWidth?: string
+  wrapperClass?: string
+}
+
+const {
+  headline = 'Start Embedding Analytics Today',
+  subheadline,
+  body2,
+  ctaLabel = 'Book a Personalized Demo',
+  ctaUrl = '#',
+  secondaryCtaLabel,
+  secondaryCtaUrl,
+  demoModal = true,
+  variant = 'dark',
+  image,
+  imageSrcset,
+  imageAlt = '',
+  bgColor,
+  navmenuContainer = false,
+  textColWidth,
+  imageColWidth,
+  wrapperClass = '',
+} = Astro.props
+
+const isWaveLines = variant === 'wave-lines'
+const sectionClass = isWaveLines
+  ? 'position-relative p-md-5 text-white overflow-hidden wave-lines'
+  : variant === 'gradient'
+    ? 'py-5 bg-gradient--primary text-white'
+    : variant === 'light'
+      ? 'py-5 bg-color-whisper'
+      : 'py-5 bg-dark text-white'
+const sectionStyle = (isWaveLines && bgColor) ? `background-color: ${bgColor};` : undefined
+---
+
+{isWaveLines ? (
+  <section class={navmenuContainer ? `navmenu-size--container ${sectionClass} ${wrapperClass}` : `${sectionClass} ${wrapperClass}`} style={sectionStyle}>
+    <div class="container py-5">
+      <div class="row justify-content-between">
+        <div class={image ? `${textColWidth ?? 'col-md-5'} align-content-center` : 'col-12 text-center align-content-center'}>
+          <h2 class="mb-3" set:html={headline} />
+          {subheadline && <p class="mb-4" set:html={subheadline} />}
+          {body2 && <p class="mb-4" set:html={body2} />}
+          <slot />
+          <p class="text-center text-lg-left mt-4 mb-0">
+            {demoModal ? (
+              <a
+                class="btn btn-outline-primary mb-2 mr-0 mr-sm-3 ig-show-modal trackCTA"
+                href={ctaUrl}
+                data-targetid="requestDemo"
+                data-xd-ga-action="Gated Demo"
+                data-xd-ga-label="Reveal"
+              >{ctaLabel}</a>
+            ) : (
+              <a class="btn btn-outline-primary mb-2 mr-0 mr-sm-3 trackCTA" href={ctaUrl}>{ctaLabel}</a>
+            )}
+            {secondaryCtaLabel && secondaryCtaUrl && (
+              <a class="btn btn-outline-light mb-2 trackCTA" href={secondaryCtaUrl}>{secondaryCtaLabel}</a>
+            )}
+          </p>
+        </div>
+        {image && (
+          <div class={`${imageColWidth ?? 'col-md-7'} text-center`}>
+            <picture>
+              {imageSrcset && imageSrcset.map(e => <source media={e.media} srcset={e.srcset} />)}
+              <img loading="lazy" decoding="async"
+                   class="w-100 img-fluid img--lg-oversize img--lg-oversize-right"
+                   src={image} alt={imageAlt} title={imageAlt} />
+            </picture>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+) : (
+  <section class={`${sectionClass} ${wrapperClass}`}>
+    <div class="container text-center">
+      <h2 class="mb-3" set:html={headline} />
+      {subheadline && <p class="mb-4 lead" set:html={subheadline} />}
+      {body2 && <p class="mb-4 lead" set:html={body2} />}
+      <slot />
+      <p class="mt-4 mb-0">
+        {demoModal ? (
+          <a
+            class="btn btn-primary mb-2 mr-0 mr-sm-3 trackCTA ig-show-modal"
+            href={ctaUrl}
+            data-targetid="requestDemo"
+            data-xd-ga-action="Gated Demo"
+            data-xd-ga-label="Reveal"
+          >{ctaLabel}</a>
+        ) : (
+          <a class="btn btn-primary mb-2 mr-0 mr-sm-3 trackCTA" href={ctaUrl}>{ctaLabel}</a>
+        )}
+        {secondaryCtaLabel && secondaryCtaUrl && (
+          <a class="btn btn-outline-light mb-2 trackCTA" href={secondaryCtaUrl}>{secondaryCtaLabel}</a>
+        )}
+      </p>
+    </div>
+  </section>
+)}

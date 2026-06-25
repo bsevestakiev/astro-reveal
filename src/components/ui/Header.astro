@@ -1,0 +1,322 @@
+---
+import MegaMenuColumn from './header/MegaMenuColumn.astro'
+import MegaMenuColumnHeading from './header/MegaMenuColumnHeading.astro'
+import MegaMenuLinkWithDescription from './header/MegaMenuLinkWithDescription.astro'
+import MegaMenuPlainLink from './header/MegaMenuPlainLink.astro'
+import MegaMenuRequestDemoBar from './header/MegaMenuRequestDemoBar.astro'
+import MegaMenuRequestDemoCard from './header/MegaMenuRequestDemoCard.astro'
+import LangSwitcher from './header/LangSwitcher.astro'
+import { getStrings } from '../../i18n'
+import { HELP_URL } from '../../lib/env'
+import { localizedHref } from '../../lib/href'
+
+interface Props {
+  lang?: string
+  minimalNav?: boolean
+  /** Locales the current page exists in; the switcher hides the rest. Defaults to all. */
+  availableLocales?: string[]
+}
+
+const { lang = 'en', minimalNav = false, availableLocales } = Astro.props
+const t = (getStrings(lang) as any).header
+const lh = (h: string) => localizedHref(h, lang)
+
+const allLocales = [
+  { code: 'en', label: 'English', prefix: '' },
+  { code: 'es', label: 'Español', prefix: '/es' },
+  { code: 'pt-BR', label: 'Português (Brasil)', prefix: '/pt-BR' },
+  { code: 'ko', label: '한국어', prefix: '/ko' },
+  { code: 'ja', label: '日本語', prefix: '/ja' },
+]
+// Only show locales the page actually exists in (en always shown).
+const locales = availableLocales && availableLocales.length
+  ? allLocales.filter((l) => l.code === 'en' || availableLocales.includes(l.code))
+  : allLocales
+
+const productCols: { href: string, key: string }[][] = [
+  [
+    { href: lh('/embedded-analytics-software'), key: 'embeddedAnalytics' },
+    { href: lh('/data-sources'),           key: 'dataSources' },
+    { href: lh('/white-label-analytics'),  key: 'whiteLabel' },
+  ],
+  [
+    { href: lh('/ai'),           key: 'revealAi' },
+    { href: lh('/features'),     key: 'features' },
+    { href: lh('/chart-types'),  key: 'chartTypes' },
+  ],
+  [
+    { href: lh('/security'),          key: 'security' },
+    { href: lh('/on-prem-analytics'), key: 'onPrem' },
+  ],
+]
+
+const solutionsCols: { href: string, key: string }[][] = [
+  [
+    { href: lh('/isv-analytics'),                key: 'isv' },
+    { href: lh('/it-analytics'),                 key: 'it' },
+    { href: lh('/telecommunications-analytics'), key: 'telecommunications' },
+    { href: lh('/manufacturing-analytics'),      key: 'manufacturing' },
+  ],
+  [
+    { href: lh('/supply-chain-analytics'), key: 'supplyChain' },
+    { href: lh('/healthcare-analytics'),   key: 'healthcare' },
+    { href: lh('/banking-analytics'),      key: 'banking' },
+    { href: lh('/finance-analytics'),      key: 'finance' },
+  ],
+  [
+    { href: lh('/mining-analytics'),       key: 'mining' },
+    { href: lh('/insurance-analytics'),    key: 'insurance' },
+    { href: lh('/retail-analytics'),       key: 'retail' },
+    { href: lh('/real-estate-analytics'),  key: 'realEstate' },
+  ],
+  [
+    { href: lh('/education-analytics'), key: 'education' },
+    { href: lh('/crm-analytics'),       key: 'crm' },
+    { href: lh('/crypto-analytics'),    key: 'crypto' },
+    { href: lh('/energy-analytics'),    key: 'energy' },
+  ],
+]
+
+const resourcesCols: { href: string, key: string }[][] = [
+  [
+    { href: lh('/blog'),     key: 'blogs' },
+    { href: lh('/glossary'), key: 'glossary' },
+  ],
+  [
+    { href: lh('/whitepapers'), key: 'whitepapers' },
+    { href: lh('/webinars'),    key: 'webinars' },
+  ],
+  [
+    { href: lh('/stories'),  key: 'customerStories' },
+    { href: lh('/partners'), key: 'partners' },
+  ],
+]
+---
+
+{minimalNav ? (
+<header id="main-header" class="nav--sticky" data-nav-overlay="true" data-nav-height="0">
+  <div class="nav__container nav--alt white-nav-background" style="background:rgba(255,255,255,0.9)">
+    <div class="nav__wrapper p-md-0">
+      <div class="nav__brand">
+        <a href={lh('/')}>
+          <img decoding="async" src="https://static.infragistics.com/marketing/reveal/business-teams-reveal-logo-black.svg" alt="Reveal logo" />
+        </a>
+      </div>
+      <nav class="nav d-inline-block float-right d-md-flex">
+        <ul class="d-flex my-md-3 my-1 align-items-center">
+          <li class="nav__cta-sticky d-none-ios-inline d-none-android-inline">
+            <a class="nav__cta-btn nav__cta-btn-primary trackCTA ig-show-modal"
+               data-targetid="requestDemo"
+               href="#"
+               data-xd-ga-action="Request a Demo from Sales"
+               data-xd-ga-label="Reveal"><span>BOOK A PERSONALIZED DEMO</span></a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>
+) : (
+<div id="mega-menu-wrap-max_mega_menu_1" class="mega-menu-wrap">
+
+  <!-- Mobile toggle bar -->
+  <div class="mega-menu-toggle">
+    <div class="mega-toggle-blocks-left">
+      <div class="mega-toggle-block mega-logo-block mega-toggle-block-1" id="mega-toggle-block-1">
+        <a class="mega-menu-logo" href={lh('/')} target="_self" rel="noopener">
+          <img width="790" height="380" class="mega-menu-logo"
+            src="/images/2025/09/business-teams-reveal-logo-black.webp"
+            alt="Reveal Embedded Analytics" />
+        </a>
+      </div>
+    </div>
+    <div class="mega-toggle-blocks-center"></div>
+    <div class="mega-toggle-blocks-right">
+      <div class="mega-toggle-block mega-search-block mega-toggle-block-2" id="mega-toggle-block-2">
+        <div class="mega-search-wrap">
+          <form class="mega-search expand-to-left mega-search-closed" action={lh('/search')}>
+            <input type="text" tabindex="-1" role="searchbox" id="mega-search-mobile"
+              aria-label={t.search.placeholder} data-placeholder={t.search.placeholder} name="s" />
+            <span tabindex="0" role="button" class="dashicons dashicons-search search-icon"
+              aria-controls="mega-search-mobile" aria-label={t.search.button} aria-expanded="false" aria-haspopup="true"></span>
+            <input type="submit" value={t.search.button} />
+          </form>
+        </div>
+      </div>
+      <div class="mega-toggle-block mega-menu-toggle-animated-block mega-toggle-block-3" id="mega-toggle-block-3">
+        <button aria-label={t.search.toggleMenu} class="mega-toggle-animated mega-toggle-animated-slider"
+          type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mega-menu-max_mega_menu_1">
+          <span class="mega-toggle-animated-box">
+            <span class="mega-toggle-animated-inner"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main nav -->
+  <ul id="mega-menu-max_mega_menu_1"
+    class="mega-menu max-mega-menu mega-menu-horizontal mega-no-js"
+    data-event="hover"
+    data-effect="fade_up"
+    data-effect-speed="200"
+    data-effect-mobile="disabled"
+    data-effect-speed-mobile="0"
+    data-panel-width="#content"
+    data-mobile-force-width="false"
+    data-second-click="go"
+    data-document-click="collapse"
+    data-vertical-behaviour="standard"
+    data-breakpoint="1200"
+    data-unbind="true"
+    data-mobile-state="expand_active"
+    data-mobile-direction="vertical"
+    data-hover-intent-timeout="300"
+    data-hover-intent-interval="100"
+    data-sticky-enabled="true"
+    data-sticky-desktop="true"
+    data-sticky-mobile="true"
+    data-sticky-offset="0"
+    data-sticky-expand="false"
+    data-sticky-expand-mobile="false"
+    data-sticky-transition="true"
+  >
+
+    <!-- Logo (desktop) -->
+    <li class="mega-pr-lg-5 mega-menu-item mega-menu-item-type-custom mega-align-bottom-left mega-menu-flyout mega-hide-on-mobile pr-lg-5" id="mega-menu-item-5306">
+      <a class="mega-menu-link mega-menu-logo" href={lh('/')}>
+        <img class="mega-menu-logo" width="83" height="40"
+          src="/images/2025/09/business-teams-reveal-logo-black-83x40.webp"
+          srcset="/images/2025/09/business-teams-reveal-logo-black-166x80.webp 2x"
+          alt="Reveal Embedded Analytics" />
+      </a>
+    </li>
+
+    <!-- Product -->
+    <li class="mega-menu-item mega-menu-item-has-children mega-menu-megamenu mega-menu-grid mega-align-bottom-left" id="mega-menu-item-product">
+      <a class="mega-menu-link" href="#" aria-expanded="false" aria-controls="mega-sub-menu-product">
+        {t.nav.product}<span class="mega-indicator" aria-hidden="true"></span>
+      </a>
+      <ul class="mega-sub-menu" id="mega-sub-menu-product" role="presentation">
+        <li class="mega-menu-row mega-bg-shadow mega-nav-side-padding bg-shadow nav-side-padding" id="mega-menu-product-row0">
+          <ul class="mega-sub-menu" style="--columns:12" role="presentation">
+            {productCols.map((col, idx) => (
+              <MegaMenuColumn>
+                {idx === 0 && <MegaMenuColumnHeading label={t.product.heading} />}
+                {col.map(({ href, key }) => (
+                  <MegaMenuLinkWithDescription
+                    href={href}
+                    title={t.product.items[key].title}
+                    description={t.product.items[key].description}
+                  />
+                ))}
+              </MegaMenuColumn>
+            ))}
+            <MegaMenuColumn>
+              <MegaMenuRequestDemoCard
+                title={t.product.requestDemoCard.title}
+                description={t.product.requestDemoCard.description}
+                ctaLabel={t.product.requestDemoCard.ctaLabel}
+              />
+            </MegaMenuColumn>
+          </ul>
+        </li>
+        <MegaMenuRequestDemoBar label={t.cta.requestDemo} />
+      </ul>
+    </li>
+
+    <!-- Solutions -->
+    <li class="mega-menu-item mega-menu-item-has-children mega-menu-megamenu mega-menu-grid mega-align-bottom-left" id="mega-menu-item-solutions">
+      <a class="mega-menu-link" href="#" aria-expanded="false" aria-controls="mega-sub-menu-solutions">
+        {t.nav.solutions}<span class="mega-indicator" aria-hidden="true"></span>
+      </a>
+      <ul class="mega-sub-menu" id="mega-sub-menu-solutions" role="presentation">
+        <li class="mega-menu-row mega-bg-shadow mega-nav-side-padding bg-shadow nav-side-padding" id="mega-menu-solutions-row0">
+          <ul class="mega-sub-menu" style="--columns:12" role="presentation">
+            {solutionsCols.map((col, idx) => (
+              <MegaMenuColumn>
+                {idx === 0 && <MegaMenuColumnHeading label={t.solutions.heading} />}
+                {col.map(({ href, key }) => (
+                  <MegaMenuPlainLink href={href} label={t.solutions.items[key]} />
+                ))}
+              </MegaMenuColumn>
+            ))}
+          </ul>
+        </li>
+        <MegaMenuRequestDemoBar label={t.cta.requestDemo} />
+      </ul>
+    </li>
+
+    <!-- Resources -->
+    <li class="mega-menu-item mega-menu-item-has-children mega-menu-megamenu mega-menu-grid mega-align-bottom-left" id="mega-menu-item-resources">
+      <a class="mega-menu-link" href="#" aria-expanded="false" aria-controls="mega-sub-menu-resources">
+        {t.nav.resources}<span class="mega-indicator" aria-hidden="true"></span>
+      </a>
+      <ul class="mega-sub-menu" id="mega-sub-menu-resources" role="presentation">
+        <li class="mega-menu-row mega-bg-shadow mega-nav-side-padding bg-shadow nav-side-padding" id="mega-menu-resources-row0">
+          <ul class="mega-sub-menu" style="--columns:12" role="presentation">
+            {resourcesCols.map((col, idx) => (
+              <MegaMenuColumn>
+                {idx === 0 && <MegaMenuColumnHeading label={t.resources.heading} />}
+                {col.map(({ href, key }) => (
+                  <MegaMenuLinkWithDescription
+                    href={href}
+                    title={t.resources.items[key].title}
+                    description={t.resources.items[key].description}
+                  />
+                ))}
+              </MegaMenuColumn>
+            ))}
+          </ul>
+        </li>
+        <MegaMenuRequestDemoBar label={t.cta.requestDemo} />
+      </ul>
+    </li>
+
+    <!-- Help -->
+    <li class="mega-menu-item mega-align-bottom-left mega-menu-flyout" id="mega-menu-item-help">
+      <a target="_blank" class="mega-menu-link" href={HELP_URL} rel="noopener">{t.nav.help}</a>
+    </li>
+
+    <!-- Pricing -->
+    <li class="mega-menu-item mega-align-bottom-left mega-menu-flyout" id="mega-menu-item-pricing">
+      <a class="mega-menu-link" href={lh('/pricing/embedded-analytics')}>{t.nav.pricing}</a>
+    </li>
+
+    <!-- CTA button (float right) -->
+    <li class="mega-float-right mega-mt-lg-1 mega-pt-2 mega-px-4 mega-text-center mega-w-m-100 mega-menu-item mega-align-bottom-left mega-menu-flyout float-right mt-lg-1 pt-2 px-4 text-center w-m-100" id="mega-menu-item-8144">
+      <a class="btn btn-primary trackCTA w-m-100 ig-show-modal"
+        data-targetid="requestDemo"
+        href="#"
+        data-xd-ga-action="Request a Demo from Sales"
+        data-xd-ga-label="Reveal">{t.cta.bookDemo}</a>
+    </li>
+
+    <LangSwitcher lang={lang} locales={locales} ariaLabel={t.search.langBarLabel} />
+
+    <!-- Search (desktop only, float right) -->
+    <li class="mega-float-right mega-menu-item mega-align-bottom-left mega-menu-flyout mega-hide-on-mobile float-right" id="mega-menu-item-5318">
+      <div class="mega-search-wrap">
+        <form class="mega-search expand-to-left mega-search-closed" role="search" action={lh('/search')}>
+          <input type="text" tabindex="-1" role="searchbox" id="mega-search-desktop"
+            aria-label={t.search.placeholder} data-placeholder={t.search.placeholder} name="s" />
+          <span tabindex="0" role="button" class="dashicons dashicons-search search-icon"
+            aria-controls="mega-search-desktop" aria-label={t.search.button} aria-expanded="false" aria-haspopup="true"></span>
+          <input type="submit" value={t.search.button} />
+        </form>
+      </div>
+    </li>
+
+    <!-- Mobile: Request demo / Free trial links -->
+    <li class="mega-menu-item mega-align-bottom-left mega-menu-flyout mega-hide-on-desktop" id="mega-menu-item-mobile-actions">
+      <div class="d-flex justify-content-evenly text-black">
+        <a href="#" data-targetid="requestDemo" class="p-2 ig-show-modal mega-menu-title text-black">{t.cta.requestDemo}</a>
+        <p class="p-2 mb-0"> | </p>
+        <a href={lh('/download-sdk')} class="p-2 mega-menu-title text-black">{t.cta.freeTrial}</a>
+      </div>
+    </li>
+
+  </ul>
+</div>
+)}
+

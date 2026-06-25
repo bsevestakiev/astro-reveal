@@ -1,0 +1,8 @@
+---
+interface Props {
+  href: string
+  label: string
+}
+const { href, label } = Astro.props
+---
+<li class="mega-menu-item"><a class="mega-menu-link" href={href}>{label}</a></li>

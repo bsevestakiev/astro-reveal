@@ -1,0 +1,48 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import SectionRenderer from '../../../components/SectionRenderer.astro'
+
+export async function getStaticPaths() {
+  const locales = ['es', 'ja', 'ko', 'pt-BR']
+  const pages = await getCollection('pages')
+  return pages
+    .filter(p => locales.some(l => p.id.toLowerCase() === `${l.toLowerCase()}/pricing/embedded-analytics`))
+    .map(page => {
+      const idLang = page.id.split('/')[0]
+      const lang = locales.find(l => l.toLowerCase() === idLang.toLowerCase()) ?? idLang
+      return {
+        params: { lang },
+        props: { page },
+      }
+    })
+}
+
+const { lang } = Astro.params
+const { page } = Astro.props
+const sections: any[] = page.data.sections ?? []
+const hasSections = sections.length > 0
+
+let Content: any = null
+if (!hasSections) {
+  const rendered = await render(page)
+  Content = rendered.Content
+}
+
+const seo = page.data.seo
+---
+
+<BaseLayout
+  title={seo?.title ?? `${page.data.title} | Reveal`}
+  description={seo?.description ?? page.data.description}
+  image={seo?.ogImage ?? page.data.cover}
+  imageAlt={seo?.ogImageAlt}
+  ogType={seo?.ogType}
+  noindex={seo?.noindex}
+  canonicalUrl={seo?.canonical}
+  lang={lang}
+>
+  {hasSections
+    ? <SectionRenderer sections={sections} lang={lang} />
+    : Content && <Content />}
+</BaseLayout>

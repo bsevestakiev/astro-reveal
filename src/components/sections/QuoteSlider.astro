@@ -1,0 +1,227 @@
+---
+interface SrcsetEntry { media: string; srcset: string }
+
+interface QuoteItem {
+  quote: string
+  authorName: string
+  authorTitle: string
+  storyUrl?: string
+  storyLabel?: string
+  logoSrc?: string
+  logoAlt?: string
+  image: string
+  imageSrcset?: SrcsetEntry[]
+  imageAlt?: string
+}
+
+interface Props {
+  eyebrow?: string
+  headline: string
+  items: QuoteItem[]
+  anchor?: string
+}
+
+const { eyebrow, headline, items, anchor } = Astro.props
+---
+
+<section id={anchor ?? 'quote-slider'} class="py-5 quote-slider-section">
+  <div class="container">
+    {eyebrow && <p class="text-uppercase text-french-rose font-weight-bold text-center mb-2">{eyebrow}</p>}
+    <h2 class="text-center mb-5">{headline}</h2>
+
+    <div class="quote-slider-wrap position-relative">
+      <button class="qs-arrow qs-arrow--prev" id="qs-prev" aria-label="Previous slide">
+        <svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M9 1L1 9l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="qs-arrow qs-arrow--next" id="qs-next" aria-label="Next slide">
+        <svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M1 1l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <div class="qs-slider-track" id="qs-track" style="display:flex;">
+        {items.map((item: QuoteItem) => (
+          <div class="qs-slide-wrap px-2">
+            <div class="card border-0 shadow-sm rounded-xl overflow-hidden qs-card">
+              <div class="row no-gutters h-100">
+
+                <!-- Left: quote content -->
+                <div class="col-12 col-md-7 qs-content p-4 p-md-5 d-flex flex-column justify-content-between">
+                  <div>
+                    <img
+                      src="https://static.infragistics.com/marketing/reveal/AI/quote-icon-pink.svg"
+                      alt="Quote" width="40" height="32"
+                      class="mb-3 qs-quote-mark"
+                      loading="lazy" decoding="async"
+                    />
+                    <p class="qs-quote-text mb-4">{item.quote}</p>
+                    <p class="qs-author mb-0">
+                      <em>{item.authorName}, {item.authorTitle}</em>
+                    </p>
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between flex-wrap mt-4 gap-3">
+                    {item.logoSrc && (
+                      <img
+                        src={item.logoSrc}
+                        alt={item.logoAlt ?? ''}
+                        height="32"
+                        class="qs-logo"
+                        loading="lazy" decoding="async"
+                      />
+                    )}
+                    {item.storyUrl && (
+                      <a href={item.storyUrl} class="font-weight-bold anchor-blue qs-story-link">
+                        {item.storyLabel ?? 'Read Customer Story'} →
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <!-- Right: image -->
+                <div class="col-12 col-md-5 qs-img-col">
+                  <picture>
+                    {item.imageSrcset && item.imageSrcset.map((e: SrcsetEntry) => (
+                      <source media={e.media} srcset={e.srcset} />
+                    ))}
+                    <img
+                      src={item.image}
+                      alt={item.imageAlt ?? item.authorName}
+                      class="qs-img"
+                      loading="lazy" decoding="async"
+                    />
+                  </picture>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div id="qs-nav" class="qs-nav-dots"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.addEventListener('load', function () {
+    if (typeof tns === 'undefined') return;
+    var track = document.getElementById('qs-track');
+    if (!track) return;
+
+    tns({
+      container: '#qs-track',
+      items: 1,
+      loop: true,
+      autoplay: false,
+      controls: true,
+      prevButton: '#qs-prev',
+      nextButton: '#qs-next',
+      nav: true,
+      navContainer: '#qs-nav',
+      navAsThumbnails: false,
+      speed: 600,
+      mouseDrag: true,
+      touch: true,
+      swipeAngle: 45,
+    });
+  });
+</script>
+
+<style>
+  .quote-slider-section {
+    background: linear-gradient(135deg, #fff 60%, #fde8ef 100%);
+  }
+
+  .quote-slider-wrap {
+    padding: 0 48px;
+    position: relative;
+  }
+
+  /* Arrows */
+  .qs-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .qs-arrow:hover { border-color: #E8195B; color: #E8195B; }
+  .qs-arrow--prev { left: 0; }
+  .qs-arrow--next { right: 0; }
+
+  /* Dot nav */
+  .qs-nav-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+  }
+  :global(.qs-nav-dots button) {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #d0d5e0;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.25s, transform 0.25s;
+    font-size: 0;
+    line-height: 0;
+    flex-shrink: 0;
+  }
+  :global(.qs-nav-dots button:hover) { background: #aab0c4; }
+  :global(.qs-nav-dots button.tns-nav-active) {
+    background: #2f49b4;
+    transform: scale(1.25);
+  }
+
+  :global(#qs-track) { cursor: grab; }
+  :global(#qs-track:active) { cursor: grabbing; }
+
+  @media (max-width: 767px) {
+    .quote-slider-wrap { padding: 0 40px; }
+    .qs-arrow { width: 32px; height: 32px; }
+  }
+  @media (max-width: 480px) {
+    .quote-slider-wrap { padding: 0 32px; }
+  }
+
+  /* Card */
+  .qs-card { min-height: 320px; }
+
+  .qs-content { background: #fff; }
+
+  .qs-quote-mark { display: block; }
+
+  .qs-quote-text { font-size: 1rem; line-height: 1.7; color: #333; }
+
+  .qs-author { font-size: 0.9rem; color: #555; }
+
+  .qs-logo { max-height: 32px; width: auto; }
+
+  .qs-story-link { font-size: 0.9rem; white-space: nowrap; }
+
+  /* Image col */
+  .qs-img-col { background: #f0f4f8; min-height: 260px; }
+
+  .qs-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Responsive */
+  @media (max-width: 767px) {
+    .qs-img-col { min-height: 200px; max-height: 240px; }
+  }
+</style>

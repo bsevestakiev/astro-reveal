@@ -1,0 +1,200 @@
+header:
+  nav:
+    product: "Product"
+    solutions: "Solutions"
+    resources: "Resources"
+    help: "Help"
+    pricing: "Pricing"
+  cta:
+    bookDemo: "BOOK A PERSONALIZED DEMO"
+    requestDemo: "Request a Demo"
+    freeTrial: "Free Trial of SDK"
+  search:
+    placeholder: "Search..."
+    button: "Search"
+    langBarLabel: "Lang Bar"
+    toggleMenu: "Toggle Menu"
+  product:
+    heading: "PRODUCT"
+    requestDemoCard:
+      title: "Request a Demo"
+      description: "See how Reveal can transform your app's analytics experience."
+      ctaLabel: "Book Demo"
+    items:
+      embeddedAnalytics:
+        title: "Embedded Analytics"
+        description: "Create flawless data integrations and visualizations for your software application"
+      dataSources:
+        title: "Data Sources"
+        description: "Connect to a wide range of data sources to create real-time visualizations"
+      whiteLabel:
+        title: "White Label Analytics"
+        description: "Deliver fully branded analytics experience with Reveal's white label capabilities"
+      revealAi:
+        title: "Reveal AI"
+        description: "Bring the power of AI into your application with augmented and conversational analytics"
+      features:
+        title: "Features"
+        description: "Enhance your brand with Reveal's robust embedded analytics features"
+      chartTypes:
+        title: "Chart Types"
+        description: "Identify trends and patterns, understand complex information quickly"
+      security:
+        title: "Security"
+        description: "We build Reveal from the ground up with your data security as our #1 priority"
+      onPrem:
+        title: "On-Prem Analytics"
+        description: "Deploy embedded analytics in your own infrastructure with full control over data, security, and compliance."
+  solutions:
+    heading: "USE CASES"
+    items:
+      isv: "ISV"
+      it: "IT"
+      telecommunications: "Telecommunications"
+      manufacturing: "Manufacturing"
+      supplyChain: "Supply Chain"
+      healthcare: "Healthcare"
+      banking: "Banking"
+      finance: "Finance"
+      mining: "Mining"
+      insurance: "Insurance"
+      retail: "Retail"
+      realEstate: "Real Estate"
+      education: "Education"
+      crm: "CRM"
+      crypto: "Crypto"
+      energy: "Energy"
+  resources:
+    heading: "RESOURCES"
+    items:
+      blogs:
+        title: "Blogs"
+        description: "Discover the latest embedded analytics trends, best practices, and product news"
+      glossary:
+        title: "Glossary"
+        description: "Learn more about BI terms with definitions and examples"
+      whitepapers:
+        title: "Whitepapers"
+        description: "Get access to in-depth whitepapers from a variety of topics"
+      webinars:
+        title: "Webinars"
+        description: "Join us for embedded analytics best practices and demos"
+      customerStories:
+        title: "Customer Stories"
+        description: "See how others are leveraging Reveal to improve their apps"
+      partners:
+        title: "Partners"
+        description: "Enhance your offerings with our Reveal Reseller Program"
+
+footer:
+  social:
+    heading: "Follow Us for the Latest News and Updates"
+    facebook: "Facebook"
+    x: "X (Twitter)"
+    linkedin: "LinkedIn"
+    youtube: "YouTube"
+    g2: "G2"
+  columns:
+    platforms: "Platforms"
+    company: "Company"
+    resources: "Resources"
+    compare: "Compare"
+  platforms:
+    embedded: "Reveal Embedded Analytics"
+  company:
+    whoWeAre: "Who We Are"
+    contactUs: "Contact Us"
+    globalOffices: "Global Offices"
+    inTheNews: "In the News"
+    partners: "Partners"
+    careers: "Careers"
+  resourcesLinks:
+    webinars: "Webinars"
+    blogs: "Blogs"
+    whitepapers: "Whitepapers"
+    glossary: "Glossary"
+    supportPolicies: "Support Policies"
+    faqs: "FAQs"
+    licenseAgreement: "License Agreement"
+    documentation: "Documentation"
+    embeddedGuide: "Embedded Analytics Guide"
+    embeddedStats: "Embedded Analytics Stats"
+  compareLinks:
+    logi: "vs Logi Analytics"
+    qrvey: "vs Qrvey"
+    luzmo: "vs Luzmo"
+    sisense: "vs Sisense"
+    powerBi: "vs PowerBI"
+    tableau: "vs Tableau"
+    looker: "vs Looker"
+    domo: "vs Domo"
+    goodData: "vs GoodData"
+    boldBi: "vs Bold BI"
+    panintelligence: "vs Panintelligence"
+    thoughtspot: "vs ThoughtSpot"
+    toucanToco: "vs Toucan Toco"
+    metabase: "vs Metabase"
+  newsletter:
+    heading: "Get on the List!"
+    description: "Subscribe now for hand-picked articles, eBooks, and events, straight to your inbox. Your email is safe with us, we don't spam."
+    apiErrorHtml: 'Sorry, it seems that we have run into an issue with the form. <a href="#" onclick="location.reload();" style="color:red;text-decoration:underline;font-weight:bold">Please try again</a> or contact <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold">support@revealbi.io</a>.'
+    recaptchaErrorHtml: 'Unfortunately, Google has considered you a bot. Please contact <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold">support@revealbi.io</a>.'
+    formInvalidEmail: "This email address doesn't appear valid. Please update and try again."
+    formInvalidFreeEmail: "Please use a business email address."
+    emailPlaceholder: "Email"
+    consentPrefix: "I understand and agree to the terms of Infragistics'"
+    consentTermsOfUse: "Terms of Use"
+    consentAnd: " and "
+    consentPrivacyPolicy: "Privacy Policy"
+    consentRecaptcha: "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Use apply."
+    submit: "Join Us"
+    thankYou: "You're all set! Thank you for subscribing!"
+  policies:
+    privacy: "Privacy Policy"
+    cookie: "Cookie Policy"
+    terms: "Terms of Use"
+  seals:
+    soc2: "SOC2 Seal"
+    gdpr: "GDPR Seal"
+    isPartners: "IS Partners LLC"
+  copyright: "© Copyright {year} INFRAGISTICS. All Rights Reserved."
+  backToTop: "Back to Top"
+  gdpr:
+    intro: "Your Privacy Matters:"
+    body: "We use our own and third-party cookies to improve your experience on our website. By continuing to use the website, we understand that you accept their use."
+    cookieLink: "Cookie Policy"
+    accept: "Close"
+
+demoModal:
+  title: "Book a Personalized Demo"
+  subtitle: "Fill out the form to get a personalized demo of Reveal."
+  requiredNote: "Required"
+  apiErrorHtml: 'Sorry, it seems we have run into an issue. <a href="#" onclick="location.reload();" style="color:red;text-decoration:underline;font-weight:bold">Please try again</a> or contact <a href="mailto:support@revealbi.io" style="color:red;text-decoration:underline;font-weight:bold">support@revealbi.io</a>.'
+  formInvalidEmail: "This email address doesn't appear valid."
+  formInvalidFreeEmail: "Please use a business email address."
+  fields:
+    email: "Business Email"
+    firstName: "First Name"
+    lastName: "Last Name"
+    company: "Company"
+    phone: "Phone"
+  consentPrefix: "I understand and agree to the terms of Infragistics'"
+  consentTermsOfUse: "Terms of Use"
+  consentAnd: " and "
+  consentPrivacyPolicy: "Privacy Policy"
+  consentRecaptcha: "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Use apply."
+  submit: "Submit"
+  thankYou:
+    line1: "Thank you for reaching out!"
+    line2: "A Reveal representative will be in touch with you shortly!"
+    altText: "Thank you"
+
+webinarsPage:
+  onDemand: "On-demand webinars"
+
+glossaryPage:
+  title: "Reveal Analytics Glossary"
+  intro: "Want to know more about Reveal, data analytics, and business intelligence? We have you covered. Use this glossary to quickly find definitions for various business intelligence and data analytics terms."
+  listHeading: "List of Business Intelligence Terms"
+  breadcrumbHome: "Home"
+  breadcrumbGlossary: "Glossary"

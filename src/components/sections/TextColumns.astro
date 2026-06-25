@@ -1,0 +1,29 @@
+---
+interface Column {
+  title: string
+  body: string
+}
+interface Props {
+  headline: string
+  anchor?: string
+  columns: Column[]
+}
+
+const { headline, anchor, columns } = Astro.props
+---
+
+<section class="container py-5">
+  <div class="row mb-5 align-items-center">
+    <div class="col-md-12 animate-me" data-animation="fadeInTop">
+      <h2 class="text-md-center" id={anchor} set:html={headline} />
+    </div>
+  </div>
+  <div class="row mb-lg-3">
+    {columns.map((col) => (
+      <div class="col-md-4 animate-me pr-3 pr-lg-5 mb-3" data-animation="fadeInRight">
+        <h4><strong set:html={col.title} /></h4>
+        <p set:html={col.body} />
+      </div>
+    ))}
+  </div>
+</section>

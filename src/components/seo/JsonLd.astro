@@ -1,0 +1,10 @@
+---
+// Renders one Schema.org JSON-LD block. Escapes "<" so any "</script>" or
+// "<!--" sequences inside string values can't break out of the script tag.
+interface Props {
+  data: unknown
+}
+const { data } = Astro.props
+const json = JSON.stringify(data).replace(/</g, '\\u003c')
+---
+<script type="application/ld+json" is:inline set:html={json} />

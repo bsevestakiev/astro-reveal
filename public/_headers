@@ -1,0 +1,19 @@
+# Security headers (Cloudflare Pages / Netlify format).
+#
+# IMPORTANT: AWS CloudFront does NOT read this file. Production hosting is on
+# S3 + CloudFront, where the same headers must be applied via a Response
+# Headers Policy attached to the distribution. See infra/cloudfront-response-headers-policy.json
+# for the canonical values to paste into the AWS console / Terraform.
+#
+# This file is kept for parity in case hosting ever migrates to Cloudflare or
+# Netlify. It costs nothing on AWS — CloudFront ignores it.
+#
+# CSP intentionally NOT included: jQuery is inline, so a strict CSP needs
+# unsafe-inline or per-tag hashes. Defer to a dedicated security pass.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains

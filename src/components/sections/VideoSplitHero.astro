@@ -1,0 +1,51 @@
+---
+interface Props {
+  title: string
+  subhead?: string
+  ctaLabel?: string
+  ctaHref?: string
+  videoSrc: string
+  videoPoster?: string
+  videoTitle?: string
+}
+
+const {
+  title,
+  subhead,
+  ctaLabel,
+  ctaHref = '#',
+  videoSrc,
+  videoPoster,
+  videoTitle = '',
+} = Astro.props
+---
+
+<section class="container mt-4 mb-4 mb-md-0">
+  <div class="row">
+    <div class="col-12 col-lg-5">
+      <h1 set:html={title} />
+      {subhead && <p>{subhead}</p>}
+      {ctaLabel && (
+        <p class="text-center text-lg-left">
+          <a
+            href={ctaHref}
+            class="btn btn-primary mb-2 mr-0 mr-sm-3 ig-show-modal"
+            data-targetid="requestDemo"
+          >{ctaLabel}</a>
+        </p>
+      )}
+    </div>
+    <div class="col-12 col-lg-7">
+      <video
+        class="img--lg-oversize img--lg-oversize-right img-fluid"
+        autoplay
+        loop
+        muted
+        playsinline
+        poster={videoPoster}
+      >
+        <source src={videoSrc} title={videoTitle} type="video/mp4" />
+      </video>
+    </div>
+  </div>
+</section>

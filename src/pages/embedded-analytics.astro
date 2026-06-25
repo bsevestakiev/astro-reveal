@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import legacyHtml from '../data/legacy/embedded-analytics-old.html?raw'
+---
+
+<BaseLayout
+  title="What Is Embedded Analytics? Benefits, Use Cases & Examples - Reveal"
+  description="A complete embedded analytics guide covering benefits, use cases, and implementation tips. Learn how to add dashboards and insights directly into your app."
+  ogType="article"
+  image="/images/2020/10/reveal-logo-gradient-1200x630-1.jpg"
+  noSearch={true}
+>
+  <Fragment set:html={legacyHtml} />
+</BaseLayout>

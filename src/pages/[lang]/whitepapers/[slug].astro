@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content'
+import BlogLayout from '../../../layouts/BlogLayout.astro'
+import { renderMarkdown } from '../../../lib/render-markdown'
+
+const GATE_MARKER = /\n*<!--\s*gate\s*-->\n*/
+
+export async function getStaticPaths() {
+  const locales = ['es', 'ja', 'ko', 'pt-BR']
+  const whitepapers = await getCollection('whitepapers')
+  // Astro lowercases collection ids (e.g. pt-BR/… becomes pt-br/…), so match
+  // case-insensitively and recover the proper-cased locale for the URL/param.
+  return whitepapers
+    .filter(w => locales.some(l => w.id.toLowerCase().startsWith(`${l.toLowerCase()}/`)))
+    .map(whitepaper => {
+      const [idLang, ...slugParts] = whitepaper.id.split('/')
+      const lang = locales.find(l => l.toLowerCase() === idLang.toLowerCase()) ?? idLang
+      return {
+        params: { lang, slug: slugParts.join('/') },
+        props: { whitepaper, lang },
+      }
+    })
+}
+
+const { whitepaper, lang } = Astro.props
+
+// Split the body on the gate marker exactly like the EN route
+// (src/pages/whitepapers/[slug].astro). The post-gate half is passed to
+// BlogLayout's `gated` slot so it renders behind the lead-capture form, and
+// BlogLayout emits the whitepaper lead-tracker (Event Type "whitepaper",
+// Event Detail = the whitepaper title). If there is no marker, the whole
+// body renders as preview and the gated section is omitted.
+const body: string = whitepaper.body ?? ''
+const match = body.match(GATE_MARKER)
+let previewHtml = ''
+let gatedHtml = ''
+if (match && match.index !== undefined) {
+  previewHtml = await renderMarkdown(body.slice(0, match.index))
+  gatedHtml = await renderMarkdown(body.slice(match.index + match[0].length))
+} else {
+  previewHtml = await renderMarkdown(body)
+}
+---
+
+<BlogLayout
+  title={whitepaper.data.title}
+  description={whitepaper.data.description}
+  publishDate={whitepaper.data.date}
+  author={whitepaper.data.author}
+  cover={whitepaper.data.cover}
+  authorBio={whitepaper.data.authorBio}
+  isWhitepaper={true}
+  leadSourceNumber={whitepaper.data.leadSourceNumber}
+  lang={lang}
+>
+  <Fragment set:html={previewHtml} />
+  {gatedHtml && <Fragment slot="gated" set:html={gatedHtml} />}
+</BlogLayout>

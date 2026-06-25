@@ -1,0 +1,82 @@
+---
+interface Props {
+  eyebrow?: string
+  headline: string
+  subhead?: string
+  compareBefore: { label: string; value: string }
+  compareAfter: { logo: string; logoAlt?: string; value: string }
+  benefits: string[]
+  footnote?: string
+}
+
+const {
+  eyebrow,
+  headline,
+  subhead,
+  compareBefore,
+  compareAfter,
+  benefits,
+  footnote,
+} = Astro.props
+---
+
+<section class="py-5 overflow-hidden bg-light-gray-card">
+  <div class="container my-5">
+    <div class="row animate-me" data-animation="fadeInRight">
+      <div class="col-12 text-center mb-4">
+        {eyebrow && <p class="text-uppercase text-french-rose font-weight-bold mb-3">{eyebrow}</p>}
+        <h2 class="mb-4">{headline}</h2>
+        {subhead && <p class="mx-auto">{subhead}</p>}
+      </div>
+    </div>
+
+    <div class="row justify-content-center animate-me" data-animation="fadeInUp">
+      <div class="col-12 col-lg-10">
+        <div class="card border-0 shadow-sm rounded-xl p-4 p-md-5 bg-white">
+          <div class="row align-items-center">
+            <div class="col-12 col-md-6 mb-md-0 pr-lg-5">
+              <div class="card rounded-xl p-3 mb-4 bg-color-gallery border-gray-light">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h3 class="h5 font-weight-bold mb-0">{compareBefore.label}</h3>
+                  <span class="font-weight-bold text-french-rose h5 mb-0">{compareBefore.value}</span>
+                </div>
+              </div>
+              <div class="card rounded-xl p-3 bg-color-whisper border-blue-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <h3 class="h5 font-weight-bold mb-0 mr-2">With</h3>
+                    <img loading="lazy" decoding="async" src={compareAfter.logo}
+                         alt={compareAfter.logoAlt ?? 'Reveal'} title={compareAfter.logoAlt ?? 'Reveal'}
+                         class="logo-height-24" />
+                  </div>
+                  <span class="font-weight-bold text-blue-primary h5 mb-0">{compareAfter.value}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6 fast-impl-divider pl-3 pl-md-5 pt-4 pt-md-0 mt-4 mt-md-0">
+              <div class="h-100 d-flex flex-column justify-content-center">
+                <p class="text-uppercase font-weight-bold mb-3 text-muted-gray font-size-sm letter-spacing-wide">
+                  What you get:
+                </p>
+                <ul class="list-unstyled mb-0">
+                  {benefits.map(b => (
+                    <li class="mb-3"><span class="d-block">{b}</span></li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {footnote && (
+          <div class="row mt-4 animate-me" data-animation="fadeInRight">
+            <div class="col-12 text-center">
+              <p class="h5 font-weight-bold mb-0">{footnote}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</section>

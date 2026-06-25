@@ -1,0 +1,19 @@
+---
+interface Props {
+  title: string
+  subhead?: string
+}
+
+const { title, subhead } = Astro.props
+---
+
+<div class="row w-100 mx-0 mb-4 bg-gradient--primary text-white text-center py-5">
+  <div class="col-12 mt-3 mb-2">
+    <h1 set:html={title} />
+  </div>
+  {subhead && (
+    <div class="col-12 mt-2 mb-3">
+      <p class="h4" set:html={subhead} />
+    </div>
+  )}
+</div>

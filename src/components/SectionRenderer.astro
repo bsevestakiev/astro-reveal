@@ -1,0 +1,744 @@
+---
+import Hero from './sections/Hero.astro'
+import DarkHero from './sections/DarkHero.astro'
+import VideoSplitHero from './sections/VideoSplitHero.astro'
+import PricingHero from './sections/PricingHero.astro'
+import LogoSlider from './sections/LogoSlider.astro'
+import FeatureRow from './sections/FeatureRow.astro'
+import IconGrid from './sections/IconGrid.astro'
+import ComparisonTable from './sections/ComparisonTable.astro'
+import FeatureSteps from './sections/FeatureSteps.astro'
+import AIDarkSection from './sections/AIDarkSection.astro'
+import FastImplementation from './sections/FastImplementation.astro'
+import StatsBand from './sections/StatsBand.astro'
+import PricingTeaser from './sections/PricingTeaser.astro'
+import CustomerQuote from './sections/CustomerQuote.astro'
+import Reviews from './sections/Reviews.astro'
+import FAQ from './sections/FAQ.astro'
+import InlineCTA from './sections/InlineCTA.astro'
+import CTABlock from './sections/CTABlock.astro'
+import SectionHeader from './sections/SectionHeader.astro'
+import LeadCaptureForm from './sections/LeadCaptureForm.astro'
+import BlogTeaserGrid from './sections/BlogTeaserGrid.astro'
+import AICompareList from './sections/AICompareList.astro'
+import StoryTeaserGrid from './sections/StoryTeaserGrid.astro'
+import CompetitorMatrix from './sections/CompetitorMatrix.astro'
+import FeatureTabs from './sections/FeatureTabs.astro'
+import Subnav from './sections/Subnav.astro'
+import AIVideoBlock from './sections/AIVideoBlock.astro'
+import AIUnderHood from './sections/AIUnderHood.astro'
+import AIEnterpriseGrid from './sections/AIEnterpriseGrid.astro'
+import AIStepFlow from './sections/AIStepFlow.astro'
+import MetricBenefitGrid from './sections/MetricBenefitGrid.astro'
+import DualChecklist from './sections/DualChecklist.astro'
+import LightFeatureTabs from './sections/LightFeatureTabs.astro'
+import PlatformProcessCard from './sections/PlatformProcessCard.astro'
+import DarkCapabilitiesGrid from './sections/DarkCapabilitiesGrid.astro'
+import VerticalCards from './sections/VerticalCards.astro'
+import FeatureStickyScroll from './sections/FeatureStickyScroll.astro'
+import SecurityRiskTable from './sections/SecurityRiskTable.astro'
+import SecurityArchCards from './sections/SecurityArchCards.astro'
+import SecurityGradientBanner from './sections/SecurityGradientBanner.astro'
+import GradientHero from './sections/GradientHero.astro'
+import ChartFilterGrid from './sections/ChartFilterGrid.astro'
+import ConnectorGrid from './sections/ConnectorGrid.astro'
+import CTAImageCard from './sections/CTAImageCard.astro'
+import QuoteSlider from './sections/QuoteSlider.astro'
+import LightHero from './sections/LightHero.astro'
+import OfficeGrid from './sections/OfficeGrid.astro'
+import TrialHero from './sections/TrialHero.astro'
+import LogoRow from './sections/LogoRow.astro'
+import GalleryHero from './sections/GalleryHero.astro'
+import TextColumns from './sections/TextColumns.astro'
+import QuoteBand from './sections/QuoteBand.astro'
+import BenefitCards from './sections/BenefitCards.astro'
+import G2Hero from './sections/G2Hero.astro'
+import G2ReviewBand from './sections/G2ReviewBand.astro'
+import G2TechStackRow from './sections/G2TechStackRow.astro'
+import G2CtaFooter from './sections/G2CtaFooter.astro'
+import FaqIndex from './sections/FaqIndex.astro'
+import TrustBadgeBand from './sections/TrustBadgeBand.astro'
+import DownloadConfirmation from './sections/DownloadConfirmation.astro'
+import DemoVideoSplit from './sections/DemoVideoSplit.astro'
+import ResourceCardGrid from './sections/ResourceCardGrid.astro'
+import { localizedHref } from '../lib/href'
+
+interface Props {
+  sections: any[]
+  lang?: string
+}
+
+const { sections, lang } = Astro.props
+const lh = (h?: string) => localizedHref(h ?? '', lang)
+
+// Group consecutive sections that share the same `band` id into one wrapping
+// <section>, so a page can put a shared background behind several blocks without
+// changing those block components site-wide. Sections without `band` render as-is.
+const bandGroups: { band: string | null; bandClass?: string; items: any[] }[] = []
+for (const s of sections) {
+  const band = s?.band ?? null
+  const last = bandGroups[bandGroups.length - 1]
+  if (band && last && last.band === band) last.items.push(s)
+  else bandGroups.push({ band, bandClass: s?.bandClass, items: [s] })
+}
+---
+{bandGroups.map((g: any) => {
+  const rendered = g.items.map((s: any) => {
+  if (s.type === 'hero') return (
+    <Hero
+      headline={s.headline}
+      headlineClass={s.headlineClass}
+      eyebrow={s.eyebrow}
+      variant={s.variant}
+      subheadlines={s.subheadlines}
+      ctaLabel={s.ctaLabel}
+      secondaryCtaLabel={s.secondaryCtaLabel}
+      secondaryCtaUrl={lh(s.secondaryCtaUrl)}
+      image={s.image}
+      imageSrcset={s.imageSrcset}
+      imageAlt={s.imageAlt}
+    >
+      {s.trustImage && (
+        <img loading="lazy" decoding="async" src={s.trustImage} alt={s.trustAlt ?? ''} title={s.trustAlt ?? ''} class="mt-2 mt-lg-3" style="max-height:45px;" />
+      )}
+    </Hero>
+  )
+  if (s.type === 'dark-hero') return (
+    <DarkHero
+      title={s.title}
+      mobileTitle={s.mobileTitle}
+      subhead={s.subhead}
+      variant={s.variant ?? 'split-image'}
+      image={s.image}
+      imageAlt={s.imageAlt}
+      imageSrcset={s.imageSrcset}
+      ctaLabel={s.ctaLabel}
+      ctaHref={lh(s.ctaHref)}
+      ctaModal={(s as any).ctaModal}
+      secondaryCtaLabel={s.secondaryCtaLabel}
+      secondaryCtaHref={lh(s.secondaryCtaHref)}
+      secondaryCtaModal={(s as any).secondaryCtaModal}
+      secondaryCtaClass={s.secondaryCtaClass}
+      breadcrumbs={s.breadcrumbs}
+      accentColor={s.accentColor}
+      trustBadgeImage={s.trustBadgeImage}
+      trustBadgeAlt={s.trustBadgeAlt}
+      trustBadgeLine={s.trustBadgeLine}
+      logos={s.logos}
+      navmenuContainer={s.navmenuContainer}
+      gradientSplitStyle={(s as any).gradientSplitStyle}
+      hideBottomWave={(s as any).hideBottomWave}
+    />
+  )
+  if (s.type === 'video-split-hero') return (
+    <VideoSplitHero
+      title={s.title}
+      subhead={s.subhead}
+      ctaLabel={s.ctaLabel}
+      ctaHref={lh(s.ctaHref)}
+      videoSrc={s.videoSrc}
+      videoPoster={s.videoPoster}
+      videoTitle={s.videoTitle}
+    />
+  )
+  if (s.type === 'pricing-hero') return (
+    <PricingHero
+      headline={s.headline}
+      subhead={s.subhead}
+      features={s.features}
+      ctaLabel={s.ctaLabel}
+      ratingsImage={s.ratingsImage}
+      dashboardImage={s.dashboardImage}
+      dashboardImageAlt={s.dashboardImageAlt}
+      formHeadline={s.formHeadline}
+      formSubhead={s.formSubhead}
+    />
+  )
+  if (s.type === 'logo-slider') return <LogoSlider logos={s.logos} label={s.label} note={s.note} wrapperClass={(s as any).wrapperClass} />
+  if (s.type === 'feature-row') return (
+    <FeatureRow
+      headline={s.headline}
+      body={s.body}
+      image={s.image}
+      imageSrcset={s.imageSrcset}
+      imageAlt={s.imageAlt}
+      imageClass={s.imageClass}
+      reversed={s.reversed}
+      variant={s.variant}
+      eyebrow={s.eyebrow}
+      cta={s.cta}
+      textColClass={s.textColClass}
+      wrapperClass={(s as any).wrapperClass}
+      colSplit={s.colSplit}
+      videoSrc={s.videoSrc}
+      videoPoster={s.videoPoster}
+    >
+      {s.slotContent && <Fragment set:html={s.slotContent} />}
+    </FeatureRow>
+  )
+  if (s.type === 'icon-grid') return (
+    <IconGrid
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      subhead2={s.subhead2}
+      cards={s.cards}
+      variant={s.variant}
+      footnote={s.footnote}
+      footnoteClass={s.footnoteClass}
+      iconSize={s.iconSize}
+      cardTitleTag={s.cardTitleTag}
+      cols={s.cols}
+      anchor={s.anchor}
+    />
+  )
+  if (s.type === 'comparison-table') return (
+    <ComparisonTable
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      competitor={s.competitor}
+      rows={s.rows}
+      ctaBelow={s.ctaBelow}
+      firstColumnLabel={s.firstColumnLabel}
+      bg={s.bg}
+    />
+  )
+  if (s.type === 'feature-steps') return (
+    <FeatureSteps
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      steps={s.steps}
+      footnote={s.footnote}
+      variant={s.variant}
+    />
+  )
+  if (s.type === 'ai-dark-section') return <AIDarkSection rows={s.rows} />
+  if (s.type === 'fast-implementation') return (
+    <FastImplementation
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      compareBefore={s.compareBefore}
+      compareAfter={s.compareAfter}
+      benefits={s.benefits}
+      footnote={s.footnote}
+    />
+  )
+  if (s.type === 'stats-band') return (
+    <StatsBand headline={s.headline} subhead={s.subhead} stats={s.stats} />
+  )
+  if (s.type === 'pricing-teaser') return (
+    <PricingTeaser
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      features={s.features}
+      pillars={s.pillars}
+      ctaLabel={s.ctaLabel}
+      ctaHref={lh(s.ctaHref)}
+    />
+  )
+  if (s.type === 'customer-quote') return (
+    <CustomerQuote
+      quote={s.quote}
+      authorName={s.authorName}
+      authorTitle={s.authorTitle}
+      storyUrl={s.storyUrl}
+      storyLabel={s.storyLabel}
+      image={s.image}
+      imageAlt={s.imageAlt}
+    />
+  )
+  if (s.type === 'reviews') return (
+    <Reviews
+      headline={s.headline}
+      subhead={s.subhead}
+      quote={s.quote}
+      badges={s.badges}
+      cards={s.cards}
+    />
+  )
+  if (s.type === 'faq') return <FAQ items={s.items} headline={s.headline} eyebrow={s.eyebrow} variant={s.variant} multiopen={s.multiopen} headlineSize={s.headlineSize} />
+  if (s.type === 'inline-cta') return (
+    <InlineCTA
+      icon={s.icon}
+      iconAlt={s.iconAlt}
+      headline={s.headline}
+      headlineClass={s.headlineClass}
+      body={s.body}
+      ctaLabel={s.ctaLabel}
+      ctaHref={(s as any).ctaHref}
+      demoModal={s.demoModal}
+      ctaVariant={s.ctaVariant}
+      wrapperClass={(s as any).wrapperClass}
+      secondaryCtaLabel={(s as any).secondaryCtaLabel}
+      secondaryCtaHref={(s as any).secondaryCtaHref}
+      secondaryCtaClass={(s as any).secondaryCtaClass}
+    />
+  )
+  if (s.type === 'cta-block') return (
+    <CTABlock
+      headline={s.headline}
+      subheadline={s.subheadline}
+      body2={(s as any).body2}
+      ctaLabel={s.ctaLabel}
+      ctaUrl={lh(s.ctaUrl)}
+      secondaryCtaLabel={s.secondaryCtaLabel}
+      secondaryCtaUrl={lh(s.secondaryCtaUrl)}
+      demoModal={s.demoModal}
+      variant={s.variant}
+      image={(s as any).image}
+      imageSrcset={(s as any).imageSrcset}
+      imageAlt={(s as any).imageAlt}
+      bgColor={(s as any).bgColor}
+      navmenuContainer={(s as any).navmenuContainer}
+      textColWidth={(s as any).textColWidth}
+      imageColWidth={(s as any).imageColWidth}
+      wrapperClass={(s as any).wrapperClass}
+    >
+      {(s as any).slotContent && <Fragment set:html={(s as any).slotContent} />}
+    </CTABlock>
+  )
+  if (s.type === 'quote-slider') return (
+    <QuoteSlider
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      items={s.items}
+      anchor={s.anchor}
+    />
+  )
+  if (s.type === 'cta-image-card') return (
+    <CTAImageCard
+      headline={s.headline}
+      subheadline={s.subheadline}
+      ctaLabel={s.ctaLabel}
+      ctaUrl={lh(s.ctaUrl)}
+      demoModal={s.demoModal}
+      bgColor={s.bgColor}
+      image={s.image}
+      imageSrcset={s.imageSrcset}
+      imageAlt={s.imageAlt}
+      anchor={s.anchor}
+    />
+  )
+  if (s.type === 'section-header') return (
+    <SectionHeader
+      headline={s.headline}
+      body={s.body}
+      anchor={s.anchor}
+      variant={s.variant}
+      headlineSize={s.headlineSize}
+    />
+  )
+  if (s.type === 'lead-form') return (
+    <LeadCaptureForm
+      headline={s.headline}
+      body={s.body}
+      anchor={s.anchor}
+      formId={s.formId}
+      eventType={(s as any).eventType}
+      eventDetail={(s as any).eventDetail}
+      leadSourceNumber={(s as any).leadSourceNumber}
+      submitLabel={(s as any).submitLabel}
+      redirectUrl={(s as any).redirectUrl}
+      variant={(s as any).variant}
+      contentHeadline={(s as any).contentHeadline}
+      contentHtml={(s as any).contentHtml}
+      showTitle={(s as any).showTitle}
+      cardTitle={(s as any).cardTitle}
+      thankYouHtml={(s as any).thankYouHtml}
+      googleEventLabel={(s as any).googleEventLabel}
+      eventDetailParam={(s as any).eventDetailParam}
+    />
+  )
+  if (s.type === 'blog-teaser') return (
+    <BlogTeaserGrid
+      headline={s.headline}
+      headlineClass={s.headlineClass}
+      srOnly={s.srOnly}
+      subhead={s.subhead}
+      viewAllLabel={s.viewAllLabel}
+      viewAllUrl={lh(s.viewAllUrl)}
+      slugs={s.slugs}
+      anchor={s.anchor}
+    />
+  )
+  if (s.type === 'ai-compare-list') return (
+    <AICompareList
+      headline={s.headline}
+      columns={s.columns}
+      footnote={s.footnote}
+    />
+  )
+  if (s.type === 'story-teaser') return (
+    <StoryTeaserGrid
+      headline={s.headline}
+      subhead={s.subhead}
+      eyebrow={s.eyebrow}
+      srOnly={s.srOnly}
+      viewAllLabel={s.viewAllLabel}
+      viewAllUrl={lh(s.viewAllUrl)}
+      stories={s.stories}
+      anchor={s.anchor}
+      sectionClass={s.sectionClass}
+    />
+  )
+  if (s.type === 'competitor-matrix') return (
+    <CompetitorMatrix
+      topEyebrow={s.topEyebrow}
+      preHeadline={s.preHeadline}
+      headline={s.headline}
+      summary={s.summary}
+      middleEyebrow={s.middleEyebrow}
+      middleHeadline={s.middleHeadline}
+      middleSubhead={s.middleSubhead}
+      columns={s.columns}
+      rows={s.rows}
+      anchor={s.anchor}
+    />
+  )
+  if (s.type === 'feature-tabs') return (
+    <FeatureTabs
+      topEyebrow={s.topEyebrow}
+      headline={s.headline}
+      intro={s.intro}
+      tabs={s.tabs}
+      anchor={s.anchor}
+      layout={(s as any).layout}
+    />
+  )
+  if (s.type === 'subnav') return (
+    <Subnav links={s.links} />
+  )
+  if (s.type === 'ai-video-block') return (
+    <AIVideoBlock
+      headline={s.headline}
+      subhead={s.subhead}
+      videoWebm={s.videoWebm}
+      videoMp4={s.videoMp4}
+      videoPoster={s.videoPoster}
+      videoAlt={s.videoAlt}
+    />
+  )
+  if (s.type === 'ai-under-hood') return (
+    <AIUnderHood
+      headline={s.headline}
+      subhead={s.subhead}
+      footnote={s.footnote}
+      pillars={s.pillars}
+    />
+  )
+  if (s.type === 'ai-enterprise-grid') return (
+    <AIEnterpriseGrid
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      cards={s.cards}
+      controlHeadline={s.controlHeadline}
+      controlIntro={s.controlIntro}
+      controlItems={s.controlItems}
+      controlNote={s.controlNote}
+      controlImage={s.controlImage}
+      controlImageAlt={s.controlImageAlt}
+      controlImageSrcset={s.controlImageSrcset}
+    />
+  )
+  if (s.type === 'ai-step-flow') return (
+    <AIStepFlow
+      headline={s.headline}
+      footnote={s.footnote}
+      steps={s.steps}
+    />
+  )
+  if (s.type === 'platform-process-card') return (
+    <PlatformProcessCard
+      headline={s.headline}
+      steps={s.steps}
+      dataSources={s.dataSources}
+      footerText={s.footerText}
+    />
+  )
+  if (s.type === 'dark-capabilities-grid') return (
+    <DarkCapabilitiesGrid
+      headline={s.headline}
+      cards={s.cards}
+      iconSize={s.iconSize}
+    />
+  )
+  if (s.type === 'vertical-cards') return (
+    <VerticalCards
+      headline={s.headline}
+      subhead={s.subhead}
+      cards={s.cards}
+    />
+  )
+  if (s.type === 'feature-sticky-scroll') return (
+    <FeatureStickyScroll
+      headline={s.headline}
+      panels={s.panels}
+      anchor={s.anchor}
+    />
+  )
+  if (s.type === 'metric-benefit-grid') return (
+    <MetricBenefitGrid
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      cards={s.cards}
+    />
+  )
+  if (s.type === 'dual-checklist') return (
+    <DualChecklist
+      bgColor={s.bgColor}
+      leftColumn={s.leftColumn}
+      rightColumn={s.rightColumn}
+    />
+  )
+  if (s.type === 'light-feature-tabs') return (
+    <LightFeatureTabs
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      intro={s.intro}
+      tabs={s.tabs}
+      anchor={s.anchor}
+      bgColor={s.bgColor}
+    />
+  )
+  if (s.type === 'security-risk-table') return (
+    <SecurityRiskTable
+      headline={s.headline}
+      rows={s.rows}
+    />
+  )
+  if (s.type === 'security-arch-cards') return (
+    <SecurityArchCards
+      variant={s.variant}
+      cardVariant={s.cardVariant}
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      cards={s.cards}
+      comparisonLeft={s.comparisonLeft}
+      comparisonRight={s.comparisonRight}
+      comparisonRows={s.comparisonRows}
+      linkText={s.linkText}
+      linkUrl={s.linkUrl}
+      ctaLink={s.ctaLink}
+      ctaText={s.ctaText}
+    />
+  )
+  if (s.type === 'security-gradient-banner') return (
+    <SecurityGradientBanner
+      headline={s.headline}
+      body={s.body}
+      tags={s.tags}
+      image={s.image}
+      imageAlt={s.imageAlt}
+    />
+  )
+  if (s.type === 'gradient-hero') return (
+    <GradientHero
+      headline={s.headline}
+      subhead={s.subhead}
+      ctaLabel={s.ctaLabel}
+      ctaHref={s.ctaHref}
+      image={s.image}
+      imageAlt={s.imageAlt}
+      videoSrc={s.videoSrc}
+    />
+  )
+  if (s.type === 'chart-filter-grid') return (
+    <ChartFilterGrid
+      headline={s.headline}
+      subhead={s.subhead}
+      filters={s.filters}
+      charts={s.charts}
+    />
+  )
+  if (s.type === 'connector-grid') return (
+    <ConnectorGrid
+      headline={s.headline}
+      subhead={s.subhead}
+      anchor={s.anchor}
+      connectors={s.connectors}
+    />
+  )
+  if (s.type === 'light-hero') return (
+    <LightHero
+      title={s.title}
+      body={s.body}
+      image={s.image}
+      imageAlt={s.imageAlt}
+    />
+  )
+  if (s.type === 'office-grid') return (
+    <OfficeGrid
+      headline={s.headline}
+      intro={s.intro}
+      anchor={s.anchor}
+      headlineAnchor={s.headlineAnchor}
+      offices={s.offices}
+    />
+  )
+  if (s.type === 'trial-hero') return (
+    <TrialHero
+      headline={s.headline}
+      body={s.body}
+      bullets={s.bullets}
+      boldBullets={(s as any).boldBullets}
+      ctaLabel={s.ctaLabel}
+      ctaHref={s.ctaHref}
+      image={s.image}
+      imageAlt={s.imageAlt}
+      imageSrcset={s.imageSrcset}
+      formAnchor={(s as any).formAnchor}
+      formId={s.formId}
+      cardTitle={(s as any).cardTitle}
+      cardHeaderClass={(s as any).cardHeaderClass}
+      cardSubtext={(s as any).cardSubtext}
+      showTitle={(s as any).showTitle}
+      submitLabel={(s as any).submitLabel}
+      thankYouHtml={(s as any).thankYouHtml}
+      leadSourceNumber={(s as any).leadSourceNumber}
+      eventType={(s as any).eventType}
+      eventDetail={(s as any).eventDetail}
+      googleEventLabel={(s as any).googleEventLabel}
+      redirectUrl={(s as any).redirectUrl}
+    />
+  )
+  if (s.type === 'logo-row') return (
+    <LogoRow logos={s.logos} />
+  )
+  if (s.type === 'gallery-hero') return (
+    <GalleryHero
+      headline={s.headline}
+      body={s.body}
+      ctaLabel={s.ctaLabel}
+      ctaHref={lh(s.ctaHref)}
+      image={s.image}
+      imageAlt={s.imageAlt}
+      imageSrcset={s.imageSrcset}
+    />
+  )
+  if (s.type === 'text-columns') return (
+    <TextColumns
+      headline={s.headline}
+      anchor={s.anchor}
+      columns={s.columns}
+    />
+  )
+  if (s.type === 'quote-band') return (
+    <QuoteBand
+      logo={s.logo}
+      logoAlt={s.logoAlt}
+      quote={s.quote}
+      attribution={s.attribution}
+      href={s.href}
+      backgroundImage={s.backgroundImage}
+    />
+  )
+  if (s.type === 'benefit-cards') return (
+    <BenefitCards
+      headline={s.headline}
+      anchor={s.anchor}
+      cards={s.cards}
+    />
+  )
+  if (s.type === 'g2-hero') return (
+    <G2Hero
+      headline={s.headline}
+      body={s.body}
+      ctaLabel={s.ctaLabel}
+      ctaHref={s.ctaHref}
+      secondaryCtaLabel={s.secondaryCtaLabel}
+      secondaryCtaHref={lh(s.secondaryCtaHref)}
+      image={s.image}
+      imageLazySrc={s.imageLazySrc}
+      imageSrcset={s.imageSrcset}
+      imageAlt={s.imageAlt}
+      imageTitle={s.imageTitle}
+    />
+  )
+  if (s.type === 'g2-review-band') return (
+    <G2ReviewBand
+      headline={s.headline}
+      anchor={s.anchor}
+      badgesLeft={s.badgesLeft}
+      centerBadge={s.centerBadge}
+      badgesRight={s.badgesRight}
+      reviews={s.reviews}
+      calloutIcon={s.calloutIcon}
+      calloutText={s.calloutText}
+      calloutCtaLabel={s.calloutCtaLabel}
+      calloutCtaHref={s.calloutCtaHref}
+    />
+  )
+  if (s.type === 'g2-tech-stack-row') return (
+    <G2TechStackRow
+      headline={s.headline}
+      body={s.body}
+      anchor={s.anchor}
+      topLogos={s.topLogos}
+      bottomLogos={s.bottomLogos}
+    />
+  )
+  if (s.type === 'g2-cta-footer') return (
+    <G2CtaFooter
+      headline={s.headline}
+      anchor={s.anchor}
+      ctaLabel={s.ctaLabel}
+      ctaHref={s.ctaHref}
+    />
+  )
+  if (s.type === 'faq-index') return (
+    <FaqIndex
+      headline={s.headline}
+      headlineAnchor={s.headlineAnchor}
+      indexColumns={s.indexColumns}
+      items={s.items}
+    />
+  )
+  if (s.type === 'trust-badge-band') return (
+    <TrustBadgeBand
+      headline={s.headline}
+      subhead={s.subhead}
+      anchor={s.anchor}
+      badges={s.badges}
+    />
+  )
+  if (s.type === 'download-confirmation') return (
+    <DownloadConfirmation
+      downloadUrl={s.downloadUrl}
+      goalLabel={s.goalLabel}
+      headline={s.headline}
+      lead={s.lead}
+      paragraphs={s.paragraphs}
+    />
+  )
+  if (s.type === 'demo-video-split') return (
+    <DemoVideoSplit
+      headline={s.headline}
+      videoPoster={s.videoPoster}
+      videoMp4={s.videoMp4}
+      cardTitle={s.cardTitle}
+      cardBody={s.cardBody}
+      ctaLabel={s.ctaLabel}
+      ctaHref={lh(s.ctaHref)}
+      anchor={s.anchor}
+    />
+  )
+  if (s.type === 'resource-card-grid') return (
+    <ResourceCardGrid
+      headline={s.headline}
+      body={s.body}
+      cards={(s.cards ?? []).map((c: any) => ({ ...c, href: lh(c.href) }))}
+    />
+  )
+  return null
+  })
+  return g.band
+    ? (<section class={g.bandClass ?? 'py-3 py-md-5 bg-color-light-gray'}>{rendered}</section>)
+    : rendered
+})}

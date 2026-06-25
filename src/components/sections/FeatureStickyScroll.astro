@@ -1,0 +1,158 @@
+---
+interface Panel {
+  title: string
+  body: string
+  mobileBody?: string
+  image960: string
+  image1600: string
+  imageAlt: string
+  imageTitle: string
+}
+
+interface Props {
+  headline: string
+  panels: Panel[]
+  anchor?: string
+}
+
+const { headline, panels, anchor = 'scrollSection' } = Astro.props
+---
+
+<section class="py-5 mb-5 bg-light" id={anchor}>
+  <div class="container">
+    <div class="row py-4">
+      <div class="col text-center">
+        <h2 class="pb-0 animate-me" data-animation="fadeInUp">{headline}</h2>
+      </div>
+    </div>
+
+    <!-- Mobile / tablet: static cards (d-block d-lg-none) -->
+    <div class="d-block d-lg-none" id="feature-steps-mobile">
+      {panels.map((panel: Panel) => (
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card border shadow-sm rounded-xl h-100">
+              <div class="card-body p-4 text-left">
+                <h3 class="font-weight-bold mb-3">{panel.title}</h3>
+                <p set:html={panel.mobileBody ?? panel.body} />
+                <img decoding="async" class="img-fluid w-100 pt-2"
+                  src={panel.image960}
+                  title={panel.imageTitle}
+                  alt={panel.imageAlt} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Desktop: sticky-scroll (d-none d-lg-block) -->
+    <div class="feature-sticky-section d-none d-lg-block">
+      <div class="row">
+        <div class="col-lg-5 mb-4 mb-lg-0">
+          <div class="feature-sticky-left">
+            <h3 id="feature-step-title" class="h2 mb-3">{panels[0]?.title}</h3>
+            <div id="feature-step-text" class="mb-4"></div>
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <div class="feature-sticky-right">
+            {panels.map((panel: Panel) => (
+              <article class="feature-sticky-panel" data-title={panel.title}>
+                <template class="feature-step-content">
+                  <p set:html={panel.body} />
+                </template>
+                <div class="feature-visual">
+                  <img decoding="async" class="img-fluid w-100 feature-visual-img"
+                    src={panel.image1600}
+                    title={panel.imageTitle}
+                    alt={panel.imageAlt} />
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  #scrollSection .feature-visual {
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  #scrollSection .feature-visual-img {
+    display: block;
+    border-radius: 20px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+    opacity: 0.35;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  #scrollSection .feature-sticky-panel.is-active .feature-visual-img {
+    opacity: 1;
+    transform: translateZ(0) scale(1.01);
+  }
+
+  #scrollSection .feature-sticky-left {
+    position: sticky;
+    top: 30vh;
+    padding-right: 2rem;
+  }
+
+  #scrollSection .feature-sticky-panel {
+    margin-bottom: 180px;
+  }
+
+  #scrollSection .feature-sticky-panel:last-of-type {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 991.98px) {
+    #scrollSection .feature-sticky-left {
+      position: static;
+      transform: none;
+      padding-right: 0;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const panels = document.querySelectorAll('#scrollSection .feature-sticky-panel');
+    const titleEl = document.getElementById('feature-step-title');
+    const textEl = document.getElementById('feature-step-text');
+
+    function updateLeftContentFromPanel(panel: Element) {
+      if (!panel || !textEl) return;
+      if (titleEl) titleEl.innerHTML = (panel as HTMLElement).dataset.title ?? '';
+      const tpl = panel.querySelector('template.feature-step-content') as HTMLTemplateElement | null;
+      textEl.innerHTML = tpl ? tpl.innerHTML : '';
+      panels.forEach((p) => p.classList.remove('is-active'));
+      panel.classList.add('is-active');
+    }
+
+    if (!panels.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      updateLeftContentFromPanel(panels[0]);
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible && visible.target) updateLeftContentFromPanel(visible.target);
+    }, {
+      root: null,
+      threshold: [0.2, 0.35, 0.5, 0.65],
+      rootMargin: '-25% 0px -45% 0px',
+    });
+
+    panels.forEach((panel) => observer.observe(panel));
+    updateLeftContentFromPanel(panels[0]);
+  });
+</script>

@@ -1,0 +1,379 @@
+/*****
+ CSS Versions of SCSS include: _transitions
+ *****/
+.animate-me {
+    visibility: hidden;
+}
+.no-js .animate-me {
+    visibility: visible;
+}
+.animated {
+    animation-duration: 1s;
+    visibility: visible;
+}
+
+.fade {
+  transition: opacity 0.15s linear;
+}
+
+.fade:not(.show) {
+  opacity: 0;
+}
+
+.collapse:not(.show) {
+  display: none;
+}
+
+.collapsing {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.35s ease;
+}
+
+.fadeIn {
+  animation-name: fadeIn;
+}
+.fadeInLeft {
+  animation-name: fadeInLeft;
+}
+.fadeInRight {
+  animation-name: fadeInRight;
+}
+.slideDown {
+  animation: slide-down 0.7s ease;
+}
+.slideUp {
+  animation: slide-up 0.7s ease;
+}
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+  }
+
+  70% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(0.95);
+  }
+}
+@keyframes pulse-icon-btn {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 8px rgba(237, 74, 153, 0.5);
+  }
+
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 20px rgba(237, 74, 153, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(237, 74, 153, 0);
+  }
+}
+@-o-keyframes slide-down {
+    0% {
+        opacity: 0;
+        -o-transform: translateY(-100%);
+        -moz-transform: translateY(-100%);
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+    100% {
+        opacity: 1.0;
+        -o-transform: translateY(0);
+        -moz-transform: translateY(0);
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+}
+@-moz-keyframes slide-down {
+    0% {
+        opacity: 0;
+        -o-transform: translateY(-100%);
+        -moz-transform: translateY(-100%);
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+    100% {
+        opacity: 1.0;
+        -o-transform: translateY(0);
+        -moz-transform: translateY(0);
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+}
+@-webkit-keyframes slide-down {
+    0% {
+        opacity: 0;
+        -o-transform: translateY(-100%);
+        -moz-transform: translateY(-100%);
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+    100% {
+        opacity: 1.0;
+        -o-transform: translateY(0);
+        -moz-transform: translateY(0);
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+}
+@keyframes slide-down {
+    0% {
+        opacity: 0;
+        -o-transform: translateY(-100%);
+        -moz-transform: translateY(-100%);
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+    100% {
+        opacity: 1.0;
+        -o-transform: translateY(0);
+        -moz-transform: translateY(0);
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+}
+@-o-keyframes slide-up {
+    0% {
+        opacity: 1.0;
+        -o-transform: translateY(0);
+        -moz-transform: translateY(0);
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        -o-transform: translateY(-100%);
+        -moz-transform: translateY(-100%);
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+}
+@-moz-keyframes slide-up {
+    0% {
+        opacity: 1.0;
+        -o-transform: translateY(0);
+        -moz-transform: translateY(0);
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        -o-transform: translateY(-100%);
+        -moz-transform: translateY(-100%);
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+}
+@-webkit-keyframes slide-up {
+    0% {
+        opacity: 1.0;
+        -o-transform: translateY(0);
+        -moz-transform: translateY(0);
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        -o-transform: translateY(-100%);
+        -moz-transform: translateY(-100%);
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+}
+@keyframes slide-up {
+    0% {
+        opacity: 1.0;
+        -o-transform: translateY(0);
+        -moz-transform: translateY(0);
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        -o-transform: translateY(-100%);
+        -moz-transform: translateY(-100%);
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+}
+
+@-o-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@-moz-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@-o-keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    -moz-transform: translate(-40px);
+    -o-transform: translate(-40px);
+    -webkit-transform: translate(-40px);
+    transform: translateX(-40px);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: translate(0%);
+    -o-transform: translate(0%);
+    -webkit-transform: translate(0%);
+    transform: translate(0%);
+  }
+}
+@-moz-keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    -moz-transform: translate(-40px);
+    -o-transform: translate(-40px);
+    -webkit-transform: translate(-40px);
+    transform: translateX(-40px);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: translate(0%);
+    -o-transform: translate(0%);
+    -webkit-transform: translate(0%);
+    transform: translate(0%);
+  }
+}
+@-webkit-keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    -moz-transform: translate(-40px);
+    -o-transform: translate(-40px);
+    -webkit-transform: translate(-40px);
+    transform: translateX(-40px);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: translate(0%);
+    -o-transform: translate(0%);
+    -webkit-transform: translate(0%);
+    transform: translate(0%);
+  }
+}
+@keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    -moz-transform: translate(-40px);
+    -o-transform: translate(-40px);
+    -webkit-transform: translate(-40px);
+    transform: translateX(-40px);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: translate(0%);
+    -o-transform: translate(0%);
+    -webkit-transform: translate(0%);
+    transform: translate(0%);
+  }
+}
+@-o-keyframes fadeInRight {
+  0% {
+    opacity: 0;
+    -moz-transform: translate(40px);
+    -o-transform: translate(40px);
+    -webkit-transform: translate(40px);
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: translate(0%);
+    -o-transform: translate(0%);
+    -webkit-transform: translate(0%);
+    transform: translate(0%);
+  }
+}
+@-moz-keyframes fadeInRight {
+  0% {
+    opacity: 0;
+    -moz-transform: translate(40px);
+    -o-transform: translate(40px);
+    -webkit-transform: translate(40px);
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: translate(0%);
+    -o-transform: translate(0%);
+    -webkit-transform: translate(0%);
+    transform: translate(0%);
+  }
+}
+@-webkit-keyframes fadeInRight {
+  0% {
+    opacity: 0;
+    -moz-transform: translate(40px);
+    -o-transform: translate(40px);
+    -webkit-transform: translate(40px);
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: translate(0%);
+    -o-transform: translate(0%);
+    -webkit-transform: translate(0%);
+    transform: translate(0%);
+  }
+}
+@keyframes fadeInRight {
+  0% {
+    opacity: 0;
+    -moz-transform: translate(40px);
+    -o-transform: translate(40px);
+    -webkit-transform: translate(40px);
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: translate(0%);
+    -o-transform: translate(0%);
+    -webkit-transform: translate(0%);
+    transform: translate(0%);
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .fade {
+    transition: none;
+  }
+  .collapsing {
+    transition: none;
+  }
+}

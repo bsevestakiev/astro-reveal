@@ -1,0 +1,68 @@
+---
+interface Step {
+  icon: string
+  iconAlt?: string
+  iconColor?: string
+  title: string
+  body: string
+}
+
+interface Props {
+  eyebrow?: string
+  headline: string
+  subhead?: string
+  steps: Step[]
+  footnote?: string
+  variant?: 'light' | 'dark'
+}
+
+const {
+  eyebrow,
+  headline,
+  subhead,
+  steps,
+  footnote,
+  variant = 'light',
+} = Astro.props
+
+const bgClass = variant === 'dark' ? 'bg-dark-navy text-white' : ''
+const headingClass = variant === 'dark' ? 'text-white' : ''
+---
+
+<section class={`py-5 my-3 overflow-hidden${bgClass ? ' ' + bgClass : ''}`}>
+  <div class="container py-lg-4">
+    <div class="row">
+      <div class="col-12 text-center mb-5">
+        {eyebrow && (
+          <p class="text-uppercase text-french-rose font-weight-bold mb-3">{eyebrow}</p>
+        )}
+        <h2 class={`mb-3${headingClass ? ' ' + headingClass : ''}`} set:html={headline} />
+        {subhead && <p class="mx-auto mw-900px">{subhead}</p>}
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <div class="d-flex flex-wrap justify-content-center" style="gap:1.5rem">
+          {steps.map((step: Step) => (
+            <div class="text-center" style="flex:0 0 auto;width:160px">
+              <div class={`rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3`}
+                   style={`width:72px;height:72px;background:${step.iconColor ?? '#ec417a'}20`}>
+                <img loading="lazy" decoding="async" src={step.icon} alt={step.iconAlt ?? step.title}
+                     width="36" height="36" />
+              </div>
+              <h3 class={`h6 font-weight-bold mb-2${headingClass ? ' ' + headingClass : ''}`}>{step.title}</h3>
+              <p class="small mb-0">{step.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+    {footnote && (
+      <div class="row mt-5">
+        <div class="col-12 text-center">
+          <p class={`h6 font-weight-bold mb-0${headingClass ? ' ' + headingClass : ''}`}>{footnote}</p>
+        </div>
+      </div>
+    )}
+  </div>
+</section>

@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import SectionRenderer from '../components/SectionRenderer.astro'
+
+const pages = await getCollection('pages')
+const entry = pages.find(p => p.id === 'en/homepage')!
+const { title, description, cover, seo, sections = [] } = entry.data
+
+type Group = { zone: number | null, sections: any[] }
+const groups: Group[] = []
+for (const s of sections as any[]) {
+  const zone = s.zone ?? null
+  const last = groups[groups.length - 1]
+  if (last && last.zone === zone) last.sections.push(s)
+  else groups.push({ zone, sections: [s] })
+}
+
+const zoneCircles: Record<number, { cls: string, style: string }[]> = {
+  1: [
+    { cls: 'circle-not-charts-orange', style: 'top:22%;left:-20%' },
+    { cls: 'circle-not-charts-orange', style: 'top:75%;left:-20%' },
+  ],
+  2: [
+    { cls: 'circle-loved-users-pink',  style: 'top:20%;right:-17%' },
+    { cls: 'circle-not-charts-orange', style: 'bottom:20%;left:-20%' },
+  ],
+  3: [
+    { cls: 'circle-not-charts-orange', style: 'top:10%;right:-17%' },
+    { cls: 'circle-loved-users-pink',  style: 'top:35%;left:-20%' },
+    { cls: 'circle-not-charts-orange', style: 'top:55%;right:-17%' },
+  ],
+}
+---
+
+<BaseLayout
+  title={seo?.title ?? title}
+  description={seo?.description ?? description}
+  image={seo?.ogImage ?? cover}
+  imageAlt={seo?.ogImageAlt}
+  ogType={seo?.ogType}
+  noindex={seo?.noindex}
+  canonicalUrl={seo?.canonical}
+>
+  {groups.map((g) => g.zone === null ? (
+    <SectionRenderer sections={g.sections} />
+  ) : (
+    <div class="overflow-hidden position-relative">
+      {(zoneCircles[g.zone] ?? []).map((c) => (
+        <div class={c.cls} aria-hidden="true" style={c.style}></div>
+      ))}
+      <SectionRenderer sections={g.sections} />
+    </div>
+  ))}
+</BaseLayout>

@@ -1,0 +1,84 @@
+---
+interface Props {
+  quote: string
+  authorName: string
+  authorTitle: string
+  storyUrl?: string
+  storyLabel?: string
+  image?: string
+  imageAlt?: string
+}
+
+const {
+  quote,
+  authorName,
+  authorTitle,
+  storyUrl,
+  storyLabel = 'Read Story',
+  image,
+  imageAlt = '',
+} = Astro.props
+---
+
+<section id="quote" class="bg-color-gallery pt-5">
+  <div class="container d-flex py-4">
+    <div class="row align-items-start">
+      {image && (
+        <div class="col-md-4 order-2 order-md-1 animate-me pt-0 pb-4 pr-5 animated fadeInLeft"
+             data-animation="fadeInLeft">
+          <img fetchpriority="high" decoding="async" class="d-none d-lg-block"
+               src={image} alt={imageAlt} title={imageAlt} />
+        </div>
+      )}
+      <div class={`order-md-2 animate-me pl-lg-4 animated fadeInRight${image ? ' col-md-8' : ' col-md-12'}`}
+           data-animation="fadeInRight">
+        <img decoding="async" class="d-lg-block"
+             src="https://static.infragistics.com/marketing/reveal/quote-line.svg"
+             alt="Quote Line" width="531" height="460" title="Quote Line" />
+        <h3 class="h2 pr-4 col-11 my-2 py-3" set:html={quote} />
+        <div class="row d-none d-lg-flex">
+          <div class="col-7 custom-width">
+            <div class="box">
+              <p class="text-left mb-0 pt-3 mt-3 ml-3">
+                <strong>{authorName}</strong><br /> {authorTitle}
+              </p>
+            </div>
+          </div>
+          {storyUrl && (
+            <div class="col-5 custom-width">
+              <div class="align-middle d-flex align-items-end justify-content-around pt-3 pr-lg-5">
+                <a href={storyUrl} target="_blank"
+                   class="font-weight-bold anchor-blue text-right pt-2 pr-3 mb-0 mt-4" rel="noopener">
+                  <span class="mr-2">{storyLabel}</span>
+                  <span class="mb-3 align-middle">
+                    <img decoding="async"
+                         src="https://static.infragistics.com/marketing/reveal/arrow-blue.svg"
+                         class="card-arrow pb-1" alt="Home" title="Home" />
+                  </span>
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+        <div class="row d-lg-none d-flex">
+          <div class="col-12">
+            <p class="text-left mb-0 mt-3 pt-3 ml-3">
+              <strong>{authorName}</strong><br /> {authorTitle}
+            </p>
+            {storyUrl && (
+              <a href={storyUrl} target="_blank"
+                 class="font-weight-bold anchor-blue text-right mb-0 mt-4 pl-3 pt-3" rel="noopener">
+                <span class="mr-2">{storyLabel}</span>
+                <span class="mb-3 align-middle">
+                  <img decoding="async"
+                       src="https://static.infragistics.com/marketing/reveal/arrow-blue.svg"
+                       class="card-arrow pb-1" alt="Home" title="Home" />
+                </span>
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

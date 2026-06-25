@@ -1,0 +1,80 @@
+---
+import { getCollection } from 'astro:content'
+import { cdn } from '../../lib/env'
+
+interface Props {
+  headline: string
+  headlineClass?: string
+  srOnly?: string
+  subhead?: string
+  viewAllLabel?: string
+  viewAllUrl?: string
+  slugs: string[]
+  anchor?: string
+}
+
+const { headline, headlineClass = 'mb-4 h1', srOnly, subhead, viewAllLabel, viewAllUrl, slugs, anchor = 'blogs' } = Astro.props
+
+const allPosts = await getCollection('blog')
+const posts = slugs
+  .map((slug) => allPosts.find((p) => p.id === `en/${slug}` || p.id === slug))
+  .filter((p) => p)
+
+const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+
+const arrowSrc = cdn('/marketing/reveal/arrow-blue.svg')
+---
+
+<section id={anchor} class="container mt-4 py-5 convo">
+  {srOnly && <h3 class="sr-only">{srOnly}</h3>}
+  <header class="row">
+    <div class="col-md-12 text-center">
+      <h2 class={headlineClass} set:html={headline} />
+      {subhead && <p>{subhead}</p>}
+      {viewAllLabel && viewAllUrl && (
+        <a class="font-weight-bold anchor-blue" href={viewAllUrl}>
+          {viewAllLabel}
+          <span class="mb-3 align-middle">
+            <img decoding="async" src={arrowSrc} class="card-arrow pb-1" alt="" />
+          </span>
+        </a>
+      )}
+    </div>
+  </header>
+  <section class="bt__posts bt__post--tags" data-blog-type="blog-card" data-blog-columns="3">
+    <div class="row">
+      {posts.map((post) => {
+        const slug = post.id.replace(/^en\//, '')
+        const url = `/blog/${slug}`
+        return (
+          <article class="bt__post ui-card col-12 col-md-4">
+            <figure class="bt__post-image">
+              {post.data.cover && (
+                <a href={url}>
+                  <img loading="lazy" decoding="async" src={post.data.cover}
+                       alt={post.data.title} title={post.data.title} class="img-fluid" />
+                </a>
+              )}
+            </figure>
+            <div class="bt__content-wrap">
+              <header>
+                <h4>
+                  <a class="bt__post-link" href={url}>{post.data.title}</a>
+                </h4>
+                <span class="bt__post-subheader">
+                  {post.data.author && <span>{post.data.author}</span>}
+                  {post.data.date && (
+                    <time datetime={post.data.date}>{fmtDate(post.data.date)}</time>
+                  )}
+                </span>
+              </header>
+              {post.data.summary && (
+                <div class="bt__content" set:html={post.data.summary.split('. ').slice(0, 1).join('. ') + '…'} />
+              )}
+            </div>
+          </article>
+        )
+      })}
+    </div>
+  </section>
+</section>

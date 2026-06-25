@@ -1,0 +1,45 @@
+---
+interface Props {
+  headline: string
+  videoPoster: string
+  videoMp4: string
+  cardTitle: string
+  cardBody: string
+  ctaLabel: string
+  ctaHref?: string
+  anchor?: string
+}
+
+const {
+  headline,
+  videoPoster,
+  videoMp4,
+  cardTitle,
+  cardBody,
+  ctaLabel,
+  ctaHref = '#',
+  anchor,
+} = Astro.props
+---
+
+<div class="position-relative">
+<div class="jumbotron mb-0 position-relative bg-transparent py-0">
+<div class="container">
+<div class="row align-items-start mb-4 pb-5 pt-5 pt-md-5">
+<div class="col-12 text-center">
+<h1 class="mb-4" set:html={headline} />
+</div>
+<div class="col-12 col-lg mb-5 mb-lg-0 mr-0 mr-lg-3 text-center">
+<div class="icon-btn__container d-block mx-auto shadow vid-replace rounded-xl" data-remove-selector=".icon-btn" data-video-attrs="controls,autoplay" data-video-poster={videoPoster} data-video-mp4={videoMp4}><span class="icon-btn icon-btn--play icon-btn--pulse"></span><video id="reveal_product_demo" class="d-block w-100" onended="this.currentTime = 2;" autoplay="" loop="" muted="" playsinline="" poster={videoPoster}><source src={videoMp4} type="video/mp4"/></video></div>
+</div>
+<div class="col-12 col-lg-4 rounded-xl shadow">
+<div class="p-4">
+<h2 class="mb-3 mt-0 mt-lg-4" style="font-size: 1.8rem;" id={anchor} set:html={cardTitle} />
+<Fragment set:html={cardBody} />
+<a data-targetid="requestDemo" class="btn btn-primary trackCTA ig-show-modal" href={ctaHref} data-xd-ga-action="SCHEDULE A DEMO" data-xd-ga-label="Reveal" style="font-size: 0.8rem;">{ctaLabel}</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>

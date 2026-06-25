@@ -1,0 +1,21 @@
+---
+interface Logo { src: string; alt: string }
+interface Props { logos: Logo[] }
+
+const { logos } = Astro.props
+---
+
+<div class="container">
+  <div class="my-0 my-md-5 py-5 row text-center">
+    <div class="col-12">
+      <div class="d-flex d-flex-container justify-content-around align-items-center flex-column flex-md-row mb-0 mb-md-5">
+        {logos.map((l, i) => (
+          <>
+            <img alt={l.alt} class="b-lazy px-2" decoding="async" src={l.src} title={l.alt} />
+            {i < logos.length - 1 && <br />}
+          </>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>

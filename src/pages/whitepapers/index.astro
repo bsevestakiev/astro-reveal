@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import CTABlock from '../../components/sections/CTABlock.astro'
+
+const allWhitepapers = await getCollection('whitepapers')
+const whitepapers = allWhitepapers
+  .filter(w => w.id.startsWith('en/'))
+  .sort((a, b) => (b.data.date ?? '').localeCompare(a.data.date ?? ''))
+---
+
+<BaseLayout
+  title="Whitepapers & Reports | Reveal"
+  description="In-depth guides and research on embedded analytics and business intelligence."
+>
+  <section class="container whitepapers">
+    <header class="text-center mt-3 mb-5">
+      <h1>Reveal BI Whitepapers and Reports</h1>
+      <p>Get access to in-depth report, eBooks, whitepapers on business intelligence, data visualization and embedded analytics.</p>
+    </header>
+
+    <div class="row whitepapers__list">
+      {whitepapers.map(wp => {
+        const slug = wp.id.replace(/^en\//, '')
+        return (
+          <article class="col-12 col-sm-6 col-lg-4 mb-5">
+            <div class="card shadow h-100">
+              {wp.data.cover && (
+                <a href={`/whitepapers/${slug}`}>
+                  <img
+                    src={wp.data.cover}
+                    alt={wp.data.title}
+                    class="card-img-top"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
+              )}
+              <div class="card-body">
+                <h2 class="h3 card-title">{wp.data.title}</h2>
+                {wp.data.description && (
+                  <p class="card-text">{wp.data.description}</p>
+                )}
+              </div>
+              <footer class="card-footer">
+                <a href={`/whitepapers/${slug}`}>Read more</a>
+              </footer>
+            </div>
+          </article>
+        )
+      })}
+      {whitepapers.length === 0 && (
+        <div class="col-12"><p class="text-muted">Whitepapers coming soon.</p></div>
+      )}
+    </div>
+  </section>
+
+  <CTABlock variant="dark" />
+</BaseLayout>
