@@ -1,6 +1,6 @@
 ---
 title: "9 Ways to Improve Your Embedded Analytics Visualizations with Reveal"
-description: "Learn nine ways to improve your business data visualizations with Reveal's BI software. These quick tips help with overall readability & meaning of your charts."
+description: "Learn nine ways to improve your business data visualizations with Reveal's BI software. These quick tips help with overall readability & meaning of your charts. [PUBLISH-ON-SAVE TEST]"
 date: "2019-06-18"
 author: "Casey Ciniello"
 cover: "/images/2020/10/business_2D00_teams_2D00_reveal_2D00_dashboard.jpg"
