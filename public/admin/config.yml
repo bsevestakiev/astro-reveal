@@ -15,6 +15,12 @@ backend:
     deleteMedia: 'media: delete {{path}}'
     openAuthoring: '{{message}}'
 
+# Local-backend mode (TEST): when /admin/ is served from localhost, Sveltia
+# reads/writes the working-tree files directly instead of committing to GitHub.
+# This is what lets an editor "Save" locally and have the publish-watcher pick
+# it up. Ignored when /admin/ is served from a real domain.
+local_backend: true
+
 # No publish_mode set on purpose. Sveltia does not implement Decap's
 # `editorial_workflow` — every Save commits directly to `backend.branch:`
 # above. As of mid-2026 editorial workflow is still unimplemented upstream
